@@ -1,6 +1,6 @@
 # Hasar Hesaplama (Damage Calculation)
 
-> **Status**: Approved
+> **Status**: Revised
 > **Author**: user + game-designer, systems-designer
 > **Last Updated**: 2026-06-30
 > **Implements Pillar**: Güç Hisset, Cömert Zindan
@@ -12,11 +12,19 @@
 
 ## Overview
 
-**Hasar Hesaplama**, savaştaki her saldırının final hasar değerini üreten merkezi hesaplama pipeline'ıdır. Saldıran canavarın ATK stat'ını, savunan canavarın DEF stat'ını, element çarpanını (avantaj/dezavantaj/nötr), sinerji bonuslarını ve kritik vuruş şansını katmanlı bir formülle birleştirerek tek bir tamsayı hasar değeri üretir. Bu değer Sağlık / Can Sistemi'ne `TakeDamage()` aracılığıyla iletilir.
+**Hasar Hesaplama**, savaştaki her saldırının final hasar değerini üreten merkezi hesaplama pipeline'ıdır. Saldıran tarafın effective_ATK'sını, savunan tarafın effective_DEF'ini, element çarpanını ve kritik vuruş şansını katmanlı bir formülle birleştirerek tek bir tamsayı hasar değeri üretir. Bu değer Sağlık / Can Sistemi'ne `TakeDamage()` aracılığıyla iletilir.
 
-Oyuncu açısından hasar hesaplaması, ekranda uçuşan hasar sayılarıdır — büyük kırmızı sayılar güç fantezisini besler, element avantajlı vuruşlarda sayıların %50 artması "akıllı strateji" tatmini verir, kritik vuruşlar ise "şanslı darbe!" heyecanı yaratır. "Güç Hisset" sütunu gereği oyuncu seviye atladıkça hasar sayıları belirgin şekilde büyümeli; "Cömert Zindan" gereği dezavantajlı element bile anlamlı hasar verebilmeli — hiçbir vuruş sıfır olmamalı.
+Savaşta **3 olası saldırı yönü** vardır:
 
-MVP kapsamında temel ATK-DEF formülü, element çarpanı, sinerji bonusu entegrasyonu, kritik vuruş mekanikliği ve **iki hasar türü** (fiziksel / büyü) yer alır. Fiziksel hasar `defense_reduction_factor=2`, büyü hasarı `magic_defense_factor=4` kullanır — büyü, yüksek DEF hedeflere karşı daha etkilidir. Buff/debuff ve pasif yetenekler Tier 2+'da tanımlanacaktır. DoT (yanma/zehir) Oyuncu Sınıf Sistemi GDD'sinde tanımlanmıştır; bu pipeline'ı tetiklemez, bağımsız flat hasar olarak uygulanır.
+| Saldıran | Savunan | Hasar Hedefi | ATK Kaynağı |
+|----------|---------|-------------|-------------|
+| **Oyuncu** | Düşman | Düşman HP | Sınıf base + Ekipman (Silah, Eldiven, Aksesuarlar) |
+| **Pet** | Düşman | Düşman HP | Pet base_ATK + Pet Ekipman |
+| **Düşman** | Oyuncu | Oyuncu HP | SG bazlı enemy_ATK (Keşif Alanı rubber-band ile) |
+
+Oyuncu ana savaşçıdır — düşman oyuncuyu hedef alır. Defeat = Oyuncu HP = 0.
+
+MVP kapsamında temel ATK-DEF formülü, element çarpanı (prototipte 1.0), kritik vuruş mekanikliği ve **iki hasar türü** (fiziksel / büyü) yer alır. Fiziksel hasar `defense_reduction_factor=2`, büyü hasarı `magic_defense_factor=4` kullanır — büyü, yüksek DEF hedeflere karşı daha etkilidir. Sinerji bonusu kaldırıldı (takım yok, tek pet). DoT (yanma/zehir) Oyuncu Sınıf Sistemi GDD'sinde tanımlanmıştır; bu pipeline'ı tetiklemez, bağımsız flat hasar olarak uygulanır.
 
 ## Player Fantasy
 
@@ -51,12 +59,45 @@ Her adım sıralıdır — bir önceki adımın çıktısı sonrakine giriş olu
 
 **Kural 2 — Stat Çözümleme (Adım 1)**
 
-Saldıranın effective_ATK ve savunanın effective_DEF değerleri, Canavar Veritabanı'ndaki base stat'lara sinerji bonusu uygulanarak elde edilir:
+effective_ATK ve effective_DEF, saldıran/savunan tarafın kimliğine göre farklı kaynaklardan derlenir. Hasar Hesaplama bu değerleri hazır alır — kaynak sistemler tarafından önceden hesaplanmış gelir.
 
-`effective_ATK = floor(base_ATK × (1 + synergy_atk_bonus))`
-`effective_DEF = floor(base_DEF × (1 + synergy_def_bonus))`
+**Oyuncu saldırırken (Oyuncu → Düşman):**
+```
+effective_ATK = base_class_ATK
+    + silah_ATK + eldiven_ATK
+    + yuzuk1_ATK + yuzuk2_ATK + kupe1_ATK + kupe2_ATK
 
-Sinerji bonusu Element Sistemi GDD'sinde tanımlanmıştır. Hasar Hesaplama bu değerleri hazır alır — sinerji hesaplaması yapmaz.
+// Komutan Modu:
+attacking_ATK = floor(effective_ATK × 1.30)
+// Otofarm Modu:
+attacking_ATK = effective_ATK
+```
+
+**Pet saldırırken (Pet → Düşman):**
+```
+effective_pet_ATK = pet.base_ATK + pet_silah_ATK + pet_aksesuar_ATK
+attacking_ATK = effective_pet_ATK   // Komutan Modu bonusu pet'e uygulanmaz
+```
+
+**Düşman saldırırken (Düşman → Oyuncu):**
+```
+attacking_ATK = enemy.base_ATK × rubber_band_factor
+// rubber_band_factor: Keşif Alanı GDD — player_SG/stage_SG, clamp(0.70, 1.30)
+```
+
+**Oyuncu savunurken (DEF):**
+```
+effective_DEF = base_class_DEF
+    + kask_DEF + zirh_DEF + pantalon_DEF + eldiven_DEF + bot_DEF
+    + kolye_DEF + yuzuk1_DEF + yuzuk2_DEF
+```
+
+**Düşman savunurken (DEF):**
+```
+effective_enemy_DEF = enemy.base_DEF × rubber_band_factor
+```
+
+Ekipman bonusları Ekipman Sistemi GDD'sinde (Formül 1) tanımlıdır. Komutan Modu çarpanı Savaş Sistemi GDD'sinde (Formül 2) tanımlıdır.
 
 **Kural 3 — Temel Hasar (Adım 2)**
 
@@ -75,11 +116,13 @@ Sinerji bonusu Element Sistemi GDD'sinde tanımlanmıştır. Hasar Hesaplama bu 
 
 | Senaryo | Tür | ATK | DEF | DEF/factor | Base Damage |
 |---------|-----|-----|-----|------------|-------------|
-| Savaşçı vs Common Tank | Fiziksel | 18 | 40 | floor(40/2)=20 | max(1,-2)=**1** |
-| Büyücü vs Common Tank | Büyü | 45 | 40 | floor(40/4)=10 | **35** |
-| Hırsız vs Destekçi | Fiziksel | 32 | 25 | floor(25/2)=12 | **20** |
-| Şifacı vs Common Tank | Büyü | 20 | 40 | floor(40/4)=10 | **10** |
-| Rare Saldırgan vs Common Tank | Fiziksel | 52 | 35 | floor(35/2)=17 | **35** |
+| Savaşçı (ekipman yok) → Düşman | Fiziksel | 40 | 30 | floor(30/2)=15 | **25** |
+| Savaşçı (D Silah+20) → Düşman | Fiziksel | 60 | 30 | floor(30/2)=15 | **45** |
+| Büyücü → Düşman (yüksek DEF) | Büyü | 55 | 40 | floor(40/4)=10 | **45** |
+| Savaşçı → Düşman (yüksek DEF) | Fiziksel | 40 | 80 | floor(80/2)=40 | max(1,-0)=**1** |
+| Düşman → Oyuncu (DEF=35) | Fiziksel | 50 | 35 | floor(35/2)=17 | **33** |
+| Düşman → Oyuncu (B Zırh, DEF=90) | Fiziksel | 50 | 90 | floor(90/2)=45 | **5** |
+| Pet → Düşman | Fiziksel | 30 | 25 | floor(25/2)=12 | **18** |
 
 **Kural 4 — Element Çarpanı (Adım 3)**
 
@@ -139,15 +182,17 @@ Tek "durum" kavramı: kritik vuruş olasılık dağılımı. MVP'de bu sabit %10
 
 | Sistem | Yön | Veri Akışı | Arayüz |
 |--------|-----|-----------|--------|
-| **Canavar Veritabanı** | ← okur | base_ATK, base_DEF (saldıran ve savunan) | `GetBaseStats(monsterId, level)` → {hp, atk, def, spd} |
-| **Element Sistemi** | ← okur | Element çarpanı (0.75–1.50), sinerji ATK/DEF bonusu | `GetElementMultiplier(atkElement, defElement)` → float; sinerji bonusu stat çözümleme katmanında |
+| **Oyuncu Sınıf Sistemi** | ← okur | Oyuncunun `base_class_ATK`, `base_class_DEF`, hasar türü (physical/magic) | `GetPlayerBaseStats()` → {atk, def, hp, spd}; sınıf hasar türü |
+| **Ekipman Sistemi** | ← okur | Tüm ekipman bonusları (effective_ATK ve effective_DEF hesabına girer) | `GetEffectivePlayerStats()` → {effective_ATK, effective_DEF, effective_HP} |
+| **Pet/Canavar Veritabanı** | ← okur | Pet `base_ATK`, `base_DEF` (koleksiyondaki pet statları) | `GetPetBaseStats(petId, level)` → {atk, def, spd} |
+| **Keşif Alanı** | ← okur | Düşman `enemy_ATK`, `enemy_DEF` (rubber-band ile ayarlanmış) | `GetEnemyStats(stageId)` → {atk, def, hp, spd} |
+| **Element Sistemi** | ← okur | Element çarpanı (prototipte sabit 1.0) | `GetElementMultiplier(atkElement, defElement)` → float |
 | **Sağlık / Can Sistemi** | → gönderir | Final hasar değeri | `TakeDamage(targetId, amount)` — HP azaltma Sağlık'ın sorumluluğu |
-| **Savaş Sistemi** | ← tetiklenir | Saldırı komutu | Savaş sistemi saldırı sırasını belirler, her saldırıda `CalculateDamage(attackerId, targetId, damageType)` çağırır |
-| **Oyuncu Sınıf Sistemi** | ← okur | Saldıran birimin hasar türü | Büyücü/Şifacı → "magic"; Savaşçı/Hırsız → "physical" |
-| **Düşman AI** | dolaylı | AI hasar tahminini kullanabilir | `EstimateDamage(attackerId, targetId)` → int (kritik hariç tahmini hasar) |
+| **Savaş Sistemi** | ← tetiklenir | Saldırı komutu | `CalculateDamage(attackerId, targetId, damageType)` her saldırıda çağırılır |
+| **Düşman AI** | dolaylı | AI hasar tahmini | `EstimateDamage(attackerId, targetId)` → int (kritik hariç) |
 | **Savaş UI** | → gönderir | Hasar gösterim verileri | `OnDamageDealt` event → {final_damage, was_critical, element_info} |
 
-**Veri akışı özeti**: Canavar Veritabanı + Element Sistemi → giriş sağlar. Savaş Sistemi → hesaplamayı tetikler. Bu sistem → Sağlık'a hasar, UI'a görüntüleme verisi gönderir.
+**Veri akışı özeti**: Oyuncu Sınıf Sistemi + Ekipman Sistemi (oyuncu statları), Pet Veritabanı (pet statları), Keşif Alanı (düşman statları) → giriş sağlar. Bu sistem → Sağlık'a hasar, UI'a görüntüleme gönderir.
 
 ## Formulas
 
@@ -157,23 +202,31 @@ Tek "durum" kavramı: kritik vuruş olasılık dağılımı. MVP'de bu sabit %10
 
 | Değişken | Sembol | Tip | Aralık | Açıklama |
 |----------|--------|-----|--------|----------|
-| Efektif saldırı | effective_ATK | int | 15–184 | Sinerji dahil ATK |
-| Efektif savunma | effective_DEF | int | 15–184 | Sinerji dahil DEF |
+| Efektif saldırı | effective_ATK | int | 1–∞ | Oyuncu: sınıf base + ekipman; Pet: base_ATK + pet ekipman; Düşman: SG bazlı |
+| Efektif savunma | effective_DEF | int | 1–∞ | Oyuncu: sınıf base + ekipman; Düşman: SG bazlı |
 | Fiziksel DEF faktörü | defense_reduction_factor | int | 2 | Fiziksel hasar — DEF'in yarısı etkili |
 | Büyü DEF faktörü | magic_defense_factor | int | 4 | Büyü hasar — DEF'in çeyreği etkili |
 | Temel hasar | base_damage | int | 1–∞ | Minimum 1 garantili |
 
-**Fiziksel örnekler**:
-- Common Saldırgan (ATK=35) vs Common Tank (DEF=35) → 35 - floor(35/2) = 35-17 = **18**
-- Common Destekçi (ATK=17) vs Rare Tank (DEF=52) → 17 - floor(52/2) = -9 → **1** (min clamp)
+**Fiziksel örnekler — Oyuncu → Düşman**:
+- Savaşçı (effective_ATK=52, D Silah dahil) → Düşman (DEF=30): 52 - floor(30/2) = 52-15 = **37**
+- Savaşçı Komutan Modu (attacking_ATK=67) → Düşman (DEF=30): 67 - 15 = **52**
+- Savaşçı (ATK=40) → Yüksek DEF Düşman (DEF=90): 40 - floor(90/2) = 40-45 = -5 → **1** (min clamp)
 
-**Büyü örnekler**:
-- Büyücü (ATK=45) vs Common Tank (DEF=40) → 45 - floor(40/4) = 45-10 = **35**
-- Şifacı (ATK=20) vs Common Tank (DEF=40) → 20 - floor(40/4) = 20-10 = **10**
+**Büyü örnekler — Büyücü → Düşman**:
+- Büyücü (effective_ATK=55) → Düşman (DEF=40): 55 - floor(40/4) = 55-10 = **45**
+- Şifacı (ATK=35) → Düşman (DEF=40): 35 - floor(40/4) = 35-10 = **25**
 
-**Aynı ATK/DEF, iki tür karşılaştırması** (ATK=35, DEF=40):
-- Fiziksel: 35 - 20 = **15**
-- Büyü: 35 - 10 = **25** — yüksek DEF hedefe karşı %67 daha fazla
+**Düşman → Oyuncu**:
+- Düşman (ATK=50) → Oyuncu (effective_DEF=35): 50 - floor(35/2) = 50-17 = **33**
+- Düşman (ATK=50) → Oyuncu B Zırh (effective_DEF=90): 50 - floor(90/2) = 50-45 = **5**
+
+**Pet → Düşman**:
+- Pet (effective_pet_ATK=42, D tier Silah dahil) → Düşman (DEF=25): 42 - floor(25/2) = 42-12 = **30**
+
+**Aynı ATK (55), iki hasar türü, yüksek DEF düşman (DEF=60)**:
+- Fiziksel: 55 - floor(60/2) = 55-30 = **25**
+- Büyü: 55 - floor(60/4) = 55-15 = **40** — yüksek DEF hedefe karşı %60 daha fazla
 
 ### Formül 2: Element Hasarı
 
@@ -212,18 +265,18 @@ Tek "durum" kavramı: kritik vuruş olasılık dağılımı. MVP'de bu sabit %10
 `final_damage = max(1, final_after_crit)`
 
 **Tam pipeline örneği — Best case**:
-Legendary C Saldırgan (ATK=154) + 4'lü Ateş sinerji (+20% ATK) → effective_ATK = floor(154 × 1.20) = 184
-vs Common Büyücü (DEF=17), avantajlı element, kritik vuruş:
-1. base_damage = 184 - floor(17/2) = 184 - 8 = 176
-2. element_damage = floor(176 × 1.5) = 264
-3. crit_damage = floor(264 × 2.0) = 528
-4. final_damage = max(1, 528) = **528**
+Savaşçı Komutan Modu, effective_ATK=80 → attacking_ATK = floor(80 × 1.30) = 104
+vs Düşman (DEF=20), avantajlı element, kritik vuruş:
+1. base_damage = 104 - floor(20/2) = 104 - 10 = 94
+2. element_damage = floor(94 × 1.5) = 141
+3. crit_damage = floor(141 × 2.0) = 282
+4. final_damage = max(1, 282) = **282**
 
 **Tam pipeline örneği — Worst case**:
-Common Destekçi (ATK=17), sinerji yok vs Rare Tank (DEF=52) + 3'lü sinerji (+10% DEF), dezavantajlı element:
-1. effective_DEF = floor(52 × 1.10) = 57
-2. base_damage = max(1, 17 - floor(57/2)) = max(1, 17 - 28) = max(1, -11) = 1
-3. element_damage = floor(1 × 0.75) = 0
+Oyuncu (ATK=32, ekipman yok) vs Yüksek DEF Düşman (DEF=90), dezavantajlı element, kritik yok:
+1. base_damage = max(1, 32 - floor(90/2)) = max(1, 32 - 45) = max(1, -13) = 1
+2. element_damage = floor(1 × 0.75) = 0
+3. crit_damage = 0 (kritik yok)
 4. final_damage = max(1, 0) = **1**
 
 ### Formül 5: Hasar Tahmini (AI için)
@@ -260,9 +313,11 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 
 | Sistem | Tip | Arayüz | Kritiklik |
 |--------|-----|--------|-----------|
-| **Canavar Veritabanı** | Sert | `GetBaseStats(monsterId, level)` → {hp, atk, def, spd} — ATK ve DEF kullanılır | Olmadan hasar hesaplanamaz |
-| **Element Sistemi** | Sert | `GetElementMultiplier(atkElement, defElement)` → float; `CalculateSynergy(teamElements[])` → {atk_bonus, def_bonus} | Olmadan element ve sinerji farkı yok |
-| **Oyuncu Sınıf Sistemi** | Sert | Saldıran birimin `damageType` ("physical"/"magic") — sınıfa göre belirlenir | Olmadan magic/physical ayrımı yapılamaz |
+| **Oyuncu Sınıf Sistemi** | Sert | `GetPlayerBaseStats()` → {base_class_ATK, base_class_DEF, damageType ("physical"/"magic")} | Olmadan oyuncu statları ve hasar türü alınamaz |
+| **Ekipman Sistemi** | Sert | `GetEffectivePlayerStats()` → {effective_ATK, effective_DEF, effective_HP} | Olmadan ekipman bonusları hesaba katılamaz |
+| **Pet/Canavar Veritabanı** | Sert | `GetPetBaseStats(petId, level)` → {base_ATK, base_DEF, element} | Olmadan pet saldırı statları alınamaz |
+| **Keşif Alanı** | Sert | `GetEnemyStats(stageId)` → {enemy_ATK, enemy_DEF, enemy_HP} — rubber-band uygulanmış | Olmadan düşman statları alınamaz |
+| **Element Sistemi** | Sert | `GetElementMultiplier(atkElement, defElement)` → float | Olmadan element çarpanı hesaplanamaz |
 
 ### Downstream (Bu sisteme bağlı)
 
@@ -286,7 +341,7 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 | `min_damage` | 1 | 1 | Sabit — 0'dan büyük olmalı | Sabit — 0 hasar "Güç Hisset" ihlali |
 
 **Etkileşim Uyarıları**:
-- `defense_reduction_factor` × Canavar Veritabanı'ndaki arketip DEF yüzdeleri birlikte Tank'ın efektif dayanıklılığını belirler. Factor=2.0 ile Tank (DEF=35) 17.5 azaltır; Factor=3.0 ile sadece 11.7 azaltır.
+- `defense_reduction_factor` × Ekipman Sistemi'ndeki DEF değerleri birlikte oyuncunun efektif dayanıklılığını belirler. Factor=2.0 ile Oyuncu (effective_DEF=60) 30 azaltır; Factor=3.0 ile sadece 20 azaltır.
 - `crit_chance` × `crit_multiplier` birlikte ortalama hasar çarpanını belirler: 1 + (0.10 × 1.0) = **1.10** (ortalamanın %10 üstünde). İkisini aynı anda artırmak hasar varyansını patlatabilir.
 - Element Sistemi'ndeki `element_advantage_multiplier` (1.50) × `crit_multiplier` (2.0) birlikte best-case hasar çarpanını belirler: 1.5 × 2.0 = **3.0** (normal hasarın 3 katı). Bu üst sınır dengeleme testlerinde kontrol edilmeli.
 
@@ -326,11 +381,11 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 
 ## Acceptance Criteria
 
-1. **GIVEN** Common Saldırgan (ATK=35) vs Common Tank (DEF=35), nötr element, **WHEN** hasar hesaplanırsa, **THEN** base_damage = 35 - 17 = 18, element_damage = 18, final = 18 (kritik yoksa).
+1. **GIVEN** Savaşçı (base_class_ATK=40, ekipman yok), fiziksel, nötr element vs Düşman (DEF=30), **WHEN** hasar hesaplanırsa, **THEN** base_damage = 40 - 15 = 25, element_damage = 25, final = 25 (kritik yoksa).
 
-2. **GIVEN** Rare Saldırgan (ATK=52) vs Common Destekçi (DEF=25), avantajlı element, **WHEN** hasar hesaplanırsa, **THEN** base = 52-12=40, element = floor(40×1.5)=60.
+2. **GIVEN** Savaşçı (D Silah+20, effective_ATK=60) vs Düşman (DEF=25), avantajlı element, **WHEN** hasar hesaplanırsa, **THEN** base = 60-12=48, element = floor(48×1.5)=72.
 
-3. **GIVEN** Common Destekçi (ATK=17) vs Rare Tank (DEF=52), dezavantajlı element, **WHEN** hasar hesaplanırsa, **THEN** base = max(1, 17-26)=1, element = floor(1×0.75)=0, final = max(1, 0) = 1.
+3. **GIVEN** Oyuncu (ATK=30, fiziksel) vs Yüksek DEF Düşman (DEF=80), dezavantajlı element, **WHEN** hasar hesaplanırsa, **THEN** base = max(1, 30-40)=1, element = floor(1×0.75)=0, final = max(1, 0) = 1.
 
 4. **GIVEN** herhangi bir saldırı, **WHEN** final hasar hesaplanırsa, **THEN** sonuç asla 0'dan küçük olamaz — minimum 1.
 
@@ -344,15 +399,15 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 
 9. **GIVEN** DEF=0, **WHEN** hasar hesaplanırsa, **THEN** base_damage = ATK (tam hasar, azaltma yok).
 
-10. **GIVEN** Legendary C Saldırgan (ATK=154) + sinerji (+20%) vs Common Büyücü (DEF=17), avantajlı, kritik, **WHEN** tam pipeline çalışırsa, **THEN** final = max(1, floor(floor(176×1.5)×2.0)) = 528.
+10. **GIVEN** Savaşçı Komutan Modu (effective_ATK=80 → attacking_ATK=104) vs Düşman (DEF=20), avantajlı element, kritik vuruş, **WHEN** tam pipeline çalışırsa, **THEN** base=94, element=floor(94×1.5)=141, crit=floor(141×2.0)=282, final = **282**.
 
 11. **GIVEN** hasar hesaplanınca, **WHEN** OnDamageDealt event yayınlanırsa, **THEN** event final_damage, was_critical, element_info alanlarını içerir.
 
 12. **GIVEN** EstimateDamage çağrılırsa, **WHEN** sonuç döndürülürse, **THEN** kritik vuruş dahil edilmez — deterministik sonuç.
 
-13. **GIVEN** Büyücü (ATK=45) vs Common Tank (DEF=40), nötr, crit yok, **WHEN** büyü hasarı hesaplanırsa, **THEN** `max(1, 45 - floor(40/4)) = max(1, 35) = 35`.
+13. **GIVEN** Büyücü (effective_ATK=45) vs Düşman (DEF=40), nötr element, crit yok, **WHEN** büyü hasarı hesaplanırsa, **THEN** `max(1, 45 - floor(40/4)) = max(1, 35) = 35`.
 
-14. **GIVEN** aynı senaryo fiziksel hasar olsaydı, **THEN** `max(1, 45 - floor(40/2)) = max(1, 25) = 25`. Büyü **%40 daha fazla** hasar verir.
+14. **GIVEN** aynı ATK=45 ve Düşman DEF=40, fiziksel hasar olsaydı, **THEN** `max(1, 45 - floor(40/2)) = max(1, 25) = 25`. Büyü **%40 daha fazla** hasar verir.
 
 ## Open Questions
 
