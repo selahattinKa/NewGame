@@ -94,7 +94,7 @@ Her zindan katının düşman takımı aşağıdaki kurallara göre oluşturulur
 - Boss katları: 1 boss (tek başına)
 - Düşman sinerjisi: %15 olasılıkla düşman grubunda 2+ aynı element bulunur (Element Sistemi `enemy_synergy_frequency` tuning knob'u)
 - Düşman seviyesi: kat numarası × zorluk çarpanı ile ölçeklenir (formüller Section D'de)
-- Düşman nadirliği: normal düşmanlar Common-Uncommon, mini-boss Rare, boss Epic-Legendary
+- Düşman güç skalası: normal düşmanlar kat seviyesine göre, mini-boss (orta güç), boss (alan doruk gücü)
 
 **Kural 6 — Element Bilinci**
 
@@ -152,24 +152,24 @@ Patron faz geçişi: `Karar → Öfke Modu` — HP %50 altına düşünce bir ke
 
 ### Formül 2: Düşman Stat Hesaplama (Enemy Stat)
 
-Düşmanlar oyuncu canavarlarıyla aynı stat dağıtım sistemini kullanır (canavar-veritabani.md). Tek fark: düşman nadirliğine göre stat havuzu ve seviye büyümesi uygulanır. **Düşmanlar her zaman Form A (evrim yok) ve ★0 (yıldız yok) olarak hesaplanır** — evrim ve yıldız güçlendirmesi oyuncuya özel mekaniktir. Bu, oyuncunun güçlendirme yatırımının her zaman karşılığını görmesini sağlar.
+Düşmanlar oyuncu canavarlarıyla aynı stat dağıtım sistemini kullanır (canavar-veritabani.md). Tek fark: düşman türüne göre stat havuzu ve seviye büyümesi uygulanır. **Düşmanlar her zaman Form A (evrim yok) ve ★0 (yıldız yok) olarak hesaplanır** — evrim ve yıldız güçlendirmesi oyuncuya özel mekaniktir. Bu, oyuncunun güçlendirme yatırımının her zaman karşılığını görmesini sağlar.
 
 `enemy_stat = floor(floor(rarity_pool × archetype_pct) × (1 + growth_rate × (enemy_level - 1)))`
 
 | Değişken | Sembol | Tip | Aralık | Açıklama |
 |----------|--------|-----|--------|----------|
-| Nadirlik stat havuzu | rarity_pool | int | {100, 120, 150, 185, 225} | Düşman nadirlik kademesine göre |
+| Tür stat havuzu | rarity_pool | int | {100, 150, 185} | Düşman türüne göre: Normal=100, Mini-boss=150, Boss=185 |
 | Arketip stat yüzdesi | archetype_pct | float | 0.15–0.35 | Canavar Veritabanı arketip tablosu |
-| Büyüme oranı | growth_rate | float | 0.02–0.03 | Nadirliğe göre (registry: growth_rates) |
+| Büyüme oranı | growth_rate | float | 0.02–0.03 | Türe göre (registry: growth_rates) |
 | Düşman seviyesi | enemy_level | int | 1–200 | Formül 1'den |
 | Düşman bireysel stat | enemy_stat | int | 15–543 | HP/ATK/DEF/SPD (seviyeye göre ölçeklenir) |
 
 **Çıktı Aralığı** (katmanlı):
-- **MVP (Kat 1-10)**: 15–~80 (Epic Lv10 boss max)
-- **Lv50 sınırı**: 15–195 (Legendary, en yüksek arketip%)
-- **Lv200 teorik max**: 15–543 (Legendary Saldırgan ATK: floor(78 × 6.97))
+- **MVP (Kat 1-10)**: 15–~80 (Boss Lv10 max)
+- **Lv50 sınırı**: 15–195 (en yüksek arketip%, boss tipi)
+- **Lv200 teorik max**: 15–543 (Boss Saldırgan ATK: floor(78 × 6.97))
 
-**Örnek**: Kat 5 mini-boss (Rare, Saldırgan, Lv5):
+**Örnek**: Kat 5 mini-boss (Saldırgan, Lv5):
 - rarity_pool=150, archetype_pct=0.35 (ATK), growth_rate=0.025
 - ATK = `floor(floor(150 × 0.35) × (1 + 0.025 × 4))` = `floor(52 × 1.10)` = **57**
 
@@ -214,7 +214,7 @@ Mini-boss yeteneği, standart hasar formülüne arketip çarpanı uygular. `defe
 
 | Değişken | Sembol | Tip | Aralık | Açıklama |
 |----------|--------|-----|--------|----------|
-| Efektif ATK | effective_ATK | int | 15–543 | Mini-boss ATK (Rare+, stat formula) |
+| Efektif ATK | effective_ATK | int | 15–543 | Mini-boss ATK (stat formula) |
 | Hedef DEF | target_DEF | int | 15–499 | Hedef canavarın DEF'i |
 | DEF faktörü (fiziksel) | defense_reduction_factor | int | 2 | Saldırgan mini-boss |
 | DEF faktörü (büyü) | magic_defense_factor | int | 4 | Büyücü mini-boss |
@@ -224,10 +224,10 @@ Mini-boss yeteneği, standart hasar formülüne arketip çarpanı uygular. `defe
 
 **Çıktı Aralığı**: 1 – ~350 (Lv50 sınır). MVP'de max ~70.
 
-**Örnek** (Kat 5 Saldırgan mini-boss, Rare, Lv5, ATK=57, vs DEF=25, nötr — fiziksel):
+**Örnek** (Kat 5 Saldırgan mini-boss, Lv5, ATK=57, vs DEF=25, nötr — fiziksel):
 `floor(max(1, 57 × 1.5 - floor(25/2)) × 1.0)` = `floor(85.5 - 12)` = **73**
 
-**Örnek** (Kat 5 Büyücü mini-boss, Rare, Lv5, ATK=57, vs DEF=25, nötr — büyü):
+**Örnek** (Kat 5 Büyücü mini-boss, Lv5, ATK=57, vs DEF=25, nötr — büyü):
 `floor(max(1, floor(57 × 0.5) - floor(25/4)) × 1.0)` = `floor(28 - 6)` = **22**
 
 ### Formül 5: Boss Güçlü Saldırı Hasarı
@@ -245,7 +245,7 @@ Boss güçlü saldırısı, normal hasar formülüne güçlü çarpan ekler. `de
 
 | Değişken | Sembol | Tip | Aralık | Açıklama |
 |----------|--------|-----|--------|----------|
-| Efektif ATK | effective_ATK | int | 15–543 | Boss ATK (Epic-Legendary) |
+| Efektif ATK | effective_ATK | int | 15–543 | Boss ATK (stat formula) |
 | Hedef DEF | target_DEF | int | 15–499 | Hedef DEF (oyuncu stat pipeline'ından) |
 | DEF faktörü (fiziksel) | defense_reduction_factor | int | 2 | Tank/Destekçi ve Saldırgan arketip |
 | DEF faktörü (büyü) | magic_defense_factor | int | 4 | Büyücü arketip |
@@ -257,11 +257,11 @@ Boss güçlü saldırısı, normal hasar formülüne güçlü çarpan ekler. `de
 
 **Çıktı Aralığı**: Tek hedef 1–~550, AoE fiziksel 1–~200, AoE büyü 1–~215. MVP'de tek hedef max ~148, AoE fiziksel max ~48, AoE büyü max ~54.
 
-**Örnek** (Kat 10 boss, Epic, Saldırgan, Lv10, ATK=80, vs DEF=25, nötr — fiziksel):
+**Örnek** (Kat 10 boss, Saldırgan, Lv10, ATK=80, vs DEF=25, nötr — fiziksel):
 - Tek hedef: `floor(max(1, 80 × 2.0 - floor(25/2)) × 1.0)` = `floor(160 - 12)` = **148**
 - AoE: `floor(max(1, 80 × 0.75 - floor(25/2)) × 1.0)` = `floor(60 - 12)` = **48**
 
-**Örnek** (Kat 10 boss, Epic, Büyücü, Lv10, ATK=80, vs DEF=25, nötr — büyü):
+**Örnek** (Kat 10 boss, Büyücü, Lv10, ATK=80, vs DEF=25, nötr — büyü):
 - AoE: `floor(max(1, 80 × 0.75 - floor(25/4)) × 1.0)` = `floor(60 - 6)` = **54**
 
 ### Formül 6: Boss Öfke Modu Değişiklikleri
@@ -284,7 +284,7 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 
 **Çıktı Aralığı**: rage_SPD = 18–234. Güçlü saldırı sıklığı: 3 → 2 tur.
 
-**Örnek** (Kat 10 boss, Epic, Tank, Lv10, base_SPD=46):
+**Örnek** (Kat 10 boss, Tank, Lv10, base_SPD=46):
 - rage_SPD = `floor(46 × 1.20)` = **55**
 - Saldırı paterni: Normal→Normal→Güçlü → Normal→Güçlü→Normal→Güçlü...
 
@@ -366,7 +366,7 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 
 **Etkileşim Uyarıları**:
 - `difficulty_multiplier` × `rarity_stat_pools` (registry) birlikte düşman güç eğrisini belirler. İkisini aynı anda artırmak zorluk patlar.
-- `strong_multiplier` × boss ATK stat'ı birlikte tek vuruş öldürme potansiyelini belirler. Lv10 Epic boss (ATK=80) × 2.0 = 160 hasar — Common Büyücü Lv1 (HP=18) için overkill. Bu beklenen davranış — boss'un güçlü saldırısı tehditkâr olmalı.
+- `strong_multiplier` × boss ATK stat'ı birlikte tek vuruş öldürme potansiyelini belirler. Lv10 boss (ATK=80) × 2.0 = 160 hasar — Zayıf Büyücü Lv1 (HP=18) için overkill. Bu beklenen davranış — boss'un güçlü saldırısı tehditkâr olmalı.
 - `aoe_multiplier` × `max_team_size` (4) birlikte toplam AoE hasarını belirler: 48 × 4 = 192 toplam (vs tek hedef 148). AoE toplam hasarı tek hedefe yakın ama dağıtık.
 - `enemy_synergy_frequency` Element Sistemi GDD'sinde de tanımlı — tek kaynak Element Sistemi, bu GDD referans alır.
 
@@ -434,15 +434,15 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 
 5. **GIVEN** Patron AI boss (Ateş) ve 3 canavar: A (Toprak, ATK=35), B (Su, ATK=52), C (Hava, ATK=30), en düşük HP = A, **WHEN** ağırlıklar hesaplanırsa, **THEN** A'nın ağırlığı 40+10(avantaj)=50, toplam=110, P(A) = 50/110 = %45.5.
 
-6. **GIVEN** Kat 5 Rare Saldırgan mini-boss (Lv5, ATK=57), hedef DEF=25, nötr element, **WHEN** 1.5x yetenek kullanırsa, **THEN** hasar = floor(max(1, 57×1.5 - floor(25/2)) × 1.0) = **73**.
+6. **GIVEN** Kat 5 Saldırgan mini-boss (Lv5, ATK=57), hedef DEF=25, nötr element, **WHEN** 1.5x yetenek kullanırsa, **THEN** hasar = floor(max(1, 57×1.5 - floor(25/2)) × 1.0) = **73**.
 
-7. **GIVEN** Kat 5 Rare Büyücü mini-boss (ATK=57), 3 hedef (DEF=25), nötr, büyü hasarı, **WHEN** 0.5x AoE kullanırsa, **THEN** her hedefe hasar = floor(max(1, floor(57×0.5) - floor(25/4)) × 1.0) = floor(28 - 6) = **22**.
+7. **GIVEN** Kat 5 Büyücü mini-boss (ATK=57), 3 hedef (DEF=25), nötr, büyü hasarı, **WHEN** 0.5x AoE kullanırsa, **THEN** her hedefe hasar = floor(max(1, floor(57×0.5) - floor(25/4)) × 1.0) = floor(28 - 6) = **22**.
 
-8. **GIVEN** Kat 5 Rare Tank mini-boss (DEF=57), **WHEN** savunma duruşu kullanırsa, **THEN** buffed_DEF = 57 × 2 = **114**, 2 tur sürer, sonra 57'ye döner.
+8. **GIVEN** Kat 5 Tank mini-boss (DEF=57), **WHEN** savunma duruşu kullanırsa, **THEN** buffed_DEF = 57 × 2 = **114**, 2 tur sürer, sonra 57'ye döner.
 
-9. **GIVEN** Kat 10 Epic boss (ATK=80), hedef DEF=25, nötr, **WHEN** 2.0x güçlü tek hedef saldırısı yaparsa, **THEN** hasar = floor(max(1, 80×2.0 - floor(25/2)) × 1.0) = **148**.
+9. **GIVEN** Kat 10 boss (Saldırgan, ATK=80), hedef DEF=25, nötr, **WHEN** 2.0x güçlü tek hedef saldırısı yaparsa, **THEN** hasar = floor(max(1, 80×2.0 - floor(25/2)) × 1.0) = **148**.
 
-10. **GIVEN** Kat 10 Epic boss (ATK=80), 3 hedef (DEF=25), nötr, **WHEN** 0.75x güçlü AoE yaparsa, **THEN** her hedefe hasar = floor(max(1, 80×0.75 - floor(25/2)) × 1.0) = **48**.
+10. **GIVEN** Kat 10 boss (Saldırgan, ATK=80), 3 hedef (DEF=25), nötr, **WHEN** 0.75x güçlü AoE yaparsa, **THEN** her hedefe hasar = floor(max(1, 80×0.75 - floor(25/2)) × 1.0) = **48**.
 
 11. **GIVEN** Boss (base_SPD=46, HP > %50), saldırı döngüsü Tur 2'de, **WHEN** bu turda HP %50 altına düşerse, **THEN** öfke modu **bir sonraki turda** aktifleşir, rage_SPD = floor(46 × 1.20) = **55**, güçlü CD: 3→2.
 
