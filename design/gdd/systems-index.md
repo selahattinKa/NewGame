@@ -40,7 +40,7 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 | 17 | Savaş UI | UI | MVP | Designed | design/gdd/savas-ui.md | Savaş Sistemi, Oyuncu Sınıf Sistemi, Pet Sistemi, Loot Sistemi, UI Framework |
 | 18 | Koleksiyon / Envanter UI | UI | MVP | Designed | design/gdd/koleksiyon-envanter-ui.md | Pet Sistemi, Pet Evrim Sistemi, Canavar Veritabanı, Ekonomi, UI Framework |
 | 19 | Keşif Alanı Harita UI | UI | MVP | Designed | design/gdd/kesif-alani-harita-ui.md | Keşif Alanı Sistemi, UI Framework, Pet Sistemi, Ekonomi |
-| 20 | Mağaza UI | UI | MVP | Not Started | — | IAP + Reklam Sistemi, UI Framework |
+| 20 | Mağaza UI | UI | MVP | Designed | design/gdd/magaza-ui.md | IAP + Reklam Sistemi, UI Framework, Ekonomi, Pet Sistemi |
 | 21 | Arena (Asenkron PvP) | Gameplay | Tier 2 | Not Started | — | Savaş Sistemi, Oyuncu Sınıf Sistemi, Ekonomi |
 | 22 | Irk Etkinlik + Canlı Sıralama | Meta | Tier 2 | Not Started | — | Zindan Keşif, Ekonomi, Oyuncu Sınıf Sistemi |
 | 23 | Tutorial / Onboarding | Meta | Tier 2 | Not Started | — | Tüm MVP sistemleri |
@@ -189,7 +189,7 @@ Tespit edilmedi. Tüm bağımlılıklar tek yönlü akar.
 | MVP systems approved | 9/21 |
 | MVP systems designed (awaiting review) | 1 (Yetenek Sistemi) |
 | MVP systems revision needed | 3 (Pet Veritabanı, Pet Evrim, Savaş Sistemi) |
-| MVP systems not started | 4 (Kostüm/Elbise, Mağaza, UI sistemleri) |
+| MVP systems not started | 3 (Kostüm/Elbise, IAP+Reklam, UI Framework) |
 | Tier 2 systems designed | 0/4 |
 
 > **Not:** Element Sistemi, Ekonomi, Kaydetme/Yükleme, Sağlık, Hasar Hesaplama, Loot, Düşman AI, Zindan Keşif, Otofarm ve UI Framework approved — pivot bu sistemleri etkilemedi.
