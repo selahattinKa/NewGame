@@ -1,6 +1,6 @@
 # Otofarm / Idle Sistemi (Auto-Farm / Idle System)
 
-> **Status**: Designed (Revised — 3rd design-review feedback)
+> **Status**: Revised
 > **Author**: Kullanıcı + Claude Code Game Studios
 > **Last Updated**: 2026-06-24
 > **Implements Pillar**: Senin Tempon (Play Your Way), Cömert Zindan (Generous Loot)
@@ -8,15 +8,15 @@
 
 ## Overview
 
-Otofarm / Idle Sistemi, oyuncunun aktif olmadığı sürelerde canavarlarının zindan katlarını otomatik olarak geçmeye devam etmesini ve geri dönüşte birikmiş ödülleri toplamasını sağlayan arka plan ilerleme sistemidir. Mekanik olarak gerçek arka plan işlemi çalıştırmaz — oyuncu geri döndüğünde Kaydetme/Yükleme sisteminden alınan `offline_duration` değerine göre "geri dönüş anında simülasyon" yapılır. Simülasyon kat-tabanlıdır: geçen sürede kaç kat geçilmiş olacağı hesaplanır, her idle katı için stokastik canavar ve malzeme ruloları yapılır (Loot GDD idle oranları + idle-pity sistemi ile), altın birikimi zamana dayalı hesaplanır (Ekonomi GDD `idle_gold_formula` ile, azalan getiri kademeleriyle). Aktif oynama %100 verimlilikle çalışırken, otofarm %50 altın verimi ve %25 loot verimi sunar — idle'da canavar düşme oranı %25'e düşer ve Rare+ çok düşük oranlarla mümkündür (Common/Uncommon dominant). Otofarm **otomatik olarak aktifleşir**: koşullar sağlandığında (en az 1 kat geçilmiş, takımda canavar var) uygulama kapandığında idle otomatik başlar — oyuncunun "başlat" butonuna basmasına gerek yoktur. Bu tasarımla Pillar 3 "Senin Tempon" aktif ve pasif oyuncuyu dengelenir, Pillar 1 "Cömert Zindan" gereği idle bile ödüllendirici kalır. Oyuncu perspektifinden sistem, "oynamamken bile imparatorluğum büyüyor" rahatlığını verir: uygulamayı açtığında birikmiş altın, kazanılmış canavarlar, evrim malzemeleri ve ilerlenmiş katları gösteren bir geri dönüş özet ekranı karşılar. MVP'de tek zindan bölgesinde idle çalıştırma, geri dönüş simülasyonu ve özet ekranı tasarlanır.
+Otofarm / Idle Sistemi, oyuncunun aktif olmadığı sürelerde canavarlarının zindan katlarını otomatik olarak geçmeye devam etmesini ve geri dönüşte birikmiş ödülleri toplamasını sağlayan arka plan ilerleme sistemidir. Mekanik olarak gerçek arka plan işlemi çalıştırmaz — oyuncu geri döndüğünde Kaydetme/Yükleme sisteminden alınan `offline_duration` değerine göre "geri dönüş anında simülasyon" yapılır. Simülasyon kat-tabanlıdır: geçen sürede kaç kat geçilmiş olacağı hesaplanır, her idle katı için stokastik canavar ve malzeme ruloları yapılır (Loot GDD idle oranları + idle-pity sistemi ile), altın birikimi zamana dayalı hesaplanır (Ekonomi GDD `idle_gold_formula` ile, azalan getiri kademeleriyle). Aktif oynama %100 verimlilikle çalışırken, otofarm %50 altın verimi ve %25 loot verimi sunar — idle'da canavar düşme oranı %25'e düşer ve C+ çok düşük oranlarla mümkündür (F/D dominant). Otofarm **otomatik olarak aktifleşir**: koşullar sağlandığında (en az 1 kat geçilmiş, takımda canavar var) uygulama kapandığında idle otomatik başlar — oyuncunun "başlat" butonuna basmasına gerek yoktur. Bu tasarımla Pillar 3 "Senin Tempon" aktif ve pasif oyuncuyu dengelenir, Pillar 1 "Cömert Zindan" gereği idle bile ödüllendirici kalır. Oyuncu perspektifinden sistem, "oynamamken bile imparatorluğum büyüyor" rahatlığını verir: uygulamayı açtığında birikmiş altın, kazanılmış canavarlar, evrim malzemeleri ve ilerlenmiş katları gösteren bir geri dönüş özet ekranı karşılar. MVP'de tek zindan bölgesinde idle çalıştırma, geri dönüş simülasyonu ve özet ekranı tasarlanır.
 
 ## Player Fantasy
 
 Oyuncu Otofarm sisteminde **"imparatorluğum bensiz bile çalışıyor"** fantezisini yaşar. Çekirdek an, uygulamayı açtığında geri dönüş ekranının birikmiş ödüllerle dolmasıdır: altın sayacı yukarı doğru sayar, kazanılmış canavarlar sırayla belirir, evrim malzemeleri listelenir, ilerlenmiş katlar haritada işaretlenir. "8 saat uyudum, ordularım 96 kat geçmiş" keşif anı — zahmetsiz güçlenme ve zenginleşme hissi. Kat-tabanlı loot ruloları sayesinde her geri dönüş farklı: bazen 4 canavar, bazen 2 — her seferinde "bu sefer ne birikmiş?" merakı küçük bir hediye kutusu deneyimi yaratır.
 
-İki katmanda hissedilir: **Rahatlık** — meşgul oyuncu oynamasa bile ilerlediğini bilir, "geride kaldım" kaygısı yoktur. Otofarm otomatik başladığı için "unutma" riski yoktur. **Heyecan** — geri dönüşte stokastik loot ruloları sayesinde her açılış sürpriz içerir. Nadir canavar düşmez (Common/Uncommon sınırı) ama malzeme ve altın miktarı her seferinde farklıdır.
+İki katmanda hissedilir: **Rahatlık** — meşgul oyuncu oynamasa bile ilerlediğini bilir, "geride kaldım" kaygısı yoktur. Otofarm otomatik başladığı için "unutma" riski yoktur. **Heyecan** — geri dönüşte stokastik loot ruloları sayesinde her açılış sürpriz içerir. C ve üstü kademe canavar çok düşük oranlarla düşebilir (F/D dominant) ama malzeme ve altın miktarı her seferinde farklıdır.
 
-Negatif fantezi (kaçınılacak): "Otofarm her şeyi yapıyor, neden oynayayım?" — idle verimlilik kasıtlı olarak aktifin yarısıdır (%50 altın, %25 loot). Rare+ canavarlar idle'da çok düşük oranlarla düşebilir ama aktif oyun çok daha verimlidir — aktif avda Rare+ oranları 5-10x daha yüksek. Komutan modunda oynamak somut fark yaratmalı. Otofarm rakibi değil, **aktif avları besleyen kaynak akışıdır** — idle'dan gelen canavarlar ve malzemeler, aktif oyundaki evrim ve güçlendirme sistemlerini besler. Ara sıra idle'dan gelen sürpriz Rare canavar, "bu sefer ne birikmiş?" merakını canlı tutar.
+Negatif fantezi (kaçınılacak): "Otofarm her şeyi yapıyor, neden oynayayım?" — idle verimlilik kasıtlı olarak aktifin yarısıdır (%50 altın, %25 loot). C+ kademede canavarlar idle'da çok düşük oranlarla düşebilir ama aktif oyun çok daha verimlidir — aktif avda C+ oranları kat başına ~7-8x daha yüksek. Komutan modunda oynamak somut fark yaratmalı. Otofarm rakibi değil, **aktif avları besleyen kaynak akışıdır** — idle'dan gelen canavarlar ve malzemeler, aktif oyundaki evrim ve güçlendirme sistemlerini besler. Ara sıra idle'dan gelen sürpriz C tier canavar, "bu sefer ne birikmiş?" merakını canlı tutar.
 
 Pillar bağlantısı: "Senin Tempon" — aktif oyuncuya premium verimlilik, pasif oyuncuya hâlâ anlamlı ilerleme. "Cömert Zindan" — idle bile her zaman ödüllendirici (azalan getiriyle bile 24 saatte anlamlı birikim). "Güç Hisset" — takım gücü arttıkça idle altın kazancı da artar, geri dönüşte büyümüş kaynak ve koleksiyon.
 
@@ -42,15 +42,17 @@ Pillar bağlantısı: "Senin Tempon" — aktif oyuncuya premium verimlilik, pasi
    - **Altın**: Aktifin %50'si (`idle_efficiency = 0.50`, Ekonomi GDD). Azalan getiri kademeleri uygulanır (bkz. Kural 5).
    - **Loot (canavar)**: Her idle katı için stokastik rulo — `base_monster_rate × idle_loot_efficiency = 0.15 × 0.25 = %3.75/kat`. İdle-pity uygulanır (bkz. Formüller).
    - **Loot (evrim malzemesi)**: Her idle katı için stokastik rulo — `base_material_rate × idle_loot_efficiency = 0.08 × 0.25 = %2/kat`. Pity uygulanmaz.
-   - **Canavar nadirliği**: Tüm nadirlikler düşebilir ama Rare+ çok düşük oranlarla. İdle nadirlik ağırlıkları (normalize):
+   - **Canavar kademesi**: Tüm kademeler düşebilir ama C+ çok düşük oranlarla. İdle kademe ağırlıkları:
 
-     | Nadirlik | İdle Ağırlık | Aktif Ağırlık (referans) |
-     |----------|-------------|------------------------|
-     | Common | %70.0 | %60.0 |
-     | Uncommon | %24.0 | %25.0 |
-     | Rare | %5.0 | %8.8 |
-     | Epic | %0.8 | %2.4 |
-     | Legendary | %0.2 | %0.3 |
+     | Kademe | İdle Ağırlık | İdle Olasılık | Aktif Olasılık (referans) |
+     |--------|-------------|---------------|--------------------------|
+     | F | 0.700 | %69.9 | %58.6 |
+     | D | 0.240 | %24.0 | %29.3 |
+     | C | 0.050 | %5.0 | %8.8 |
+     | B | 0.008 | %0.80 | %2.3 |
+     | A | 0.002 | %0.20 | %0.59 |
+     | S | 0.001 | %0.10 | %0.29 |
+     | SS | — | — (idle'da düşmez) | %0.06 |
    - **XP İksiri**: İdle'da düşmez
    - **Elmas**: İdle'da düşmez
 
@@ -72,7 +74,7 @@ Pillar bağlantısı: "Senin Tempon" — aktif oyuncuya premium verimlilik, pasi
    - Adım 1: `offline_duration` al (Kaydetme/Yükleme'den, dakika). `max_offline_minutes` ile sınırla.
    - Adım 2: `idle_floors_cleared = max(1, floor(offline_duration / idle_minutes_per_floor))` hesapla (yalnızca `offline_duration > 0` ise).
    - Adım 3: `idle_gold` hesapla — azalan getiri kademeleriyle (bkz. Formüller). `team_power` save'deki snapshot değerini kullanır.
-   - Adım 4: Her idle katı (1..idle_floors_cleared) için seeded-RNG ile stokastik canavar rulosu yap. İdle-pity uygula (oturumlar arası kalıcı). İdle nadirlik tablosu uygulanır (Common dominant, Rare+ çok düşük).
+   - Adım 4: Her idle katı (1..idle_floors_cleared) için seeded-RNG ile stokastik canavar rulosu yap. İdle-pity uygula (oturumlar arası kalıcı). İdle kademe tablosu uygulanır (F/D dominant, C+ çok düşük).
    - Adım 5: Her idle katı için seeded-RNG ile stokastik evrim malzemesi rulosu yap. Bölge elementine göre ağırlıklı (%70 bölge, %30 diğer).
    - Adım 6: Sonuçları paketle → `ReturnReport` oluştur → `idle_state.pending_report`'a yaz ve save yap.
    - Adım 7: Geri dönüş ekranı göster (modal) → oyuncu "Topla" butonuna basar → ödülleri oyuncu kaynaklarına ekle → `idle_state.pending_report = null`, save yap.
@@ -95,8 +97,8 @@ Pillar bağlantısı: "Senin Tempon" — aktif oyuncuya premium verimlilik, pasi
     - Aktif zindan oturumu biter bitmez, otofarm **otomatik olarak yeniden başlar** (koşullar hâlâ sağlanıyorsa). Yeniden başlatma gerekmez.
 
 11. **İdle Minimum Hasat Garantisi**: `offline_duration >= 60 dk` olan her idle oturumunda, stokastik rulolardan bağımsız olarak minimum garantili ödüller verilir:
-    - **Garantili Common canavar**: 1 adet (bölge havuzundan rastgele seçilir)
-    - **Garantili Common malzeme**: 1 adet (bölge elementinde)
+    - **Garantili F tier canavar**: 1 adet (bölge havuzundan rastgele seçilir)
+    - **Garantili F tier malzeme**: 1 adet (bölge elementinde)
     - Bu garantili ödüller stokastik rulo sonuçlarına **eklenir** (yerine geçmez)
     - `offline_duration < 60 dk` ise garanti uygulanmaz — yalnızca stokastik rulo sonuçları verilir
     - Garantili ödüller `ReturnReport`'ta normal loot gibi sunulur — oyuncu mekanizmayı görmez
@@ -104,7 +106,7 @@ Pillar bağlantısı: "Senin Tempon" — aktif oyuncuya premium verimlilik, pasi
 
 12. **İdle Boss Katı Mütevazı Bonusu**: İdle sırasında boss katları (her 5. kat) normal katlara kıyasla mütevazı ek ödül verir:
     - **Altın**: Boss katlarında idle altın oranı **1.5x** uygulanır (aktif: 3x)
-    - **Malzeme**: Boss katlarında **1 Common malzeme garantili** düşer (aktif: garantili + %30 ek)
+    - **Malzeme**: Boss katlarında **1 F tier malzeme garantili** düşer (aktif: garantili + %30 ek)
     - **Canavar**: Normal idle loot tablosu kullanılır (boss canavar düşüşü idle'da yok)
     - Bu bonus aktif boss avının ödül değerini korur (aktif: 3x altın + boss canavar + garanti) ama idle'da boss katları "tamamen boş" hissettirmez
 
@@ -189,7 +191,7 @@ ReturnReport {
 
 **Cascade uyarısı:** `idle_minutes_per_floor` değiştirildiğinde kat sayısı ve dolayısıyla loot rulosu sayısı doğrudan değişir. M_floor=3.0'da: 1440/3 = 480 kat, 480 rulo — canavar/malzeme kazanımı ~1.7x artar. Tuning'de dikkat.
 
-**Kat farmlama modeli:** İdle her zaman oyuncunun en yüksek geçilmiş katını **tekrar** farmlar — idle yeni kat açmaz ve kat aralığı simüle etmez. Tüm idle katları aynı kat numarası ve bölge bağlamında işlenir. En yüksek geçilmiş kat boss katıysa (her 5. kat), idle boss mütevazı bonusu uygulanır (Kural 12: 1.5x altın, garantili Common malzeme).
+**Kat farmlama modeli:** İdle her zaman oyuncunun en yüksek geçilmiş katını **tekrar** farmlar — idle yeni kat açmaz ve kat aralığı simüle etmez. Tüm idle katları aynı kat numarası ve bölge bağlamında işlenir. En yüksek geçilmiş kat boss katıysa (her 5. kat), idle boss mütevazı bonusu uygulanır (Kural 12: 1.5x altın, garantili F tier malzeme).
 
 ### idle_gold (İdle Altın Birikimi — Azalan Getirili)
 
@@ -230,7 +232,7 @@ for each idle_floor in 1..idle_floors_cleared:
     monster_chance = base_monster_rate × idle_loot_efficiency + idle_pity_bonus
     roll = seeded_random(0.0, 1.0)  // seed: idle_state.start_time
     if roll < monster_chance:
-        rarity = weighted_random(Common: 0.700, Uncommon: 0.240, Rare: 0.050, Epic: 0.008, Legendary: 0.002)
+        tier = weighted_random(F: 0.700, D: 0.240, C: 0.050, B: 0.008, A: 0.002, S: 0.001)
         add monster(rarity) to results
         idle_pity_bonus = 0.0  // pity sıfırla
     else:
@@ -265,9 +267,9 @@ for each idle_floor in 1..idle_floors_cleared:
 - **pending_report zorunlu persist:** `pending_report` Adım 6'da her zaman save'e yazılır. Geri dönüşte `pending_report` varsa doğrudan okunur — re-simülasyon yapılmaz. Bu tasarım cross-platform determinizm sorunlarını (`System.Random` iOS vs Android) ortadan kaldırır
 
 **Beklenen Çıktı Aralığı (yaklaşık, idle pity 0.06 + minimum paket dahil):**
-- 8 saat (96 kat): ~7-9 canavar (~5 Common, ~2 Uncommon, ~%30 şansla 1 Rare) — 1 garantili dahil
-- 24 saat (288 kat): ~19-23 canavar (~14 Common, ~4 Uncommon, ~1-2 Rare, nadir Epic) — 1 garantili dahil
-- Nadirlik dağılımı: Common dominant (%70), Rare+ sürpriz olarak mümkün
+- 8 saat (96 kat): ~7-9 canavar (~5 F, ~2 D, ~%30 şansla 1 C) — 1 garantili dahil
+- 24 saat (288 kat): ~19-23 canavar (~14 F, ~4 D, ~1-2 C, nadir B) — 1 garantili dahil
+- Kademe dağılımı: F dominant (%69.9), C+ sürpriz olarak mümkün
 - `offline_duration < 60 dk` ise garantili canavar yok, yalnızca stokastik
 
 ### idle_material_drops (İdle Evrim Malzemesi Düşmesi — Stokastik Kat-Tabanlı)
@@ -309,7 +311,7 @@ for each idle_floor in 1..idle_floors_cleared:
 
 - **If oyuncu cihaz saatini ileri alarak idle birikimi exploit etmeye çalışırsa**: Kaydetme/Yükleme edge case'i devreye girer — `offline_duration = 0`, birikim yok.
 
-- **If idle farm katında boss varsa** (her 5. kat): İdle'da boss katları **mütevazı bonus** ile işlenir (Kural 12): 1.5x altın çarpanı (aktif: 3x) ve 1 garantili Common malzeme (aktif: garantili + %30 ek). Boss canavar düşüşü idle'da yoktur — boss canavar avı aktif oyunun ödülüdür. Normal idle canavar loot tablosu uygulanır.
+- **If idle farm katında boss varsa** (her 5. kat): İdle'da boss katları **mütevazı bonus** ile işlenir (Kural 12): 1.5x altın çarpanı (aktif: 3x) ve 1 garantili F tier malzeme (aktif: garantili + %30 ek). Boss canavar düşüşü idle'da yoktur — boss canavar avı aktif oyunun ödülüdür. Normal idle canavar loot tablosu uygulanır.
 
 - **If idle sırasında enerji tamamen dolarsa**: Enerji yenilenmesi tavanı (100) aşmaz. İdle enerji tüketmediğinden bu normal davranıştır. Enerji hesaplaması: `energy = min(saved_energy + floor(offline_duration / 5), 100)` — Ekonomi sistemi tarafından bağımsız yürütülür.
 
@@ -335,7 +337,7 @@ for each idle_floor in 1..idle_floors_cleared:
 |--------|----------------|--------|----------|
 | **Savaş Sistemi** | Soft | Mod tanımı, verimlilik farkı | Otofarm mod tanımı savaş sisteminden gelir ama idle sistem savaş motoru çalıştırmaz. |
 | **Zindan Keşif** | Soft | `GetHighestClearedFloor(region)` | Farm katı belirleme. |
-| **Takım Kurma** | Soft | `GetActiveTeamPower()` | Idle gold rate hesaplama. teamPower otofarm başlangıcında snapshot olarak kaydedilir. |
+| **Savaş Sistemi** | Soft | `GetActiveTeamPower()` | Idle gold rate hesaplama. teamPower otofarm başlangıcında snapshot olarak kaydedilir. |
 | **Canavar Toplama** | Soft | `OnMonsterDropped(monsterId)` | İdle canavarları envantere ekleme. |
 
 **Downstream Bağımlılıklar:**
@@ -355,7 +357,7 @@ for each idle_floor in 1..idle_floors_cleared:
 | `max_offline_minutes` | 1440 | 720–1440 | Kısa cap → sık giriş baskısı | 1440 üstü → ekonomi bozulur | Offline birikim tavanı (Kaydetme/Yükleme ile paylaşılır) |
 | `min_idle_duration_for_report` | 0 | 0–15 | Her pozitif süre rapor gösterir | Kısa birikimi kaçırır | Rapor gösterim eşiği (dk). Simülasyon kuralı: `D_off >= min_idle_duration_for_report` ise rapor göster |
 | `idle_boss_gold_multiplier` | 1.5 | 1.0–2.0 | 1.0 = boss farkı yok | Aktif boss avı değeri düşer | İdle boss katı altın çarpanı (aktif: 3.0) |
-| `idle_boss_material_guaranteed` | true | true/false | Boss malzeme yok → idle boss farkı sadece altın | Her boss katı +1 malzeme → malzeme bolluğu | Boss katı garantili Common malzeme |
+| `idle_boss_material_guaranteed` | true | true/false | Boss malzeme yok → idle boss farkı sadece altın | Her boss katı +1 malzeme → malzeme bolluğu | Boss katı garantili F tier malzeme |
 | `min_idle_duration_for_guarantee` | 60 | 30–120 | 30 dk'da garanti → çok cömert | 120 dk = 2 saat bekleme → kısa oturumlarda boş ekran | İdle minimum hasat garantisi eşiği (dk) |
 | `min_offline_for_pity` | 30 | 15–60 | Kısa oturumlarda pity birikir → exploit açığı | Uzun eşik → pity koruması geç devreye girer | Pity birikimi minimum offline süresi (dk, mikro-oturum koruması) |
 | `idle_pity_increment` | 0.06 | 0.03–0.10 | Yavaş ramp → dry streak uzun | Hızlı ramp → canavar çok sık düşer | İdle pity artış hızı (aktif: 0.03) |
@@ -390,9 +392,9 @@ for each idle_floor in 1..idle_floors_cleared:
 
 4. **GIVEN** seeded RNG (seed=1719216000) ile 96 idle katı simülasyonu ve idle_pity_bonus=0.0, **WHEN** canavar ve malzeme ruloları yapılırsa, **THEN** sonuçlar `tests/fixtures/idle_golden_seed_1719216000.json` dosyasındaki beklenen çıktıyla birebir eşleşir (canavar sayısı, nadirlikler, malzeme sayısı, elementler). Golden-file referans implementasyondan üretilir ve CI'da deterministik assert edilir.
 
-5a. **GIVEN** idle nadirlik ağırlık tablosu (Common: 0.700, Uncommon: 0.240, Rare: 0.050, Epic: 0.008, Legendary: 0.002), **WHEN** ağırlıklar toplanırsa, **THEN** toplam = 1.000 (±0.001) ve her ağırlık spec değeriyle eşleşir. (Deterministik unit test — CI blocking.)
+5a. **GIVEN** idle kademe ağırlık tablosu (F: 0.700, D: 0.240, C: 0.050, B: 0.008, A: 0.002, S: 0.001; SS idle'da düşmez), **WHEN** ağırlıklar toplanırsa, **THEN** toplam = 1.001 (±0.002) ve her ağırlık spec değeriyle eşleşir. (Deterministik unit test — CI blocking.)
 
-5b. **GIVEN** 100.000 idle katı simülasyonu (offline istatistiksel doğrulama), **WHEN** canavar nadirlik dağılımı incelenirse, **THEN** gözlemlenen oranlar idle nadirlik tablosuna uyar: Common ~%70, Uncommon ~%24, Rare ~%5, Epic ~%0.8, Legendary ~%0.2 (chi-squared p > 0.001). (Offline advisory test — CI-blocking değil.)
+5b. **GIVEN** 100.000 idle katı simülasyonu (offline istatistiksel doğrulama), **WHEN** canavar kademe dağılımı incelenirse, **THEN** gözlemlenen oranlar idle kademe tablosuna uyar: F ~%69.9, D ~%24.0, C ~%5.0, B ~%0.80, A ~%0.20, S ~%0.10 (chi-squared p > 0.001). (Offline advisory test — CI-blocking değil.)
 
 6. **GIVEN** seeded RNG ile 96 idle katı simülasyonu, **WHEN** malzeme ruloları yapılırsa, **THEN** sonuçlar deterministik olarak tekrarlanabilir ve bölge elementi malzemelerin ~%70'ini oluşturur, diğer 3 element ~%10'ar pay alır.
 
@@ -412,7 +414,7 @@ for each idle_floor in 1..idle_floors_cleared:
 
 10. **GIVEN** 30 saat çevrimdışı kalınmış, **WHEN** birikim hesaplanırsa, **THEN** tüm formüller (altın, kat, canavar, malzeme) yalnızca 1440 dk üzerinden hesaplama yapar.
 
-11. **GIVEN** geri dönüş ekranında goldEarned=5000, monstersEarned=[Common×2], materialsEarned=[Ateş×1], **WHEN** "Topla" butonuna basılırsa, **THEN** (1) oyuncu altın bakiyesi +5000 artar, (2) envantere 2 Common canavar eklenir, (3) envantere 1 Ateş malzemesi eklenir, (4) idle_state.pending_report = null olur, (5) save tetiklenir.
+11. **GIVEN** geri dönüş ekranında goldEarned=5000, monstersEarned=[F tier×2], materialsEarned=[Ateş×1], **WHEN** "Topla" butonuna basılırsa, **THEN** (1) oyuncu altın bakiyesi +5000 artar, (2) envantere 2 F tier canavar eklenir, (3) envantere 1 Ateş malzemesi eklenir, (4) idle_state.pending_report = null olur, (5) save tetiklenir.
 
 12. **GIVEN** idle'da canavar düşer, envanter 20/20 dolu ve bekleme alanı 8/10, **WHEN** "Topla" basılırsa, **THEN** canavarlar bekleme alanına alınır ve "Envanter dolu! Beklemede X canavar" bildirimi gösterilir.
 
@@ -448,9 +450,9 @@ for each idle_floor in 1..idle_floors_cleared:
 
 25. **GIVEN** otofarm Idle durumda, oyuncu aktif oturumda son canavarını satarsa, **WHEN** uygulama kapanırsa, **THEN** idle başlamaz (Locked'a döner), idle_state.active = false.
 
-26. **GIVEN** idle farm katı boss katı (ör. kat 25, her 5. kat) ve idle aktif, **WHEN** idle loot ruloları yapılırsa, **THEN** (1) altın oranı 1.5x uygulanır (idle_boss_gold_multiplier), (2) 1 Common malzeme garantili eklenir (bölge elementinde), (3) boss canavar düşüşü yapılmaz, (4) normal idle canavar loot tablosu uygulanır.
+26. **GIVEN** idle farm katı boss katı (ör. kat 25, her 5. kat) ve idle aktif, **WHEN** idle loot ruloları yapılırsa, **THEN** (1) altın oranı 1.5x uygulanır (idle_boss_gold_multiplier), (2) 1 F tier malzeme garantili eklenir (bölge elementinde), (3) boss canavar düşüşü yapılmaz, (4) normal idle canavar loot tablosu uygulanır.
 
-27. **GIVEN** offline_duration = 90 dk (>= 60 dk eşiği), **WHEN** idle simülasyonu tamamlanırsa, **THEN** ReturnReport'ta stokastik rulo sonuçlarına ek olarak en az 1 Common canavar ve 1 Common malzeme (bölge elementinde) bulunur (idle minimum hasat garantisi).
+27. **GIVEN** offline_duration = 90 dk (>= 60 dk eşiği), **WHEN** idle simülasyonu tamamlanırsa, **THEN** ReturnReport'ta stokastik rulo sonuçlarına ek olarak en az 1 F tier canavar ve 1 F tier malzeme (bölge elementinde) bulunur (idle minimum hasat garantisi).
 
 28. **GIVEN** offline_duration = 45 dk (< 60 dk eşiği), **WHEN** idle simülasyonu tamamlanırsa, **THEN** yalnızca stokastik rulo sonuçları verilir — garantili minimum canavar veya malzeme eklenmez.
 
@@ -473,7 +475,7 @@ Design-review revizyon geçişinde aşağıdaki cross-GDD güncellemeleri uygula
 
 **3. Review (2026-06-24) — Ek cross-GDD güncellemeleri:**
 
-5. ✅ **Loot GDD** (`design/gdd/loot-odul-sistemi.md`): Formül 8 idle altın formülü azalan getirili kademeli formüle güncellendi. "Yalnızca Common/Uncommon" kısıtlaması kaldırıldı — tüm nadirlikler idle'da düşebilir (idle nadirlik tablosu). AC 14 güncellendi. Formül 3b idle pity increment 0.03→0.06, min_offline_for_pity=30dk eklendi.
+5. ✅ **Loot GDD** (`design/gdd/loot-odul-sistemi.md`): Formül 8 idle altın formülü azalan getirili kademeli formüle güncellendi. "Yalnızca F/D" kısıtlaması kaldırıldı — tüm kademeler idle'da düşebilir (idle kademe tablosu). AC 14 güncellendi. Formül 3b idle pity increment 0.03→0.06, min_offline_for_pity=30dk eklendi.
 6. ✅ **Registry** (`design/registry/entities.yaml`): `idle_floors_cleared_formula` output_range [1,288]→[1,480] güncellendi (M_floor=3.0 minimum clamp'e uyumlu).
 2. ✅ **Loot GDD** (`design/gdd/loot-odul-sistemi.md`): İdle-pity kuralları eklendi (Formül 3b). Float accumulator, oturumlar arası kalıcı, idle nadirlik tablosu. Aktif/idle pity farkları belgelendi.
 3. ✅ **Kaydetme / Yükleme GDD** (`design/gdd/kaydetme-yukleme.md`): `idle_state` şeması genişletildi — `team_power`, `idle_pity_bonus`, `pending_report` alanları eklendi.
