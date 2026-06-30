@@ -37,7 +37,7 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 | 14 | Otofarm / Idle Sistemi | Gameplay | MVP | Approved | design/gdd/otofarm-idle.md | Savaş Sistemi, Loot, Ekonomi, Kaydetme |
 | 15 | Kostüm / Elbise Sistemi | Gameplay | MVP | Not Started | — | Pet/Canavar Veritabanı, Ekonomi |
 | 16 | IAP + Reklam Sistemi | Economy | MVP | Not Started | — | Ekonomi, Kostüm/Elbise Sistemi, Pet/Canavar Veritabanı |
-| 17 | Savaş UI | UI | MVP | Not Started | — | Savaş Sistemi, UI Framework |
+| 17 | Savaş UI | UI | MVP | Designed | design/gdd/savas-ui.md | Savaş Sistemi, Oyuncu Sınıf Sistemi, Pet Sistemi, Loot Sistemi, UI Framework |
 | 18 | Koleksiyon / Envanter UI | UI | MVP | Not Started | — | Pet Evrim Sistemi, Kostüm/Elbise Sistemi, UI Framework |
 | 19 | Keşif Alanı Harita UI | UI | MVP | Designed | design/gdd/kesif-alani-harita-ui.md | Keşif Alanı Sistemi, UI Framework, Pet Sistemi, Ekonomi |
 | 20 | Mağaza UI | UI | MVP | Not Started | — | IAP + Reklam Sistemi, UI Framework |
