@@ -91,6 +91,10 @@ Saved/
 *.cso
 *.dxbc
 
+# === Repomix ===
+repomix-output.txt
+repomix-output.xml
+
 # === Temporary and Cache ===
 *.tmp
 *.temp
