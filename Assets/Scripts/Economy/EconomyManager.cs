@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using CanavarZindanlari.Gameplay;
 
 namespace CanavarZindanlari.Economy
 {
@@ -26,6 +27,9 @@ namespace CanavarZindanlari.Economy
 
         // ── Bağlantı ───────────────────────────────────────────────────────────
 
+        [SerializeField] private RevengeManager _revenge;
+        [SerializeField] private WantedBoard    _wantedBoard;
+
         private void Start()
         {
             if (IAPManager.Instance != null)
@@ -33,6 +37,12 @@ namespace CanavarZindanlari.Economy
 
             if (AdManager.Instance != null)
                 AdManager.Instance.RewardGranted += OnAdReward;
+
+            if (_revenge != null)
+                _revenge.OnRevengeCompleted += OnRevengeCompleted;
+
+            if (_wantedBoard != null)
+                _wantedBoard.OnWantedCompleted += OnWantedCompleted;
         }
 
         private void OnDestroy()
@@ -42,6 +52,12 @@ namespace CanavarZindanlari.Economy
 
             if (AdManager.Instance != null)
                 AdManager.Instance.RewardGranted -= OnAdReward;
+
+            if (_revenge != null)
+                _revenge.OnRevengeCompleted -= OnRevengeCompleted;
+
+            if (_wantedBoard != null)
+                _wantedBoard.OnWantedCompleted -= OnWantedCompleted;
         }
 
         private void OnGemsGranted(string productId, int gems)
@@ -54,6 +70,18 @@ namespace CanavarZindanlari.Economy
         {
             Debug.Log($"[EconomyManager] Reklam ödülü: {gems} elmas");
             AddDiamonds(gems);
+        }
+
+        private void OnRevengeCompleted(int gems)
+        {
+            Debug.Log($"[EconomyManager] İntikam bonusu: {gems} elmas");
+            AddDiamonds(gems);
+        }
+
+        private void OnWantedCompleted(WantedBoard.WantedEntry entry, int gold)
+        {
+            Debug.Log($"[EconomyManager] Aranıyor bonusu: +{gold} altın ({entry.DisplayName})");
+            AddGold(gold);
         }
 
         // ── Gold ───────────────────────────────────────────────────────────────
