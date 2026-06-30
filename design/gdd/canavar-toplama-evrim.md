@@ -1,6 +1,6 @@
 # Canavar Toplama ve Evrim (Monster Collection & Evolution)
 
-> **Status**: Designed
+> **Status**: Revised
 > **Author**: user + game-designer
 > **Last Updated**: 2026-06-25
 > **Implements Pillar**: Topla Hepsini, Güç Hisset
@@ -83,7 +83,7 @@ Bir canavar düştüğünde Loot sistemi `OnMonsterDropped(monsterId)` sinyali g
 
 Envanter kuralları:
 1. Her canavar instance'ı 1 slot kaplar — nadirlik, seviye veya evrim aşaması farketmez
-2. Takımda aktif olan canavarlar envanter slotu kullanır (ayrı takım slotu yok)
+2. Aktif pet slotunda seçili canavar envanter slotu kullanır (ayrı slot yok)
 3. Kilitlenen canavarlar (`is_locked = true`) satılamaz ve otomatik satıştan muaftır
 4. Favori canavarlar (`is_favorite = true`) listede üste sabitlenir ve satış uyarısı alır
 
@@ -93,9 +93,10 @@ Envanter kapasitesi doluyken yeni canavar düşerse:
 
 1. Canavar **bekleme alanına** (pending buffer) eklenir
 2. Bekleme alanı kapasitesi: 10 canavar (envanter dışı, geçici)
-3. Bekleme süresi nadirliğe göre değişir:
+3. Bekleme süresi tier'e göre değişir:
    - F / D: **7 gün**
-   - C / B: **14 gün** + push notification gönderilir ("Nadir canavarınız beklemede — [X] gün kaldı!")
+   - C / B / A: **14 gün** + push notification gönderilir ("Nadir canavarınız beklemede — [X] gün kaldı!")
+   - S / SS: **30 gün** + push notification (bu tier'da otomatik satış oyuncu için büyük kayıp)
 4. Süre dolduğunda bekleme alanındaki ilgili canavar otomatik satılır (altına çevrilir)
 5. Bekleme alanı da doluysa: yeni canavar otomatik satılır ve altın olarak eklenir (loot raporu "envanter dolu — satıldı" notu gösterir)
 6. Oyuncu bilgilendirilir: "Envanter dolu! [X] canavar beklemede — yer aç veya sat."
@@ -157,6 +158,9 @@ Satış fiyatları (registry'den — `monster_sell_value`):
 | D | 200 altın |
 | C | 400 altın |
 | B | 700 altın |
+| A | 1.200 altın |
+| S | 2.000 altın |
+| SS | 3.500 altın |
 
 Güçlendirilmiş canavarlar bonus fiyatla satılır:
 `sell_price = base_sell_value × (1 + level × 0.02 + star_rank × 0.10)`
@@ -173,13 +177,13 @@ Oyuncu yapılandırılabilir kurallar belirler:
 
 | Parametre | Seçenekler | Varsayılan |
 |-----------|-----------|-----------|
-| Tier filtresi | F / D / Kapalı | Kapalı |
+| Tier filtresi | F / D / C / Kapalı | Kapalı |
 | Yıldız filtresi | ★0 / ★1 altı / Kapalı | Kapalı |
-| Güvenlik kilidi | C/B tier otomatik satış filtresinden muaf | Açık (kapatılamaz) |
+| Güvenlik kilidi | B ve üstü tier otomatik satış filtresinden muaf | Açık (kapatılamaz) |
 
 Otomatik satış kuralları:
 1. Filtre **sadece yeni düşen** canavarlara uygulanır — mevcut envantere dokunmaz
-2. **C ve B tier canavarlar otomatik satış filtresinden muaftır** — güvenlik kilidi. (Not: bekleme alanı süresi dolduğunda C/B canavarlar da satılabilir — bkz. Kural 4.3. Bekleme süresi 14 güne uzatılmıştır.)
+2. **B, A, S ve SS tier canavarlar otomatik satış filtresinden muaftır** — güvenlik kilidi. (Not: bekleme alanı süresi dolduğunda bu tierlar da satılabilir — bkz. Kural 4.3. B/A süresi 14 gün, S/SS 30 gündür.)
 3. Otomatik satılan canavarlar loot raporunda "otomatik satıldı: +[X] altın" notu ile gösterilir
 4. Filtre oyuncu tarafından açılıp kapatılabilir
 5. İlk kez keşfedilen (Pokédex'e yeni eklenen) canavar otomatik satılmaz — ilk kopya her zaman koleksiyona eklenir
@@ -225,7 +229,7 @@ Canavar instance yaşam döngüsü:
 | **Canavar Güçlendirme** | → sağlar | Instance verileri (level, xp, stage, star) | `GetMonsterInstance(instanceId)` |
 | **Canavar Güçlendirme** | ← çağrılır | Yıldız birleştirmede kopya tüketimi | `ConsumeInstance(instanceId)` → instance yok edilir |
 | **Ekonomi** | → çağırır | Satış altını ekleme, envanter genişletme elması çekme | `GrantGold(amount)`, `SpendGems(amount)` |
-| **Takım Kurma** | ← sorgular | Mevcut canavar listesi, aktif takımdaki instance'lar | `GetOwnedMonsters(filters?)`, `IsInTeam(instanceId)` |
+| **Savaş Sistemi** | ← sorgular | Mevcut canavar listesi, aktif pet slot instance'ı | `GetOwnedMonsters(filters?)`, `IsActivePet(instanceId)` |
 | **Koleksiyon UI** | → sağlar | Envanter listesi, Pokédex durumu, kapasite bilgisi | `GetInventory()`, `GetPokedexStatus()`, `GetCapacity()` |
 | **Kaydetme/Yükleme** | ↔ persist | Tüm instance verileri, Pokédex durumu, otomatik satış kuralları | `SaveCollectionState()` / `LoadCollectionState()` |
 | **Zindan Keşif** | ← alır | Düşman canavar karşılaşma sinyali (Pokédex keşfi için) | `OnEnemyEncountered(monsterId)` → keşif kaydı |
@@ -274,7 +278,7 @@ Canavar instance yaşam döngüsü:
 | Yıldız sırası | star_rank | int | 0–5 | Canavar yıldızı |
 | Satış fiyatı | sell_price | int | 102–1.750 | Sonuç altın |
 
-**Çıktı Aralığı**: 102 (F Lv1 ★0) – 1.750 (B Lv50 ★5)
+**Çıktı Aralığı**: 102 (F Lv1 ★0) – 8.750 (SS Lv50 ★5)
 
 **Örnek satışlar:**
 
@@ -284,6 +288,8 @@ Canavar instance yaşam döngüsü:
 | F Lv10 ★0 | 10 | 0 | 100 × (1 + 0.20) | **120** |
 | C Lv25 ★2 | 25 | 2 | 400 × (1 + 0.50 + 0.20) | **680** |
 | B Lv50 ★5 | 50 | 5 | 700 × (1 + 1.00 + 0.50) | **1.750** |
+| A Lv50 ★5 | 50 | 5 | 1.200 × (1 + 1.00 + 0.50) | **3.000** |
+| SS Lv50 ★5 | 50 | 5 | 3.500 × (1 + 1.00 + 0.50) | **8.750** |
 
 **Denge notu**: Satış fiyatları kasıtlı olarak düşük — canavar satma kaynak kazanımının ana yolu olmamalı. Ana altın kaynağı zindan loot'udur. Satış envanter yönetimi aracıdır.
 
@@ -353,7 +359,7 @@ Canavar instance yaşam döngüsü:
 | **Zindan Keşif** | Sert | `OnEnemyEncountered(monsterId)` — Pokédex keşfi. Canavar kazanım akışı zindan içinde tetiklenir. | Zindan canavar keşfi bu sisteme bağlı |
 | **Koleksiyon / Envanter UI** | Sert | `GetInventory()`, `GetPokedexStatus()`, `GetCapacity()` — envanter ve Pokédex verisi | UI verileri bu sistemden gelir |
 | **İlerleme Döngüleri** | Yumuşak | Koleksiyon tamamlama yüzdesi, milestone tetikleyicileri | İlerleme metrikleri |
-| **Takım Kurma** | Yumuşak | `GetOwnedMonsters(filters?)` — mevcut canavar listesi | Takım oluşturma havuzu |
+| **Savaş Sistemi** | Yumuşak | `GetOwnedMonsters(filters?)` — aktif pet seçim havuzu | Pet seçim arayüzü |
 
 ### Çapraz bağımlılık notları
 
@@ -388,7 +394,7 @@ Canavar instance yaşam döngüsü:
 - **Diamond Budget Balance (CRITICAL)**: Pokédex'ten toplam elmas kazanımı = 60 tür × (5 keşif + 10 sahiplik) + milestone'lar (50+100+200+500) = ~1.950 elmas. Full expansion sink = 12.750 elmas (8 genişletme). **Tekrarlı kaynaklar gerekli**: Ekonomi GDD'de tanımlanan günlük giriş (7/gün), haftalık görevler (50/hafta), arena ödülleri (20-50/hafta) ile birlikte ortalama 300-400 elmas/ay kazanılır. 60 slota ulaşmak (12.750 elmas) ~42 ay alır — bu uygun bir endgame target'ıdır. Önemli: ilk 5 genişletme (1.550 elmas) MVP expansion için yeterli olmalıdır.
 - `discovery_gem_reward` × `first_owned_gem_reward` × toplam tür sayısı (60 form dahil) birlikte Pokédex'ten toplam elmas kazanımını belirler (MVP: 60 form × 15 elmas = 900 elmas + milestone'lar 850 = toplam ~1.750 elmas). Ekonomi GDD tekrarlı kaynaklarıyla dengelenmeli.
 - `pending_buffer_size` × `pending_expiry_days` birlikte canavar kaybı riskini belirler. İkisini düşürmek agresif envanter yönetimi zorunluluğu yaratır.
-- `sell_level_bonus` × `sell_star_bonus` × max level (50) × max star (5) birlikte maximum satış fiyatını belirler: base × (1 + 1.0 + 0.5) = base × 2.5. Ekonomi GDD altın kaynaklarıyla çakışmamalı.
+- `sell_level_bonus` × `sell_star_bonus` × max level (50) × max star (5) birlikte maximum satış çarpanını belirler: base × (1 + 1.0 + 0.5) = base × 2.5. SS max = 3.500 × 2.5 = 8.750 altın. Ekonomi GDD altın kaynaklarıyla çakışmamalı.
 
 ## Visual/Audio Requirements
 
@@ -480,6 +486,8 @@ Canavar instance yaşam döngüsü:
 20. **GIVEN** bekleme alanında C tier canavar 13 gündür bekliyor, **WHEN** oyuncu giriş yaparsa, **THEN** canavar henüz satılmaz (14 gün süresi dolmamış) ve push notification gönderilir: "Nadir canavarınız beklemede — 1 gün kaldı!"
 
 21. **GIVEN** bekleme alanında F tier canavar 7+ gündür ve C tier canavar 5 gündür bekliyor, **WHEN** oyuncu giriş yaparsa, **THEN** F tier canavar otomatik satılır (süresi dolmuş), C tier canavar beklemede kalır (14 gün süresi dolmamış).
+
+22. **GIVEN** bekleme alanında S tier canavar 25 gündür bekliyor, **WHEN** oyuncu giriş yaparsa, **THEN** canavar henüz satılmaz (30 gün süresi dolmamış) ve push notification gönderilir: "S tier canavarınız beklemede — 5 gün kaldı!"
 
 *`qa-lead` not consulted — Lean mode. Review manually before production.*
 
