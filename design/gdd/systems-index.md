@@ -12,6 +12,7 @@
 Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 bağımsız sistem gerektirir. Core loop — pet topla, evrimleştir, sınıfını geliştir, zindana gir, loot kazan — 5 sütun etrafında döner: Cömert Zindan, Evrimleştir Hepsini, Senin Tempon, Güç Hisset, Hep Bir Şey Var. MVP 20 sistemi kapsar (tek oyunculu core loop: 2 ırk, 4 sınıf, tur bazlı oto/manuel savaş, 15-20 pet B-A-S, kostüm, mağaza, 1 zindan bölgesi, 10 kat). Tier 2'de Arena PvP, ırk etkinlikleri, günlük görevler, tutorial ve bildirimler eklenir.
 
 > **Pivottaki değişiklikler (2026-06-26):** Takım Kurma ve Hibrit Savaş Sistemi kaldırıldı (Savaş Sistemi + Oyuncu Sınıf Sistemi ile değiştirildi). Canavar Güçlendirme, Pet Evrim Sistemi ile birleştirildi. Kostüm/Elbise Sistemi ve Mağaza Sistemi eklendi. Irk Etkinlik Sistemi eklendi. Canavar Veritabanı → Pet/Canavar Veritabanı olarak güncellendi.
+> **Pivottaki değişiklikler (2026-06-30):** Savaş Sistemi 1-aktif-pet modeline göre yeniden yazıldı. **Keşif Alanı Sistemi** (#13) oyunun ANA içeriği olarak eklendi — 20 aşama, SG renk kodu, Kauçuk Bant. Zindan Keşif Sistemi özel etkinliğe düşürüldü (Tier 2).
 
 ---
 
@@ -31,7 +32,8 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 | 10 | Oyuncu Sınıf Sistemi | Gameplay | MVP | Designed | design/gdd/oyuncu-sinif-sistemi.md | Ekonomi, Kaydetme, Hasar Hesaplama, Sağlık/Can, Yetenek Sistemi |
 | 11 | Düşman AI | Gameplay | MVP | Approved | design/gdd/dusuman-ai.md | Hasar Hesaplama, Sağlık, Element Sistemi |
 | 12 | Savaş Sistemi | Gameplay | MVP | Designed | design/gdd/savas-sistemi.md | Hasar Hesaplama, Sağlık, Düşman AI, Oyuncu Sınıf Sistemi, Yetenek Sistemi |
-| 13 | Zindan Keşif Sistemi | Gameplay | MVP | Approved | design/gdd/zindan-kesif.md | Savaş Sistemi, Loot, Pet Evrim Sistemi |
+| 13 | Keşif Alanı Sistemi | Gameplay | MVP | Designed | design/gdd/kesif-alani.md | Savaş Sistemi, Loot, Pet Evrim Sistemi, Ekonomi, Kaydetme |
+| 13b | Zindan Keşif Sistemi *(özel etkinlik)* | Gameplay | Tier 2 | Approved | design/gdd/zindan-kesif.md | Savaş Sistemi, Loot, Pet Evrim Sistemi |
 | 14 | Otofarm / Idle Sistemi | Gameplay | MVP | Approved | design/gdd/otofarm-idle.md | Savaş Sistemi, Loot, Ekonomi, Kaydetme |
 | 15 | Kostüm / Elbise Sistemi | Gameplay | MVP | Not Started | — | Pet/Canavar Veritabanı, Ekonomi |
 | 16 | IAP + Reklam Sistemi | Economy | MVP | Not Started | — | Ekonomi, Kostüm/Elbise Sistemi, Pet/Canavar Veritabanı |
