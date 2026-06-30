@@ -24,6 +24,38 @@ namespace CanavarZindanlari.Economy
 
         private DateTime _lastEnergyRegen;
 
+        // ── Bağlantı ───────────────────────────────────────────────────────────
+
+        private void Start()
+        {
+            if (IAPManager.Instance != null)
+                IAPManager.Instance.GemsGranted += OnGemsGranted;
+
+            if (AdManager.Instance != null)
+                AdManager.Instance.RewardGranted += OnAdReward;
+        }
+
+        private void OnDestroy()
+        {
+            if (IAPManager.Instance != null)
+                IAPManager.Instance.GemsGranted -= OnGemsGranted;
+
+            if (AdManager.Instance != null)
+                AdManager.Instance.RewardGranted -= OnAdReward;
+        }
+
+        private void OnGemsGranted(string productId, int gems)
+        {
+            Debug.Log($"[EconomyManager] IAP ödülü: {gems} elmas ({productId})");
+            AddDiamonds(gems);
+        }
+
+        private void OnAdReward(int gems)
+        {
+            Debug.Log($"[EconomyManager] Reklam ödülü: {gems} elmas");
+            AddDiamonds(gems);
+        }
+
         // ── Gold ───────────────────────────────────────────────────────────────
 
         public bool SpendGold(int amount)
