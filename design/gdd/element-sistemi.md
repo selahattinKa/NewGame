@@ -25,7 +25,7 @@ Oyuncu element sisteminde **taktik üstünlük** fantezisi yaşar. Zindan giriş
 
 **Pillar bağlantısı**: "Güç Hisset" — element avantajı güçlü olma hissini %50 artırır. "Topla Hepsini" — her element, toplanmaya değer farklı canavarlar anlamına gelir. "Senin Tempon" — otofarm'da element sistemi basitleştirilmiş çalışır, aktif oyunda tam derinlik sunar.
 
-## Detailed Design
+## Detailed Rules
 
 ### Core Rules
 

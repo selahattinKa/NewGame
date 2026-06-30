@@ -25,7 +25,7 @@ Oyuncu hasar hesaplamasını iki katmanda deneyimler. **Yüzeyde**, ekranda uçu
 
 **Pillar bağlantısı**: "Güç Hisset" — büyüyen hasar sayıları gücün en görünür ifadesi. "Cömert Zindan" — dezavantajlı element bile anlamlı hasar verir, cezalandırıcı değil. "Senin Tempon" — otofarm'da hasar otomatik hesaplanır, komutan modunda oyuncu element avantajını bilinçli kullanır.
 
-## Detailed Design
+## Detailed Rules
 
 ### Core Rules
 
@@ -142,7 +142,7 @@ Tek "durum" kavramı: kritik vuruş olasılık dağılımı. MVP'de bu sabit %10
 | **Düşman AI** | dolaylı | AI hasar tahminini kullanabilir | `EstimateDamage(attackerId, targetId)` → int (kritik hariç tahmini hasar) |
 | **Savaş UI** | → gönderir | Hasar gösterim verileri | `OnDamageDealt` event → {final_damage, was_critical, element_info} |
 
-**Veri akışı özeti**: Canavar Veritabanı + Element Sistemi → giriş sağlar. Hibrit Savaş → hesaplamayı tetikler. Bu sistem → Sağlık'a hasar, UI'a görüntüleme verisi gönderir.
+**Veri akışı özeti**: Canavar Veritabanı + Element Sistemi → giriş sağlar. Savaş Sistemi → hesaplamayı tetikler. Bu sistem → Sağlık'a hasar, UI'a görüntüleme verisi gönderir.
 
 ## Formulas
 
@@ -233,7 +233,7 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 
 - **If saldıran savaş dışıysa (HP=0)**: Saldırı gerçekleşmez — Savaş Sistemi savaş dışı canavarı saldırı sırasından çıkarır. Hasar Hesaplama çağrılmaz.
 
-- **If savunan savaş dışıysa (HP=0)**: Hedef geçersiz — saldırı iptal, Hibrit Savaş yeni hedef seçer. Hasar Hesaplama çağrılmaz.
+- **If savunan savaş dışıysa (HP=0)**: Hedef geçersiz — saldırı iptal, Savaş Sistemi yeni hedef seçer. Hasar Hesaplama çağrılmaz.
 
 - **If element çarpanı × base_damage floor sonucu 0 olursa**: Formül 4'teki `max(1, ...)` ile 1'e clamp edilir. (ör: base_damage=1, dezavantaj 0.75x → floor(0.75) = 0 → final 1)
 
@@ -264,7 +264,7 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 | Sistem | Tip | Arayüz | Kritiklik |
 |--------|-----|--------|-----------|
 | **Sağlık / Can Sistemi** | Sert | `TakeDamage(targetId, amount)` — final hasar iletilir | Olmadan hasar uygulanamaz |
-| **Savaş Sistemi** | Sert | `CalculateDamage(attackerId, targetId)` — savaş döngüsünde çağırılır | Olmadan savaş mekaniği çalışmaz |
+| **Savaş Sistemi** | Sert | `CalculateDamage(attackerId, targetId, damageType)` — savaş döngüsünde çağırılır | Olmadan savaş mekaniği çalışmaz |
 | **Düşman AI** | Yumuşak | `EstimateDamage(attackerId, targetId)` — hedef seçimi tahmini | AI daha akıllı hedef seçer; olmadan rastgele |
 | **Savaş UI** | Yumuşak | `OnDamageDealt` event → hasar gösterim verileri | Olmadan hasar sayıları gösterilemez |
 

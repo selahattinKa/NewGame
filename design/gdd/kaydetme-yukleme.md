@@ -13,7 +13,7 @@ Kaydetme / Yükleme sistemi, oyunun tüm kalıcı verilerini (canavar koleksiyon
 
 Kaydetme / Yükleme doğrudan bir oyuncu fantezisi sunmaz — oyuncu bu sistemle bilinçli olarak etkileşmez. Ancak dolaylı olarak tüm sütunları destekler: oyuncu saatlerce biriktirdiği canavarların, kazandığı kaynakların ve ulaştığı zindan katının her zaman güvende olduğunu bilir. "Telefonumu kapattım, geri döndüğümde her şey yerindeydi" hissi bu sistemin başarı göstergesidir. Sistem görünmez olduğunda başarılıdır — oyuncu kaydetmeyi düşünmez, çünkü kaydetme her zaman gerçekleşmiştir. Başarısızlık ise yıkıcıdır: tek bir kayıp save, oyuncunun güvenini kalıcı olarak kırar ve Pillar 4 "Güç Hisset" fantezisini tamamen yok eder.
 
-## Detailed Design
+## Detailed Rules
 
 ### Core Rules
 
@@ -98,7 +98,7 @@ Kaydetme / Yükleme doğrudan bir oyuncu fantezisi sunmaz — oyuncu bu sistemle
 | **Takım Kurma** | ← Takım verisini sağlar | `team_presets`, `active_team_index` | Preset listesi ve aktif takım |
 | **Zindan Keşif** | ← İlerleme verisini sağlar | `dungeon_progress` | Kat ilerlemesi, first-clear durumları |
 | **Otofarm / Idle** | ← Idle state sağlar, → çevrimdışı süre sağlar | `idle_state`, `save_timestamp` | Otofarm başlangıç zamanı; offline_duration hesaplaması |
-| **Hibrit Savaş** | → Savaş sonu save tetikler | Event: `OnBattleComplete` | Savaş bitince kaydet |
+| **Savaş Sistemi** | → Savaş sonu save tetikler | Event: `OnBattleComplete` | Savaş bitince kaydet |
 | **UI Framework** | → Save durumu bildirir | Event: `OnSaveStateChanged` | Loading göstergesi, hata bildirimi |
 
 ## Formulas
@@ -180,7 +180,7 @@ Sabit değer: **0.5 saniye**. Debounce penceresi içinde gelen tüm save request
 | **Canavar Güçlendirme** | Soft | `monster_collection` içinde | Seviye, XP, yıldız, evrim verileri persist edilir. |
 | **Takım Kurma** | Soft | `team_presets`, `active_team_index` | Takım preset'leri persist edilir. |
 | **Zindan Keşif** | Soft | `dungeon_progress` | Kat ilerlemesi ve first-clear durumları persist edilir. |
-| **Hibrit Savaş** | Soft | Event: `OnBattleComplete` → save tetikler | Savaş sonuçları save'i tetikler ama savaş sistemi save'e bağımlı değildir. |
+| **Savaş Sistemi** | Soft | Event: `OnBattleComplete` → save tetikler | Savaş sonuçları save'i tetikler ama savaş sistemi save'e bağımlı değildir. |
 | **UI Framework** | Soft | Event: `OnSaveStateChanged` | Save durumu değişikliklerini dinler (loading spinner, hata mesajı). |
 
 **Çift Yönlü Tutarlılık Notu:** Bu GDD tamamlandığında, yukarıdaki downstream GDD'lerin Dependencies bölümlerinde "Kaydetme / Yükleme" referansı güncellenmelidir.

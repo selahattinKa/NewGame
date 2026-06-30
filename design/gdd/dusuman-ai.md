@@ -334,7 +334,7 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 | **Savaş Sistemi** | Sert | `GetEnemyAction(enemyId)` → {actionType, targetId, skillId} — savaş döngüsünde düşman aksiyonu; `OnEnemyAction` event → animasyon tetiklemesi | Olmadan düşmanlar savaşta hiçbir şey yapmaz |
 | **Savaş UI** | Yumuşak | `OnEnemyAction` event → {actionType, targetId, damage} — AI aksiyon bilgisi görsel gösterim için | Olmadan düşman aksiyonları gösterilmez ama savaş çalışır |
 
-**Bağımlılık doğası**: 5 upstream'den veri alır (stat, HP, element, düşman listesi, hasar tahmin). Hibrit Savaş'a aksiyon kararı, UI'a görüntüleme bilgisi gönderir. Düşman AI'ın kendisi state tutmaz (boss öfke modu hariç) — her karar bağımsız hesaplanır.
+**Bağımlılık doğası**: 5 upstream'den veri alır (stat, HP, element, düşman listesi, hasar tahmin). Savaş Sistemi'a aksiyon kararı, UI'a görüntüleme bilgisi gönderir. Düşman AI'ın kendisi state tutmaz (boss öfke modu hariç) — her karar bağımsız hesaplanır.
 
 **Bidirectional check**: Hasar Hesaplama GDD'sinde Düşman AI "yumuşak downstream" ✓. Sağlık/Can GDD'sinde Düşman AI "yumuşak downstream" ✓. Element Sistemi GDD'sinde Düşman AI "yumuşak downstream" ✓. Zindan Keşif GDD: ✅ Yazıldı — `GetFloorEnemies` arayüzü doğrulandı.
 

@@ -34,7 +34,7 @@ Sistem bilinçli olarak hafif tutulmuştur: oyuncu saatlerini versin ama kafası
 - Bir takımda minimum 1, maksimum 4 canavar bulunur
 - Aynı canavar aynı takımda birden fazla slotta bulunamaz (benzersiz)
 - Aynı canavar farklı preset'lerde yer alabilir — kısıtlama yok
-- Takımda slot sırası (1–4) formasyon pozisyonunu belirler (savaş dizilimi — detaylar Hibrit Savaş GDD'sinde)
+- Takımda slot sırası (1–4) formasyon pozisyonunu belirler (savaş dizilimi — detaylar Savaş Sistemi GDD'sinde)
 - Takım boş bırakılamaz — en az 1 canavar olmadan savaş başlatılamaz
 
 **Kural 2 — Canavar Seçimi**

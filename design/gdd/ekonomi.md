@@ -23,7 +23,7 @@ Oyuncu ekonomi sisteminde **cömert zenginleşme** fantezisi yaşar. Her zindan 
 
 **Pillar bağlantısı**: "Cömert Zindan" — her girişte cömert ödül. "Güç Hisset" — harcama = güçlenme, sayılar büyümeli. "Senin Tempon" — aktif oynayan daha hızlı kazanır ama pasif de ilerler.
 
-## Detailed Design
+## Detailed Rules
 
 ### Core Rules
 

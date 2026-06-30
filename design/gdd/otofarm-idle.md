@@ -22,7 +22,7 @@ Pillar bağlantısı: "Senin Tempon" — aktif oyuncuya premium verimlilik, pasi
 
 *`creative-director` consulted — Full review, senior synthesis completed.*
 
-## Detailed Design
+## Detailed Rules
 
 ### Core Rules
 
@@ -133,7 +133,7 @@ Pillar bağlantısı: "Senin Tempon" — aktif oyuncuya premium verimlilik, pasi
 | **Kaydetme / Yükleme** | ← `offline_duration` alır, → `idle_state` yazar | `idle_state`: {active, start_time, floor, region, team_power, idle_pity_bonus, pending_report} | Çevrimdışı süre + idle durumu + pity kalıcılığı + bekleyen rapor persist |
 | **Ekonomi / Kaynak Yönetimi** | ← Altın oranı alır, → ödülleri uygular | `GetIdleGoldRate(teamPower)`, `GrantReward()` | idle_gold_per_minute × offline_minutes (kademeli azalan getiri) |
 | **Loot / Ödül Sistemi** | ← İdle loot oranları ve pity parametreleri alır | `GetIdleLootRate(teamPower, region)`, `GetPityParams()` | Kat-tabanlı stokastik rulo, idle-pity ayrı counter |
-| **Hibrit Savaş** | ← Otofarm verimlilik farkı | Mod bilgisi | Otofarm %50-25 verim, komutan %100 |
+| **Savaş Sistemi** | ← Otofarm verimlilik farkı | Mod bilgisi | Otofarm %50-25 verim, komutan %100 |
 | **Zindan Keşif** | ← En yüksek geçilmiş kat | `GetHighestClearedFloor(region)` | Farm katı belirleme |
 | **Canavar Toplama** | → Kazanılan canavarları ekler | `OnMonsterDropped(monsterId)` | İdle canavarları envantere/beklemeye |
 | **Takım Kurma** | ← Aktif takım gücü | `GetActiveTeamPower()` | Idle gold rate hesaplama (başlangıç snapshot) |
@@ -333,7 +333,7 @@ for each idle_floor in 1..idle_floors_cleared:
 
 | Sistem | Bağımlılık Tipi | Arayüz | Açıklama |
 |--------|----------------|--------|----------|
-| **Hibrit Savaş** | Soft | Mod tanımı, verimlilik farkı | Otofarm mod tanımı savaş sisteminden gelir ama idle sistem savaş motoru çalıştırmaz. |
+| **Savaş Sistemi** | Soft | Mod tanımı, verimlilik farkı | Otofarm mod tanımı savaş sisteminden gelir ama idle sistem savaş motoru çalıştırmaz. |
 | **Zindan Keşif** | Soft | `GetHighestClearedFloor(region)` | Farm katı belirleme. |
 | **Takım Kurma** | Soft | `GetActiveTeamPower()` | Idle gold rate hesaplama. teamPower otofarm başlangıcında snapshot olarak kaydedilir. |
 | **Canavar Toplama** | Soft | `OnMonsterDropped(monsterId)` | İdle canavarları envantere ekleme. |

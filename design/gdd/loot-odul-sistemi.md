@@ -27,7 +27,7 @@ Loot / Ödül Sistemi'nde oyuncu **"her zindan cömert, her sandık heyecanlı"*
 
 **Pillar bağlantısı**: "Cömert Zindan" — minimum ödül tabanı her girişte tatmin sağlar. "Topla Hepsini" — canavar düşmeleri koleksiyon genişletme dürtüsünü besler. "Güç Hisset" — her loot bir güçlenme fırsatı.
 
-## Detailed Design
+## Detailed Rules
 
 ### Core Rules
 

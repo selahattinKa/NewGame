@@ -25,7 +25,7 @@ Güçlendirme sistemi oyuncunun **"benim canavarım gelişiyor"** fantezisinin d
 
 **Pillar bağlantısı**: "Güç Hisset" — her güçlendirme eylemi oyuncuyu somut olarak daha güçlü yapar. "Topla Hepsini" — kopya canavarlar bile değerli, koleksiyondaki her parça güce dönüşür.
 
-## Detailed Design
+## Detailed Rules
 
 ### Core Rules
 

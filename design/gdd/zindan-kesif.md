@@ -214,7 +214,7 @@ Locked → Unlocked → InProgress ──→ Cleared ──→ InProgress (tekra
 |-------|----------|-------|-------|
 | **MapView** | Zindan harita ekranı — kat seçimi | Ana menüden "Zindan" | → FloorEntry / Sweep |
 | **FloorEntry** | Kat giriş — düşman grubu oluşturma | Kat seçildi + enerji yeterli | → WaveCombat |
-| **WaveCombat** | Dalga savaşı — Hibrit Savaş aktif | Düşman grubu hazır | → WaveTransition / FloorCleared / FloorFailed |
+| **WaveCombat** | Dalga savaşı — Savaş Sistemi aktif | Düşman grubu hazır | → WaveTransition / FloorCleared / FloorFailed |
 | **WaveTransition** | Dalga arası geçiş — sonraki dalga yükleniyor | Dalga yenildi, sonraki dalga var | → WaveCombat |
 | **FloorCleared** | Kat temizlendi — loot dağıtımı + sonuç ekranı | Son dalga yenildi | → MapView / FloorEntry (devam) |
 | **FloorFailed** | Kat başarısız — tekrar dene ekranı | TPK veya çekilme | → MapView / FloorEntry (tekrar) |
@@ -241,7 +241,7 @@ MVP'de tek bölge her zaman Available durumundadır.
 
 | Sistem | Yön | Veri Akışı | Arayüz |
 |--------|-----|-----------|--------|
-| **Hibrit Savaş** | ↔ çift yönlü | Düşman listesi sağlar ←; savaş sonucu alır → | `GetFloorEnemies(floorNumber, waveIndex)` → [{monsterId, level, element}]; `OnBattleComplete(result)` ← {outcome, turnsUsed} |
+| **Savaş Sistemi** | ↔ çift yönlü | Düşman listesi sağlar ←; savaş sonucu alır → | `GetFloorEnemies(floorNumber, waveIndex)` → [{monsterId, level, element}]; `OnBattleComplete(result)` ← {outcome, turnsUsed} |
 | **Loot / Ödül** | → tetikler | Kat bilgisi sağlar; loot hesaplamasını tetikler | `GetCurrentFloorInfo()` → {floor, type, region, boss_id}; `DistributeFloorLoot(floorNumber, floorType, regionId)` |
 | **Canavar Toplama** | → tetikler | Düşman karşılaşma sinyali (Pokédex keşfi) | `OnEnemyEncountered(monsterId)` — her dalgadaki düşmanlar için |
 | **Ekonomi** | ← okur + → çağırır | Enerji kontrolü ve harcama | `HasEnergy(amount)` → bool; `SpendEnergy(amount)`; `GetCurrentEnergy()` → int |
@@ -252,10 +252,10 @@ MVP'de tek bölge her zaman Available durumundadır.
 | **Zindan Harita UI** | → sağlar | Kat durumları, bölge bilgisi, ilerleme verisi | `GetFloorStates()` → [{floor, status, firstClear}]; `GetRegionInfo()` → {name, theme, element} |
 | **Otofarm / Idle** | → sağlar | En yüksek temizlenmiş kat, bölge bilgisi | `GetHighestClearedFloor()` → int; idle hesaplama için referans |
 
-**Veri akışı özeti**: Bu sistem savaş öncesi hazırlık (düşman oluşturma, enerji kontrolü) ve savaş sonrası sonuç işleme (loot tetikleme, ilerleme güncelleme) arasında orkestratör rolü üstlenir. Hibrit Savaş gerçek savaşı yönetir; bu sistem savaşın bağlamını (hangi kat, hangi düşmanlar, ne ödül) tanımlar.
+**Veri akışı özeti**: Bu sistem savaş öncesi hazırlık (düşman oluşturma, enerji kontrolü) ve savaş sonrası sonuç işleme (loot tetikleme, ilerleme güncelleme) arasında orkestratör rolü üstlenir. Savaş Sistemi gerçek savaşı yönetir; bu sistem savaşın bağlamını (hangi kat, hangi düşmanlar, ne ödül) tanımlar.
 
 **Bidirectional check**:
-- Hibrit Savaş GDD: `GetFloorEnemies` ← ve `OnBattleComplete` → tanımlı ✅
+- Savaş Sistemi GDD: `GetFloorEnemies` ← ve `OnBattleComplete` → tanımlı ✅
 - Loot GDD: `GetCurrentFloorInfo` tanımlı ✅
 - Canavar Toplama GDD: `OnEnemyEncountered` tanımlı ✅
 - Ekonomi GDD: Enerji sistemi tanımlı ✅
@@ -398,7 +398,7 @@ Sweep normal loot tablosunu kullanır — verimlilikte fark yoktur. Tek fark sü
 
 | Sistem | Tip | Arayüz | Kritiklik |
 |--------|-----|--------|-----------|
-| **Hibrit Savaş** | Sert | `OnBattleComplete(result)` — savaş sonucu bildirimi | Olmadan kat sonucu belirlenemez |
+| **Savaş Sistemi** | Sert | `OnBattleComplete(result)` — savaş sonucu bildirimi | Olmadan kat sonucu belirlenemez |
 | **Loot / Ödül** | Sert | `DistributeFloorLoot(floorNumber, floorType, regionId)` — loot hesaplama ve dağıtım | Olmadan kat ödülü verilemez |
 | **Canavar Toplama** | Yumuşak | `OnEnemyEncountered(monsterId)` — Pokédex keşif kaydı | Olmadan keşif çalışmaz ama zindan ilerler |
 | **Ekonomi** | Sert | `HasEnergy(amount)`, `SpendEnergy(amount)` — enerji kontrolü ve harcama | Olmadan kata giriş kontrol edilemez |
@@ -412,15 +412,15 @@ Sweep normal loot tablosunu kullanır — verimlilikte fark yoktur. Tek fark sü
 
 | Sistem | Tip | Arayüz | Kritiklik |
 |--------|-----|--------|-----------|
-| **Hibrit Savaş** | Sert | `GetFloorEnemies(floorNumber, waveIndex)` — kat düşman listesi | Savaşta düşman grubu bu sistemden gelir |
+| **Savaş Sistemi** | Sert | `GetFloorEnemies(floorNumber, waveIndex)` — kat düşman listesi | Savaşta düşman grubu bu sistemden gelir |
 | **Zindan Harita UI** | Sert | `GetFloorStates()`, `GetRegionInfo()` — harita verisi | UI verileri bu sistemden gelir *(GDD henüz yazılmadı — Not Started)* |
 | **Otofarm / Idle** | Sert | `GetHighestClearedFloor()` — idle hesaplama referansı | Idle ilerlemesi en yüksek kata bağlı |
 | **Loot / Ödül** | Sert | `GetCurrentFloorInfo()` — kat bilgisi loot tablosu seçimi için | Loot tablosu seçimi kat bilgisine bağlı |
 
-**Çift yönlü**: Hibrit Savaş ↔ Zindan Keşif (düşman listesi sağlar ←, savaş sonucu alır →). Loot ↔ Zindan Keşif (kat bilgisi sağlar →, loot tablosu uygular ←).
+**Çift yönlü**: Savaş Sistemi ↔ Zindan Keşif (düşman listesi sağlar ←, savaş sonucu alır →). Loot ↔ Zindan Keşif (kat bilgisi sağlar →, loot tablosu uygular ←).
 
 **Bidirectional check**:
-- Hibrit Savaş GDD: Zindan Keşif upstream + downstream olarak listelenmiş ✅
+- Savaş Sistemi GDD: Zindan Keşif upstream + downstream olarak listelenmiş ✅
 - Loot GDD: Zindan Keşif upstream olarak listelenmiş ✅
 - Canavar Toplama GDD: Zindan Keşif downstream olarak listelenmiş ✅
 - Sağlık/Can GDD: Zindan Keşif downstream olarak listelenmiş ✅

@@ -31,7 +31,7 @@ Kopya canavarlar bile değerlidir: yıldız birleştirme malzemesi olarak güce,
 
 *`creative-director` not consulted — Lean mode. Review manually before production.*
 
-## Detailed Design
+## Detailed Rules
 
 ### Core Rules
 

@@ -363,10 +363,10 @@ Stack kuralı: aynı tip efekt stack'lenmez, süre yenilenir. Farklı tipler ayn
 **Veri akışı özeti**: Takım Kurma + Canavar Veritabanı + Element Sistemi → savaş öncesi girdi. Düşman AI → düşman kararları. Hasar Hesaplama ↔ Sağlık/Can → savaş anı pipeline. Savaş sonucu → Loot + Zindan Keşif. UI'a sürekli event yayını. Bu sistem orkestratör — diğer sistemleri doğru sırayla çağırır, kendisi hesaplama yapmaz.
 
 **Bidirectional check**:
-- Hasar Hesaplama GDD: Hibrit Savaş → sert downstream ✓
-- Sağlık/Can GDD: Hibrit Savaş → sert downstream ✓
-- Takım Kurma GDD: Hibrit Savaş → sert downstream ✓
-- Düşman AI GDD: Hibrit Savaş → sert downstream ✓
+- Hasar Hesaplama GDD: Savaş Sistemi → sert downstream ✓
+- Sağlık/Can GDD: Savaş Sistemi → sert downstream ✓
+- Takım Kurma GDD: Savaş Sistemi → sert downstream ✓
+- Düşman AI GDD: Savaş Sistemi → sert downstream ✓
 - Loot/Ödül GDD: `DistributeLoot(battleResult, floorNumber)` upstream eklendi ✓
 - Zindan Keşif GDD: ✅ Yazıldı — `GetFloorEnemies` ve `OnBattleComplete` arayüzleri doğrulandı
 
@@ -482,7 +482,7 @@ Stack kuralı: aynı tip efekt stack'lenmez, süre yenilenir. Farklı tipler ayn
 
 ### Formül 5: Destekçi Yeteneği — İyileştirme (heal_amount) — Referans
 
-Sağlık / Can Sistemi GDD'sinde tanımlıdır (`healer_heal_formula`). Hibrit Savaş bu formülü tetikler.
+Sağlık / Can Sistemi GDD'sinde tanımlıdır (`healer_heal_formula`). Savaş Sistemi bu formülü tetikler.
 
 `heal_amount = floor(target_max_hp × healer_skill_rate)`
 
@@ -688,13 +688,13 @@ Rare Tank Lv20 Form B (max_hp=92) → heal = floor(92×0.20) = **18 HP**
 
 **Bağımlılık doğası**: Bu sistem orkestratör — 8 upstream'den veri alır, 4 downstream'e sonuç bildirir. Kendisi hesaplama yapmaz, doğru sırayla diğer sistemleri çağırır.
 
-**Çift yönlü**: Zindan Keşif ↔ Hibrit Savaş (düşman listesi alır ←, savaş sonucu bildirir →). Sağlık/Can ↔ Hibrit Savaş (HP okur ←, hasar/iyileşme gönderir →).
+**Çift yönlü**: Zindan Keşif ↔ Savaş Sistemi (düşman listesi alır ←, savaş sonucu bildirir →). Sağlık/Can ↔ Savaş Sistemi (HP okur ←, hasar/iyileşme gönderir →).
 
 **Bidirectional check**:
-- Hasar Hesaplama GDD: "Hibrit Savaş → sert downstream" ✓
-- Sağlık/Can GDD: "Hibrit Savaş → sert downstream" ✓
-- Takım Kurma GDD: "Hibrit Savaş → sert downstream" ✓
-- Düşman AI GDD: "Hibrit Savaş → sert downstream" ✓
+- Hasar Hesaplama GDD: "Savaş Sistemi → sert downstream" ✓
+- Sağlık/Can GDD: "Savaş Sistemi → sert downstream" ✓
+- Takım Kurma GDD: "Savaş Sistemi → sert downstream" ✓
+- Düşman AI GDD: "Savaş Sistemi → sert downstream" ✓
 - Loot/Ödül GDD: `DistributeLoot(battleResult, floorNumber)` upstream eklendi ✓
 - Zindan Keşif GDD: ✅ Yazıldı — çift yönlü arayüzler doğrulandı
 - Otofarm GDD: ✅ Yazıldı — savaş simülasyonu arayüzü doğrulandı
@@ -787,7 +787,7 @@ Rare Tank Lv20 Form B (max_hp=92) → heal = floor(92×0.20) = **18 HP**
 | Kaybetme | Düşen ton + yumuşak "neredeyse" hissi | Hafif, cezalandırıcı değil | MVP |
 | Hız değişimi | Kısa "tık" + hız ritmi değişimi | Nötr | Nice-to-have |
 
-> **Asset Spec Flag**: Visual/Audio gereksinimleri tanımlandı. Art bible onaylandıktan sonra `/asset-spec system:hibrit-savas` çalıştırarak savaş VFX, ikon ve ses asset spesifikasyonları üretilebilir.
+> **Asset Spec Flag**: Visual/Audio gereksinimleri tanımlandı. Art bible onaylandıktan sonra `/asset-spec system:savas-sistemi` çalıştırarak savaş VFX, ikon ve ses asset spesifikasyonları üretilebilir.
 
 ## UI Requirements
 
@@ -927,7 +927,7 @@ Tüm interaktif elemanlar minimum 44×44 dp (technical-preferences.md). Yetenek 
 
 1. **Oyuncu yetenek çarpanları vs düşman yetenek çarpanları**: Oyuncu Saldırgan 2.0x, düşman mini-boss Saldırgan 1.5x — bu fark bilinçli mi, yoksa aynı mı olmalı? → Playtest'te dengelenecek. Oyuncunun daha güçlü hissetmesi "Güç Hisset" sütunuyla uyumlu.
 
-2. **Buff/debuff sistemi (Tier 2+)**: ATK/DEF geçici değişiklikleri (zehir, yanma, hız azaltma) formül pipeline'ına nasıl eklenir? → Ayrı buff/debuff GDD'si veya Hibrit Savaş Tier 2 güncellemesi olarak tanımlanacak.
+2. **Buff/debuff sistemi (Tier 2+)**: ATK/DEF geçici değişiklikleri (zehir, yanma, hız azaltma) formül pipeline'ına nasıl eklenir? → Ayrı buff/debuff GDD'si veya Savaş Sistemi Tier 2 güncellemesi olarak tanımlanacak.
 
 3. **Pasif yetenekler (Tier 2+)**: Her arketipe 1 pasif yetenek eklenmesi planlanıyor mu? (ör: "HP %20 altındayken +30% ATK") → Tier 2+ genişletmesi.
 
