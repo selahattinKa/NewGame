@@ -2,8 +2,12 @@
 
 > **Status**: Designed
 > **Author**: user + game-designer, systems-designer
-> **Last Updated**: 2026-06-24
+> **Last Updated**: 2026-06-30
 > **Implements Pillar**: Topla Hepsini, Güç Hisset
+
+> ⚠️ **PROTOTYPE KAPSAM NOTU**: Element avantaj/dezavantaj çarpanları prototipte **devre dışı**.
+> `GetElementMultiplier()` her zaman `1.0` döner. Element kimlikleri (Ateş/Su/Toprak/Hava)
+> görsel amaçla korunur. Mekanik avantaj sistemi tam versiyonda (MVP+) etkinleştirilir.
 
 ## Overview
 

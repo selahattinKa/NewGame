@@ -5,6 +5,11 @@
 > **Last Updated**: 2026-06-30
 > **Implements Pillar**: Güç Hisset, Cömert Zindan
 
+> ⚠️ **PROTOTYPE KAPSAM NOTU**: `element_multiplier` prototipte sabit **1.0** — element
+> avantaj/dezavantaj hesabı yapılmaz. `GetElementMultiplier()` her zaman 1.0f döner.
+> Pipeline adımı 3 (element_damage satırı) prototipte `element_damage = base_damage`
+> olarak basitleşir. Tam avantaj sistemi MVP+'da etkinleştirilir.
+
 ## Overview
 
 **Hasar Hesaplama**, savaştaki her saldırının final hasar değerini üreten merkezi hesaplama pipeline'ıdır. Saldıran canavarın ATK stat'ını, savunan canavarın DEF stat'ını, element çarpanını (avantaj/dezavantaj/nötr), sinerji bonuslarını ve kritik vuruş şansını katmanlı bir formülle birleştirerek tek bir tamsayı hasar değeri üretir. Bu değer Sağlık / Can Sistemi'ne `TakeDamage()` aracılığıyla iletilir.
