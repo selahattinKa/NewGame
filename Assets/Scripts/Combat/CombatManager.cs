@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using CanavarZindanlari.Data;
+using System.Collections.Generic;
 
 namespace CanavarZindanlari.Combat
 {
@@ -35,7 +36,7 @@ namespace CanavarZindanlari.Combat
         public event Action<CombatActionResult, bool> OnPlayerAction;  // result, isPlayerActor
         public event Action<CombatActionResult>        OnEnemyAction;
         public event Action<CombatState>               OnStateChanged;
-        public event Action<int>                       OnExpGained;
+        public event Action<BattleReward>              OnBattleEnded;
 
         private bool _waitingForInput;
 
@@ -166,17 +167,66 @@ namespace CanavarZindanlari.Combat
             State = outcome;
             OnStateChanged?.Invoke(State);
 
-            if (outcome == CombatState.Victory)
-            {
-                int exp = CalculateExpReward();
-                OnExpGained?.Invoke(exp);
-            }
+            var reward = GenerateReward(outcome == CombatState.Victory);
+            OnBattleEnded?.Invoke(reward);
         }
 
-        private int CalculateExpReward()
+        // ── Ödül üretimi ───────────────────────────────────────────────────────
+
+        // Prototype loot havuzu — gerçek item sistemi gelince genişletilir
+        private static readonly (string Name, Rarity Rarity)[] PrototypeLootPool =
         {
-            // Base XP from enemy level; expand when MonsterInstance exists
-            return UnityEngine.Random.Range(200, 281);
+            ("Ejderha Pulu",    Rarity.B),
+            ("Eski Kemik",      Rarity.F),
+            ("Kristal Tozu",    Rarity.C),
+            ("Gölge Özü",       Rarity.A),
+            ("Demir Parçası",   Rarity.F),
+            ("Ruh Taşı",        Rarity.S),
+            ("Zehir Bezi",      Rarity.D),
+        };
+
+        private BattleReward GenerateReward(bool isVictory)
+        {
+            int exp = isVictory ? UnityEngine.Random.Range(200, 281) : 0;
+
+            LootDrop[] items = Array.Empty<LootDrop>();
+            if (isVictory)
+            {
+                int count = UnityEngine.Random.Range(1, 4); // 1-3 item
+                var picked = new List<LootDrop>(count);
+                var usedIndices = new HashSet<int>();
+
+                while (picked.Count < count)
+                {
+                    int idx = UnityEngine.Random.Range(0, PrototypeLootPool.Length);
+                    if (usedIndices.Add(idx))
+                    {
+                        var (name, rarity) = PrototypeLootPool[idx];
+                        picked.Add(new LootDrop
+                        {
+                            ItemName = name,
+                            Quantity = UnityEngine.Random.Range(1, 4),
+                            Rarity   = rarity,
+                            Icon     = null,
+                        });
+                    }
+                }
+                items = picked.ToArray();
+            }
+
+            // First-clear: PlayerPrefs ile tek seferlik
+            string clearKey = $"cleared_{Enemy?.DisplayName ?? "unknown"}";
+            bool isFirstClear = isVictory && !PlayerPrefs.HasKey(clearKey);
+            if (isFirstClear) PlayerPrefs.SetInt(clearKey, 1);
+
+            return new BattleReward
+            {
+                IsVictory    = isVictory,
+                ExpGained    = exp,
+                Items        = items,
+                IsFirstClear = isFirstClear,
+                BonusGems    = isFirstClear ? 50 : 0,
+            };
         }
     }
 }

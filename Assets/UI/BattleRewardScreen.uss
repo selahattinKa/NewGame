@@ -1,0 +1,163 @@
+/* === BattleRewardScreen — mobil portrait, min dokunma hedefi 44px === */
+
+.overlay {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    align-items: center;
+    justify-content: center;
+}
+
+.panel {
+    background-color: rgb(18, 18, 36);
+    border-color: rgb(80, 60, 120);
+    border-width: 2px;
+    border-radius: 16px;
+    width: 88%;
+    max-width: 420px;
+    padding: 24px 20px;
+    align-items: stretch;
+}
+
+.title {
+    font-size: 36px;
+    color: rgb(255, 215, 0);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 4px;
+}
+
+.title--defeat {
+    color: rgb(255, 80, 80);
+}
+
+.divider {
+    height: 1px;
+    background-color: rgb(60, 50, 90);
+    margin-top: 8px;
+    margin-bottom: 12px;
+}
+
+/* EXP satırı */
+.exp-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.exp-label {
+    font-size: 16px;
+    color: rgb(180, 160, 220);
+    -unity-font-style: bold;
+}
+
+.exp-value {
+    font-size: 28px;
+    color: rgb(140, 220, 255);
+    -unity-font-style: bold;
+}
+
+/* First-clear satırı */
+.first-clear-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    background-color: rgba(255, 215, 0, 0.1);
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+
+.first-clear-label {
+    font-size: 13px;
+    color: rgb(255, 215, 0);
+    -unity-font-style: bold;
+}
+
+.gems-value {
+    font-size: 18px;
+    color: rgb(255, 215, 0);
+    -unity-font-style: bold;
+}
+
+/* Loot listesi */
+.section-header {
+    font-size: 13px;
+    color: rgb(130, 110, 170);
+    -unity-font-style: bold;
+    margin-bottom: 6px;
+    -unity-text-align: middle-left;
+}
+
+.loot-container {
+    max-height: 200px;
+    margin-bottom: 16px;
+}
+
+.loot-row {
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 4px;
+    border-bottom-width: 1px;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.loot-name {
+    flex-grow: 1;
+    font-size: 15px;
+    color: rgb(220, 210, 240);
+}
+
+.loot-qty {
+    font-size: 15px;
+    color: rgb(180, 180, 180);
+    margin-right: 8px;
+}
+
+.loot-rarity {
+    font-size: 12px;
+    -unity-font-style: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.08);
+    min-width: 28px;
+    -unity-text-align: middle-center;
+}
+
+/* Nadirlik renkleri */
+.rarity-f  { color: rgb(150, 150, 150); }
+.rarity-d  { color: rgb(220, 220, 220); }
+.rarity-c  { color: rgb(80, 200, 90); }
+.rarity-b  { color: rgb(80, 160, 255); }
+.rarity-a  { color: rgb(180, 80, 255); }
+.rarity-s  { color: rgb(255, 160, 30); }
+.rarity-ss { color: rgb(255, 215, 0); }
+
+/* Devam Et butonu — min 44px dokunma hedefi */
+.continue-btn {
+    height: 52px;
+    font-size: 18px;
+    -unity-font-style: bold;
+    background-color: rgb(80, 50, 140);
+    color: rgb(255, 255, 255);
+    border-width: 0;
+    border-radius: 10px;
+    margin-top: 4px;
+}
+
+.continue-btn:hover {
+    background-color: rgb(100, 70, 170);
+}
+
+.continue-btn:active {
+    background-color: rgb(60, 35, 110);
+}
+
+/* Boş loot mesajı */
+.loot-empty {
+    font-size: 14px;
+    color: rgb(120, 110, 140);
+    -unity-text-align: middle-center;
+    padding: 12px 0;
+}

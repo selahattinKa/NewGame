@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="overlay" class="overlay">
+        <ui:VisualElement name="panel" class="panel">
+            <ui:Label name="title-label" class="title" text="ZAFERİ!" />
+            <ui:VisualElement class="divider" />
+            <ui:VisualElement class="exp-row">
+                <ui:Label text="EXP" class="exp-label" />
+                <ui:Label name="exp-value" class="exp-value" text="+0" />
+            </ui:VisualElement>
+            <ui:VisualElement name="first-clear-row" class="first-clear-row">
+                <ui:Label text="İLK TEMIZLEME" class="first-clear-label" />
+                <ui:Label name="gems-value" class="gems-value" text="+0 💎" />
+            </ui:VisualElement>
+            <ui:VisualElement class="divider" />
+            <ui:Label text="LOOT" class="section-header" />
+            <ui:ScrollView name="loot-container" class="loot-container" />
+            <ui:Button name="continue-btn" class="continue-btn" text="Devam Et" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
