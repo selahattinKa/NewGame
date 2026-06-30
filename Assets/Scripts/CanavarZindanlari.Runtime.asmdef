@@ -1,7 +1,9 @@
 {
     "name": "CanavarZindanlari.Runtime",
     "rootNamespace": "CanavarZindanlari",
-    "references": [],
+    "references": [
+        "Unity.Purchasing"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
