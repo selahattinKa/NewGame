@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<!-- PROTOTYPE - NOT FOR PRODUCTION -->
+<!-- Question: Turn-based cooldown vs real-time MMORPG combat — which feels better? -->
+<!-- Date: 2026-06-29 -->
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Canavar Zindanları — Savaş Karşılaştırması</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:'Segoe UI',system-ui,sans-serif;overflow:hidden;}
+#app{width:390px;height:844px;position:relative;overflow:hidden;background:#0a0a1a;box-shadow:0 0 60px rgba(0,0,0,.9);}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;}
+.screen.active{display:flex;}
+
+/* ═══ LANDING ═══ */
+#landing{background:radial-gradient(ellipse at 50% 30%,#1a0a3e,#050010);align-items:center;justify-content:center;}
+.land-logo{font-size:56px;margin-bottom:12px;animation:float 4s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.land-title{font-size:22px;font-weight:900;color:#FFD700;letter-spacing:2px;text-shadow:0 0 30px rgba(255,215,0,.6);text-align:center;margin-bottom:6px;}
+.land-sub{font-size:12px;color:#888;text-align:center;padding:0 30px;margin-bottom:36px;line-height:1.5;}
+.mode-card{width:320px;padding:18px 20px;margin:8px 0;border-radius:14px;cursor:pointer;text-align:left;border:none;transition:transform .12s;position:relative;}
+.mode-card:active{transform:scale(.97);}
+.mode-card.new{background:linear-gradient(135deg,#200040,#4a0f80);border:1.5px solid #7B2FBE;box-shadow:0 4px 20px rgba(123,47,190,.4);}
+.mode-card.classic{background:linear-gradient(135deg,#001a10,#0a3a1a);border:1.5px solid #2FBE6B;box-shadow:0 4px 20px rgba(47,190,107,.3);}
+.card-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-bottom:8px;display:inline-block;}
+.badge-new{background:#7B2FBE;color:#fff;}
+.badge-classic{background:#2FBE6B;color:#fff;}
+.card-title{font-size:17px;font-weight:700;color:#fff;margin-bottom:4px;}
+.card-desc{font-size:12px;color:#bbb;line-height:1.45;}
+.land-hint{color:#444;font-size:11px;margin-top:18px;}
+
+/* ═══ SHARED ═══ */
+.hp-bar{height:10px;background:rgba(255,255,255,.12);border-radius:5px;overflow:hidden;border:1px solid rgba(255,255,255,.08);}
+.hp-fill{height:100%;border-radius:5px;transition:width .3s ease;}
+.hp-fill.enemy{background:linear-gradient(90deg,#cc2222,#ff5555);}
+.hp-fill.player{background:linear-gradient(90deg,#22bb55,#44ff88);}
+.hp-fill.warn{background:linear-gradient(90deg,#cc7700,#ffaa00);}
+.hp-fill.crit{background:linear-gradient(90deg,#aa0000,#ee2222);animation:hpcrit .5s ease-in-out infinite;}
+@keyframes hpcrit{0%,100%{opacity:1;}50%{opacity:.5;}}
+.mp-bar{height:7px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;border:1px solid rgba(255,255,255,.06);margin-top:5px;}
+.mp-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#1155cc,#4488ff);transition:width .3s ease;}
+.hp-label{display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-bottom:3px;}
+.back-btn{position:absolute;top:12px;left:12px;z-index:60;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.18);color:#ddd;padding:6px 12px;border-radius:7px;font-size:12px;cursor:pointer;}
+.dmg-num{position:absolute;pointer-events:none;font-weight:900;text-shadow:0 2px 6px rgba(0,0,0,.9);z-index:200;animation:flyup 1.1s ease-out forwards;font-size:30px;}
+@keyframes flyup{0%{transform:translateY(0) scale(1);opacity:1;}40%{transform:translateY(-44px) scale(1.3);opacity:1;}100%{transform:translateY(-90px) scale(.7);opacity:0;}}
+.dmg-num.dmg{color:#ff4444;}
+.dmg-num.heal{color:#44ff88;}
+.dmg-num.crit{color:#FFD700;font-size:38px;}
+.dmg-num.ehit{color:#ff9999;}
+@keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-10px);}40%{transform:translateX(10px);}60%{transform:translateX(-7px);}80%{transform:translateX(7px);}}
+.shake{animation:shake .38s ease-out;}
+
+/* ═══ SHARED ENEMY AREA ═══ */
+.enemy-zone{position:relative;overflow:hidden;}
+.enemy-bg-tb{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,#1a0040,#08000e 55%,#000);}
+.enemy-bg-ac{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,#001a0a,#000e04 55%,#000);}
+.particles{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.particle{position:absolute;border-radius:50%;animation:drift linear infinite;}
+@keyframes drift{0%{transform:translateY(100%) translateX(0);opacity:0;}10%{opacity:.6;}90%{opacity:.3;}100%{transform:translateY(-20%) translateX(var(--dx));opacity:0;}}
+.enemy-hp-wrap{position:absolute;top:12px;left:14px;right:14px;z-index:10;}
+.monster-wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.monster-body{display:flex;flex-direction:column;align-items:center;animation:breathe 3s ease-in-out infinite;cursor:default;}
+@keyframes breathe{0%,100%{transform:scale(1) translateY(0);}50%{transform:scale(1.04) translateY(-6px);}}
+.monster-emoji{font-size:170px;line-height:1;}
+.monster-tag{margin-top:8px;font-size:13px;font-weight:700;letter-spacing:3px;text-shadow:0 0 16px rgba(255,0,0,.9);}
+.monster-tag.tb-tag{color:#ff3333;filter:drop-shadow(0 0 40px rgba(200,0,255,.7));}
+.monster-tag.ac-tag{color:#33ff88;filter:drop-shadow(0 0 40px rgba(0,255,100,.5));}
+.hit-vfx{position:absolute;inset:0;pointer-events:none;opacity:0;}
+.hit-vfx.tb-vfx{background:rgba(255,30,30,.55);}
+.hit-vfx.ac-vfx{background:rgba(255,30,30,.5);}
+.hit-vfx.pop{animation:vfxpop .3s ease-out forwards;}
+@keyframes vfxpop{0%{opacity:.85;}100%{opacity:0;}}
+.roar-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;font-weight:900;text-shadow:0 0 20px rgba(255,215,0,.9);white-space:nowrap;pointer-events:none;opacity:0;z-index:100;}
+.roar-text.show{animation:roaranim .9s ease-out forwards;}
+@keyframes roaranim{0%{opacity:0;transform:translate(-50%,-50%) scale(.6);}30%{opacity:1;transform:translate(-50%,-50%) scale(1.05);}70%{opacity:1;}100%{opacity:0;transform:translate(-50%,-50%) scale(.9);}}
+
+/* ═══ TURN-BASED HUD ═══ */
+.tb-hud{flex:1;background:linear-gradient(180deg,#0c0022,#141414);padding:12px 16px 14px;display:flex;flex-direction:column;gap:10px;}
+.tb-status-row{display:flex;align-items:center;gap:12px;}
+.tb-player-info{flex:1;}
+.tb-player-label{font-size:11px;color:#888;margin-bottom:3px;}
+.auto-toggle{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border-radius:20px;padding:7px 13px;cursor:pointer;border:1.5px solid rgba(255,255,255,.12);transition:all .2s;white-space:nowrap;user-select:none;}
+.auto-toggle.on{background:rgba(255,215,0,.15);border-color:#FFD700;}
+.auto-dot{width:8px;height:8px;border-radius:50%;background:#444;transition:background .2s;}
+.auto-toggle.on .auto-dot{background:#FFD700;}
+.auto-label{font-size:12px;font-weight:700;color:#fff;}
+.battle-log{background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:8px 12px;font-size:12.5px;color:#ccc;min-height:38px;line-height:1.4;}
+.skills-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.skill{padding:11px 6px 10px;border-radius:11px;border:none;cursor:pointer;text-align:center;transition:transform .12s,filter .2s;position:relative;overflow:hidden;}
+.skill:active:not(:disabled){transform:scale(.94);}
+.skill:disabled{filter:brightness(.4);cursor:default;}
+.skill.atk{background:linear-gradient(135deg,#6a1ea8,#9b4fde);border:1px solid rgba(255,255,255,.15);}
+.skill.hvy{background:linear-gradient(135deg,#a81e1e,#de4f4f);border:1px solid rgba(255,255,255,.15);}
+.skill.hel{background:linear-gradient(135deg,#1e8a42,#4fde7a);border:1px solid rgba(255,255,255,.15);}
+.sk-icon{font-size:24px;margin-bottom:3px;}
+.sk-name{font-size:11px;font-weight:700;color:#fff;}
+.sk-hint{font-size:10px;color:rgba(255,255,255,.65);margin-top:2px;}
+.cd-pip{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.75);border-radius:4px;font-size:11px;font-weight:700;padding:1px 5px;color:#ffaa00;display:none;}
+
+/* ═══ ACTION / MMORPG HUD ═══ */
+.ac-hud{flex:1;background:linear-gradient(180deg,#061a0c,#101410);padding:11px 14px 14px;display:flex;flex-direction:column;gap:9px;}
+.ac-bars-row{display:flex;flex-direction:column;gap:0;}
+.ac-bar-label{display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-bottom:3px;}
+.ac-log{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 11px;font-size:12px;color:#ccc;min-height:36px;line-height:1.4;}
+
+/* 5 action buttons: row of 3 + row of 2 */
+.ac-skills{display:flex;flex-direction:column;gap:7px;}
+.ac-row3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.ac-row2{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+
+.acsk{padding:0;border-radius:11px;border:none;cursor:pointer;text-align:center;position:relative;overflow:hidden;height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;}
+.acsk:active:not(:disabled){transform:scale(.94);}
+.acsk.ready{cursor:pointer;}
+.acsk.on-cd{cursor:default;}
+
+.acsk.normal-btn{background:linear-gradient(135deg,#6a1ea8,#9b4fde);border:1px solid rgba(255,255,255,.15);}
+.acsk.heavy-btn{background:linear-gradient(135deg,#a81e1e,#de4f4f);border:1px solid rgba(255,255,255,.15);}
+.acsk.skill3-btn{background:linear-gradient(135deg,#1e4fa8,#4f7ede);border:1px solid rgba(255,255,255,.15);}
+.acsk.hppot-btn{background:linear-gradient(135deg,#6e1e1e,#c04040);border:1px solid rgba(255,80,80,.35);}
+.acsk.mppot-btn{background:linear-gradient(135deg,#1e306e,#4060c0);border:1px solid rgba(80,120,255,.35);}
+
+.acsk-icon{font-size:22px;line-height:1;}
+.acsk-name{font-size:10px;font-weight:700;color:#fff;line-height:1;}
+.acsk-cd{font-size:10px;color:rgba(255,255,255,.6);line-height:1;}
+
+/* CD overlay — fills button from bottom and drains away */
+.cd-overlay{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,.72);
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .15s;
+}
+.cd-overlay.active{opacity:1;}
+.cd-num{font-size:20px;font-weight:900;color:#ffcc00;text-shadow:0 0 8px rgba(255,200,0,.8);}
+
+/* ready glow */
+@keyframes ready-pulse{0%,100%{box-shadow:0 0 6px rgba(255,215,0,.3);}50%{box-shadow:0 0 18px rgba(255,215,0,.8);}}
+.acsk.ready-glow{animation:ready-pulse .8s ease-in-out infinite;}
+
+/* enemy heavy warning */
+.heavy-warn{
+  position:absolute;bottom:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,transparent,#ff0000,transparent);
+  opacity:0;pointer-events:none;z-index:50;
+}
+.heavy-warn.active{animation:warn-flash .4s ease-in-out 3;}
+@keyframes warn-flash{0%,100%{opacity:0;}50%{opacity:1;}}
+
+/* ═══ EXP SCREEN ═══ */
+#exp-screen{background:radial-gradient(ellipse at 50% 40%,#0a1a00,#0a0a1a 70%);align-items:center;justify-content:center;text-align:center;}
+.exp-box{padding:28px 24px;}
+.victory-title{font-size:34px;font-weight:900;color:#FFD700;text-shadow:0 0 24px rgba(255,215,0,.8);animation:vpop .5s ease-out;margin-bottom:6px;}
+@keyframes vpop{0%{transform:scale(.4);opacity:0;}70%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+.exp-monster-icon{font-size:52px;margin:16px 0;display:block;animation:fallover 1s ease-out forwards;}
+@keyframes fallover{0%{transform:scale(1) rotate(0);opacity:1;}60%{transform:scale(.85) rotate(20deg);opacity:.8;}100%{transform:scale(.65) rotate(10deg) translateY(10px);opacity:.5;}}
+.exp-enemy-name{font-size:13px;color:#888;margin-bottom:20px;}
+.exp-gained{font-size:24px;font-weight:700;color:#88ff88;margin-bottom:22px;}
+.exp-lv-wrap{width:280px;margin:0 auto 14px;}
+.exp-lv-label{display:flex;justify-content:space-between;font-size:13px;color:#888;margin-bottom:4px;}
+.exp-bar{height:16px;background:rgba(255,255,255,.1);border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.15);}
+.exp-bar-fill{height:100%;background:linear-gradient(90deg,#4488ff,#44ffaa);border-radius:8px;width:0%;transition:width 1.1s ease;}
+.lv-up-msg{font-size:22px;font-weight:900;color:#FFD700;margin:12px 0;display:none;animation:lvup .5s ease-out;}
+@keyframes lvup{0%{transform:scale(.5) translateY(16px);opacity:0;}100%{transform:scale(1) translateY(0);opacity:1;}}
+.exp-btns{display:flex;flex-direction:column;gap:10px;margin-top:22px;}
+.exp-btn{padding:14px 28px;border-radius:10px;border:none;font-size:15px;font-weight:700;cursor:pointer;transition:transform .1s;}
+.exp-btn:active{transform:scale(.97);}
+.exp-btn.primary{background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;}
+.exp-btn.secondary{background:rgba(255,255,255,.09);color:#fff;border:1px solid rgba(255,255,255,.2);}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ═══ LANDING ═══ -->
+<div id="landing" class="screen active">
+  <div style="display:flex;flex-direction:column;align-items:center;padding:44px 20px 0;">
+    <div class="land-logo">🏰</div>
+    <div class="land-title">CANAVAR ZINDANLARI</div>
+    <div class="land-sub">İki savaş sistemini karşılaştır<br>Beğendiğine karar ver</div>
+
+    <button class="mode-card new" onclick="startMode('tb')">
+      <span class="card-badge badge-new">MEVCUT</span>
+      <div class="card-title">🐲 Tur Bazlı Savaş</div>
+      <div class="card-desc">Düşman tam ekran. Sıra sende → yetenek seç → sıra düşmanda.<br>Cooldown yönetimi + oto-savaş toggle.</div>
+    </button>
+
+    <button class="mode-card classic" onclick="startMode('ac')">
+      <span class="card-badge badge-classic">YENİ TEST</span>
+      <div class="card-title">⚡ Aksiyon / MMORPG</div>
+      <div class="card-desc">İkimiz de durmadan aynı anda vuruyoruz.<br>Can & Mana potu, 3 yetenek cooldown — reaktif oyna.</div>
+    </button>
+
+    <div class="land-hint">Her iki mod da oto-savaş destekler</div>
+  </div>
+</div>
+
+<!-- ═══ TURN-BASED ═══ -->
+<div id="turn-based" class="screen">
+  <button class="back-btn" onclick="goBack()">← Geri</button>
+
+  <div class="enemy-zone" style="flex:0 0 58%;position:relative;overflow:hidden;">
+    <div class="enemy-bg-tb"></div>
+    <div class="particles" id="tb-ptcl"></div>
+    <div class="enemy-hp-wrap">
+      <div class="hp-label"><span id="tb-ename">KAN EJDERİ ☠</span><span id="tb-ehptxt">150/150</span></div>
+      <div class="hp-bar"><div class="hp-fill enemy" id="tb-ehp" style="width:100%"></div></div>
+    </div>
+    <div class="monster-wrap">
+      <div class="monster-body" id="tb-monster">
+        <span class="monster-emoji" style="filter:drop-shadow(0 0 40px rgba(200,0,255,.7));">🐲</span>
+        <span class="monster-tag tb-tag">KAN EJDERİ</span>
+      </div>
+    </div>
+    <div class="hit-vfx tb-vfx" id="tb-vfx"></div>
+    <div class="roar-text" id="tb-roar" style="color:#FFD700;">💢 EJDEİ SALDIRIYOR!</div>
+  </div>
+
+  <div class="tb-hud">
+    <div class="tb-status-row">
+      <div class="tb-player-info">
+        <div class="tb-player-label">Kahraman &mdash; <span id="tb-turnlbl">Tur 1</span></div>
+        <div class="hp-label"><span>CAN</span><span id="tb-phptxt">100/100</span></div>
+        <div class="hp-bar"><div class="hp-fill player" id="tb-php" style="width:100%"></div></div>
+      </div>
+      <div class="auto-toggle" id="tb-auto" onclick="toggleAuto('tb')">
+        <div class="auto-dot"></div><span class="auto-label">OTO</span>
+      </div>
+    </div>
+    <div class="battle-log" id="tb-log">⚔️ Savaş başladı! Bir yetenek seç...</div>
+    <div class="skills-grid">
+      <button class="skill atk" id="tb-s0" onclick="tbSkill('atk')">
+        <div class="sk-icon">⚔️</div><div class="sk-name">Saldır</div><div class="sk-hint">Her tur</div>
+      </button>
+      <button class="skill hvy" id="tb-s1" onclick="tbSkill('hvy')">
+        <div class="sk-icon">💥</div><div class="sk-name">Güçlü Darbe</div><div class="sk-hint">3 tur bekleme</div>
+        <div class="cd-pip" id="cd-hvy">—</div>
+      </button>
+      <button class="skill hel" id="tb-s2" onclick="tbSkill('hel')">
+        <div class="sk-icon">💚</div><div class="sk-name">İyileş</div><div class="sk-hint">5 tur bekleme</div>
+        <div class="cd-pip" id="cd-hel">—</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ACTION / MMORPG ═══ -->
+<div id="action" class="screen">
+  <button class="back-btn" onclick="goBack()">← Geri</button>
+
+  <div class="enemy-zone" style="flex:0 0 52%;position:relative;overflow:hidden;">
+    <div class="enemy-bg-ac"></div>
+    <div class="particles" id="ac-ptcl"></div>
+    <div class="enemy-hp-wrap">
+      <div class="hp-label"><span id="ac-ename">KAN EJDERİ ⚡</span><span id="ac-ehptxt">600/600</span></div>
+      <div class="hp-bar"><div class="hp-fill enemy" id="ac-ehp" style="width:100%"></div></div>
+    </div>
+    <div class="monster-wrap">
+      <div class="monster-body" id="ac-monster">
+        <span class="monster-emoji" style="filter:drop-shadow(0 0 40px rgba(0,255,100,.5));">🐲</span>
+        <span class="monster-tag ac-tag">KAN EJDERİ</span>
+      </div>
+    </div>
+    <div class="hit-vfx ac-vfx" id="ac-vfx"></div>
+    <div class="roar-text" id="ac-roar" style="color:#ff4444;">⚡ EJDERHAYDİ!</div>
+    <div class="heavy-warn" id="ac-hwarn"></div>
+  </div>
+
+  <div class="ac-hud">
+    <!-- HP bar -->
+    <div class="ac-bars-row">
+      <div class="ac-bar-label">
+        <span>❤️ CAN</span><span id="ac-phptxt">200 / 200</span>
+      </div>
+      <div class="hp-bar" style="height:13px;"><div class="hp-fill player" id="ac-php" style="width:100%"></div></div>
+      <!-- MP bar -->
+      <div class="ac-bar-label" style="margin-top:7px;">
+        <span>💧 MANA</span><span id="ac-mptxt">100 / 100</span>
+      </div>
+      <div class="mp-bar" style="height:9px;"><div class="mp-fill" id="ac-mp" style="width:100%"></div></div>
+    </div>
+
+    <div class="ac-log" id="ac-log">⚡ Savaş başlıyor — ikimiz de durmadan vuruyoruz!</div>
+
+    <div class="ac-skills">
+      <!-- row of 3: skill buttons -->
+      <div class="ac-row3">
+        <button class="acsk normal-btn ready" id="ac-b0" onclick="acUse('normal')">
+          <div class="acsk-icon">⚔️</div>
+          <div class="acsk-name">Normal</div>
+          <div class="acsk-cd">1 sn</div>
+          <div class="cd-overlay" id="ac-cd0"><span class="cd-num" id="ac-cn0"></span></div>
+        </button>
+        <button class="acsk heavy-btn ready" id="ac-b1" onclick="acUse('heavy')">
+          <div class="acsk-icon">💥</div>
+          <div class="acsk-name">Ağır Darbe</div>
+          <div class="acsk-cd">5 sn · 30 MP</div>
+          <div class="cd-overlay" id="ac-cd1"><span class="cd-num" id="ac-cn1"></span></div>
+        </button>
+        <button class="acsk skill3-btn ready" id="ac-b2" onclick="acUse('skill3')">
+          <div class="acsk-icon">🔥</div>
+          <div class="acsk-name">Alev Dalgası</div>
+          <div class="acsk-cd">12 sn · 55 MP</div>
+          <div class="cd-overlay" id="ac-cd2"><span class="cd-num" id="ac-cn2"></span></div>
+        </button>
+      </div>
+      <!-- row of 2: pots -->
+      <div class="ac-row2">
+        <button class="acsk hppot-btn ready" id="ac-b3" onclick="acUse('hppot')">
+          <div class="acsk-icon">🧪</div>
+          <div class="acsk-name">Can Potu</div>
+          <div class="acsk-cd">+80 HP · 5 sn</div>
+          <div class="cd-overlay" id="ac-cd3"><span class="cd-num" id="ac-cn3"></span></div>
+        </button>
+        <button class="acsk mppot-btn ready" id="ac-b4" onclick="acUse('mppot')">
+          <div class="acsk-icon">💧</div>
+          <div class="acsk-name">Mana Potu</div>
+          <div class="acsk-cd">+60 MP · 5 sn</div>
+          <div class="cd-overlay" id="ac-cd4"><span class="cd-num" id="ac-cn4"></span></div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EXP SCREEN ═══ -->
+<div id="exp-screen" class="screen" style="align-items:center;justify-content:center;">
+  <div class="exp-box">
+    <div class="victory-title">🏆 ZAFERİN!</div>
+    <span class="exp-monster-icon" id="exp-icon">🐲</span>
+    <div class="exp-enemy-name">Kan Ejderi yenildi!</div>
+    <div class="exp-gained" id="exp-gained-txt">+0 EXP</div>
+    <div class="exp-lv-wrap">
+      <div class="exp-lv-label"><span id="exp-lv-lbl">Seviye 1</span><span id="exp-prog-txt">0/500</span></div>
+      <div class="exp-bar"><div class="exp-bar-fill" id="exp-bar-fill"></div></div>
+      <div class="lv-up-msg" id="lv-up-msg">⬆️ SEVİYE ATLADI!</div>
+    </div>
+    <div class="exp-btns">
+      <button class="exp-btn primary" id="exp-replay">⚔️ Tekrar Savaş</button>
+      <button class="exp-btn secondary" onclick="goBack()">↩ Mod Seçimine Dön</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<script>
+// ══════════════════════════════════════════════
+// PROTOTYPE — Canavar Zindanları Savaş Karşılaştırması
+// ══════════════════════════════════════════════
+const ri = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const $ = id => document.getElementById(id);
+
+let currentMode = null;
+let playerExp = 0, playerLv = 1;
+const EXP_PER_LV = 500;
+
+// ─── Turn-based state ─────────────────────────
+const tb = {
+  php:100, ehp:150, turn:1, auto:false,
+  hvyCd:0, helCd:0, myTurn:true, busy:false, timer:null
+};
+const TB_PLAYER_MAX = 100, TB_ENEMY_MAX = 150;
+
+// ─── Action state ─────────────────────────────
+const AC_PLAYER_MAX = 200, AC_ENEMY_MAX = 600, AC_MP_MAX = 100;
+const AC_CDS = { normal:1000, heavy:5000, skill3:12000, hppot:5000, mppot:5000 };
+let ac = {};
+let acRaf = null;
+let acPrevTime = 0;
+
+function acReset(){
+  ac = {
+    php: AC_PLAYER_MAX,
+    ehp: AC_ENEMY_MAX,
+    mp: AC_MP_MAX,
+    running: false,
+    // timestamps when each skill is next available
+    cdReady: { normal:0, heavy:0, skill3:0, hppot:0, mppot:0 },
+    enemyNextHit: 0,   // enemy auto-attack
+    enemyNextHeavy: 0, // enemy heavy
+    mpRegenNext: 0,
+    warnActive: false
+  };
+}
+
+// ─── Screens ──────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+function goBack(){
+  stopAc();
+  if(tb.timer) clearTimeout(tb.timer);
+  tb.busy=false;
+  showScreen('landing');
+}
+
+function startMode(m){
+  currentMode=m;
+  if(m==='tb'){ resetTb(); showScreen('turn-based'); }
+  else { acReset(); showScreen('action'); startAc(); }
+}
+
+// ─── Particles ────────────────────────────────
+function spawnParticles(containerId, color){
+  const c=$(containerId); if(!c) return;
+  c.innerHTML='';
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    const sz=ri(3,8);
+    p.style.cssText=`width:${sz}px;height:${sz}px;left:${ri(5,90)}%;`
+      +`--dx:${ri(-40,40)}px;animation-duration:${ri(5,11)}s;animation-delay:${ri(0,8)}s;`
+      +`opacity:${(.3+Math.random()*.4).toFixed(2)};background:${color};`;
+    c.appendChild(p);
+  }
+}
+
+// ─── Shared utils ─────────────────────────────
+function spawnNum(parentId, val, type, x, y){
+  const el=document.createElement('div');
+  el.className='dmg-num '+type;
+  el.textContent=(type==='heal'?'+':'-')+val;
+  el.style.left=x+'px'; el.style.top=y+'px';
+  $(parentId).appendChild(el);
+  setTimeout(()=>el.remove(),1200);
+}
+
+function shakeEl(id){
+  const el=$(id); el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+  setTimeout(()=>el.classList.remove('shake'),420);
+}
+
+function hitVfx(id){
+  const el=$(id); el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  setTimeout(()=>el.classList.remove('pop'),350);
+}
+
+function roarShow(id, txt){
+  const r=$(id); r.textContent=txt;
+  r.classList.remove('show'); void r.offsetWidth; r.classList.add('show');
+}
+
+function setLog(id, html, color){
+  const el=$(id); el.innerHTML=html;
+  el.style.color = color||'#ddd';
+}
+
+// ══════════════════════════════════════════════
+// TURN-BASED
+// ══════════════════════════════════════════════
+function resetTb(){
+  Object.assign(tb,{php:TB_PLAYER_MAX,ehp:TB_ENEMY_MAX,turn:1,auto:false,hvyCd:0,helCd:0,myTurn:true,busy:false});
+  if(tb.timer) clearTimeout(tb.timer);
+  $('tb-auto').classList.remove('on');
+  $('tb-roar').classList.remove('show');
+  renderTb(); setLog('tb-log','⚔️ Savaş başladı! Bir yetenek seç...');
+  spawnParticles('tb-ptcl','rgba(180,0,255,.6)');
+}
+
+function renderTb(){
+  const ep=Math.max(0,tb.ehp)/TB_ENEMY_MAX*100;
+  $('tb-ehp').style.width=ep+'%'; $('tb-ehptxt').textContent=Math.max(0,tb.ehp)+'/'+TB_ENEMY_MAX;
+  const pp=Math.max(0,tb.php)/TB_PLAYER_MAX*100;
+  const pf=$('tb-php'); pf.style.width=pp+'%';
+  pf.className='hp-fill player'+(pp<25?' crit':pp<50?' warn':'');
+  $('tb-phptxt').textContent=Math.max(0,tb.php)+'/'+TB_PLAYER_MAX;
+  $('tb-turnlbl').textContent='Tur '+tb.turn;
+  const canAct=tb.myTurn&&!tb.busy;
+  $('tb-s0').disabled=!canAct;
+  const hb=$('tb-s1'), hc=$('cd-hvy');
+  if(tb.hvyCd>0){hb.disabled=true;hc.style.display='block';hc.textContent=tb.hvyCd;}
+  else{hb.disabled=!canAct;hc.style.display='none';}
+  const lb=$('tb-s2'), lc=$('cd-hel');
+  if(tb.helCd>0){lb.disabled=true;lc.style.display='block';lc.textContent=tb.helCd;}
+  else{lb.disabled=!canAct||tb.php>=TB_PLAYER_MAX;lc.style.display='none';}
+}
+
+function tbSkill(sk){
+  if(!tb.myTurn||tb.busy) return;
+  execTb(sk);
+}
+
+function execTb(sk){
+  tb.busy=true; let msg='', color='';
+  if(sk==='atk'){
+    const d=ri(15,26); tb.ehp-=d;
+    spawnNum('turn-based',d,'dmg',150,230); hitVfx('tb-vfx'); shakeEl('tb-monster');
+    msg=`⚔️ Saldırdın! <b>${d}</b> hasar.`;
+  } else if(sk==='hvy'&&tb.hvyCd===0){
+    const crit=Math.random()<.25; let d=ri(38,58); if(crit) d=Math.floor(d*1.5);
+    tb.ehp-=d; tb.hvyCd=3;
+    spawnNum('turn-based',d,crit?'crit':'dmg',130,210); hitVfx('tb-vfx'); shakeEl('tb-monster');
+    msg=`💥 Güçlü Darbe!${crit?' ✨KRİTİK!':''} <b>${d}</b> hasar!`;
+  } else if(sk==='hel'&&tb.helCd===0&&tb.php<TB_PLAYER_MAX){
+    const h=ri(22,36); tb.php=Math.min(TB_PLAYER_MAX,tb.php+h); tb.helCd=5;
+    spawnNum('turn-based',h,'heal',100,520);
+    msg=`💚 İyileştin! <b>+${h}</b> can.`; color='#88ff88';
+  } else {
+    // fallback to atk
+    const d=ri(15,26); tb.ehp-=d;
+    spawnNum('turn-based',d,'dmg',150,230); hitVfx('tb-vfx'); shakeEl('tb-monster');
+    msg=`⚔️ Saldırdın! <b>${d}</b> hasar.`;
+  }
+  setLog('tb-log',msg,color); renderTb();
+  if(tb.ehp<=0){ setTimeout(victory,750); return; }
+  tb.myTurn=false; renderTb();
+  setTimeout(tbEnemyTurn, 1000);
+}
+
+function tbEnemyTurn(){
+  const d=ri(10,22); tb.php-=d;
+  if(tb.hvyCd>0)tb.hvyCd--;
+  if(tb.helCd>0)tb.helCd--;
+  tb.turn++;
+  roarShow('tb-roar','🔥 EJDEİ SALDIRIYOR!');
+  setLog('tb-log',`🔥 Ejder sana <b>${d}</b> hasar verdi!`,'#ff9999');
+  spawnNum('turn-based',d,'ehit',80,440); renderTb();
+  if(tb.php<=0){ setTimeout(()=>defeat('tb'),750); return; }
+  tb.myTurn=true; tb.busy=false; renderTb();
+  if(tb.auto) schedAutoTb();
+}
+
+function schedAutoTb(){
+  if(tb.timer) clearTimeout(tb.timer);
+  tb.timer=setTimeout(()=>{
+    if(!tb.auto||!tb.myTurn||tb.busy) return;
+    if(tb.php<TB_PLAYER_MAX*.4&&tb.helCd===0) execTb('hel');
+    else if(tb.hvyCd===0) execTb('hvy');
+    else execTb('atk');
+  },850);
+}
+
+function toggleAuto(m){
+  if(m==='tb'){
+    tb.auto=!tb.auto; $('tb-auto').classList.toggle('on',tb.auto);
+    if(tb.auto&&tb.myTurn&&!tb.busy) schedAutoTb();
+  }
+}
+
+// ══════════════════════════════════════════════
+// ACTION / MMORPG  (requestAnimationFrame loop)
+// ══════════════════════════════════════════════
+function startAc(){
+  spawnParticles('ac-ptcl','rgba(0,200,80,.5)');
+  ac.running=true;
+  const now=performance.now();
+  ac.enemyNextHit   = now + 1800;
+  ac.enemyNextHeavy = now + 7000;
+  ac.mpRegenNext    = now + 4000;
+  // all skills ready immediately
+  Object.keys(ac.cdReady).forEach(k=>ac.cdReady[k]=0);
+  updateAcUI(now);
+  acRaf=requestAnimationFrame(acLoop);
+  acLog('⚡ Savaş başladı — iki taraf da durmadan vuruyor!');
+}
+
+function stopAc(){
+  ac.running=false;
+  if(acRaf) cancelAnimationFrame(acRaf);
+  acRaf=null;
+}
+
+function acLoop(ts){
+  if(!ac.running) return;
+  const now=ts;
+
+  // ── Enemy auto-attack ──────────────────────
+  if(now>=ac.enemyNextHit){
+    ac.enemyNextHit=now+1800;
+    const d=ri(12,22);
+    ac.php-=d;
+    spawnNum('action',d,'ehit',80,330);
+    acLog(`🐲 Ejder <b>${d}</b> hasar verdi!`,'#ff9999');
+    if(ac.php<=0){ stopAc(); setTimeout(()=>defeat('ac'),600); return; }
+  }
+
+  // ── Enemy heavy attack (with warning) ──────
+  if(!ac.warnActive && now>=ac.enemyNextHeavy-500){
+    ac.warnActive=true;
+    const hw=$('ac-hwarn');
+    hw.classList.add('active');
+    setTimeout(()=>{ hw.classList.remove('active'); ac.warnActive=false; },500);
+  }
+  if(now>=ac.enemyNextHeavy){
+    ac.enemyNextHeavy=now+ri(6500,8000);
+    const d=ri(30,46);
+    ac.php-=d;
+    hitVfx('ac-vfx'); shakeEl('ac-monster');
+    spawnNum('action',d,'crit',70,310);
+    roarShow('ac-roar','⚡ GÜÇLÜ SALDIRI!');
+    acLog(`💢 Ejder GÜÇLÜ saldırısıyla <b>${d}</b> hasar verdi!`,'#ff6666');
+    if(ac.php<=0){ stopAc(); setTimeout(()=>defeat('ac'),600); return; }
+  }
+
+  // ── MP regen ──────────────────────────────
+  if(now>=ac.mpRegenNext){
+    ac.mpRegenNext=now+4000;
+    if(ac.mp<AC_MP_MAX){
+      ac.mp=Math.min(AC_MP_MAX,ac.mp+8);
+    }
+  }
+
+  updateAcUI(now);
+  acRaf=requestAnimationFrame(acLoop);
+}
+
+function acUse(skill){
+  if(!ac.running) return;
+  const now=performance.now();
+  if(now < ac.cdReady[skill]) return; // still on CD
+
+  const cdDur = AC_CDS[skill];
+  let msg='', color='';
+
+  if(skill==='normal'){
+    const d=ri(18,28); ac.ehp-=d;
+    spawnNum('action',d,'dmg',210,260); hitVfx('ac-vfx'); shakeEl('ac-monster');
+    msg=`⚔️ Normal saldırı! <b>${d}</b> hasar.`;
+  } else if(skill==='heavy'){
+    if(ac.mp<30){ acLog('💧 Mana yetmiyor! (30 MP gerekli)','#ff9944'); return; }
+    const d=ri(45,70); ac.ehp-=d; ac.mp-=30;
+    spawnNum('action',d,'dmg',200,245); hitVfx('ac-vfx'); shakeEl('ac-monster');
+    msg=`💥 Ağır Darbe! <b>${d}</b> hasar! (-30 MP)`;
+  } else if(skill==='skill3'){
+    if(ac.mp<55){ acLog('💧 Mana yetmiyor! (55 MP gerekli)','#ff9944'); return; }
+    const d=ri(75,110); ac.ehp-=d; ac.mp-=55;
+    spawnNum('action',d,'crit',180,240); hitVfx('ac-vfx'); shakeEl('ac-monster');
+    msg=`🔥 Alev Dalgası! <b>${d}</b> hasar! (-55 MP)`; color='#ffcc44';
+  } else if(skill==='hppot'){
+    const h=80; ac.php=Math.min(AC_PLAYER_MAX,ac.php+h);
+    spawnNum('action',h,'heal',120,490);
+    msg=`🧪 Can Potu! <b>+${h}</b> HP.`; color='#88ff88';
+  } else if(skill==='mppot'){
+    const m=60; ac.mp=Math.min(AC_MP_MAX,ac.mp+m);
+    msg=`💧 Mana Potu! <b>+${m}</b> MP.`; color='#88aaff';
+  }
+
+  ac.cdReady[skill]=now+cdDur;
+  acLog(msg,color);
+
+  if(ac.ehp<=0){ stopAc(); setTimeout(victory,750); return; }
+}
+
+function updateAcUI(now){
+  // player HP
+  const pp=Math.max(0,ac.php)/AC_PLAYER_MAX*100;
+  const pf=$('ac-php'); pf.style.width=pp+'%';
+  pf.className='hp-fill player'+(pp<20?' crit':pp<40?' warn':'');
+  $('ac-phptxt').textContent=Math.max(0,ac.php)+' / '+AC_PLAYER_MAX;
+  // MP
+  const mp=Math.max(0,ac.mp)/AC_MP_MAX*100;
+  $('ac-mp').style.width=mp+'%';
+  $('ac-mptxt').textContent=Math.max(0,ac.mp)+' / '+AC_MP_MAX;
+  // enemy HP
+  const ep=Math.max(0,ac.ehp)/AC_ENEMY_MAX*100;
+  $('ac-ehp').style.width=ep+'%';
+  $('ac-ehptxt').textContent=Math.max(0,ac.ehp)+'/'+AC_ENEMY_MAX;
+
+  // cooldown overlays for each button
+  const skills=['normal','heavy','skill3','hppot','mppot'];
+  skills.forEach((sk,i)=>{
+    const ready=now>=ac.cdReady[sk];
+    const overlay=$('ac-cd'+i);
+    const numEl=$('ac-cn'+i);
+    const btn=$('ac-b'+i);
+
+    if(ready){
+      overlay.classList.remove('active');
+      btn.classList.remove('on-cd');
+    } else {
+      const rem=((ac.cdReady[sk]-now)/1000);
+      overlay.classList.add('active');
+      btn.classList.add('on-cd');
+      numEl.textContent=rem.toFixed(1)+'s';
+    }
+
+    // disable pot buttons contextually
+    if(sk==='hppot') btn.style.opacity=(ac.php>=AC_PLAYER_MAX?.45:1);
+    if(sk==='mppot') btn.style.opacity=(ac.mp>=AC_MP_MAX?.45:1);
+  });
+}
+
+function acLog(html,color){
+  setLog('ac-log',html,color||'#ddd');
+}
+
+// ══════════════════════════════════════════════
+// VICTORY / DEFEAT
+// ══════════════════════════════════════════════
+function victory(){
+  stopAc(); if(tb.timer) clearTimeout(tb.timer);
+  const gained=ri(200,280); playerExp+=gained;
+  let lvUp=false;
+  while(playerExp>=EXP_PER_LV*playerLv){ playerLv++; lvUp=true; }
+  const inLv=playerExp-EXP_PER_LV*(playerLv-1);
+  const pct=inLv/EXP_PER_LV*100;
+  $('exp-gained-txt').textContent='+'+gained+' EXP';
+  $('exp-lv-lbl').textContent='Seviye '+playerLv;
+  $('exp-prog-txt').textContent=inLv+' / '+EXP_PER_LV;
+  $('lv-up-msg').style.display='none';
+  $('exp-bar-fill').style.width='0%';
+  showScreen('exp-screen');
+  setTimeout(()=>{
+    $('exp-bar-fill').style.width=pct+'%';
+    if(lvUp) setTimeout(()=>$('lv-up-msg').style.display='block',900);
+  },350);
+  $('exp-replay').onclick=()=>startMode(currentMode);
+}
+
+function defeat(m){
+  const logId = m==='tb' ? 'tb-log' : 'ac-log';
+  const modeArg = m==='tb' ? 'tb' : 'ac';
+  $(logId).innerHTML=`💀 <b>Yenildin!</b> <button onclick="startMode('${modeArg}')" style="background:#c03030;color:#fff;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-weight:700;margin-left:8px;">Tekrar Dene</button>`;
+  if(m==='tb'){ tb.busy=true; }
+}
+
+// ─── Init particles ───────────────────────────
+spawnParticles('tb-ptcl','rgba(180,0,255,.6)');
+spawnParticles('ac-ptcl','rgba(0,200,80,.5)');
+</script>
+</body>
+</html>

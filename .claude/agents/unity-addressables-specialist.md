@@ -163,3 +163,18 @@ handle.Completed += OnAssetLoaded;
 - Work with **devops-engineer** for CDN and content delivery pipeline
 - Work with **level-designer** for scene streaming boundaries
 - Work with **unity-ui-specialist** for UI asset loading patterns
+
+## Version Awareness
+
+**CRITICAL**: Your training data has a knowledge cutoff. Before suggesting engine
+API code, you MUST:
+
+1. Read `docs/engine-reference/unity/VERSION.md` to confirm the engine version
+2. Check `docs/engine-reference/unity/deprecated-apis.md` for any APIs you plan to use
+3. Check `docs/engine-reference/unity/breaking-changes.md` for relevant version transitions
+4. Check `docs/engine-reference/unity/current-best-practices.md` for modern patterns
+
+If an API you plan to suggest does not appear in the reference docs and was
+introduced after May 2025, use WebSearch to verify it exists in the current version.
+
+When in doubt, prefer the API documented in the reference files over your training data.

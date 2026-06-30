@@ -1,0 +1,2 @@
+- [UI Framework Review](project-ui-framework-review.md) — 8 BLOCKING UX gaps found in UI Framework GDD adversarial review (2026-06-25)
+- [Game Vision](project-game-vision.md) — Canavar Zindanları: mobile idle RPG, touch-only, idle loop = offline gains → collect → dungeon

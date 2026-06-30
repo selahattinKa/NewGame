@@ -2,10 +2,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Engine Version** | Unity 6.3 LTS |
+| **Engine Version** | Unity 6.3 LTS (6000.3.18f1) |
 | **Release Date** | December 2025 |
-| **Project Pinned** | 2026-02-13 |
-| **Last Docs Verified** | 2026-02-13 |
+| **Project Pinned** | 2026-06-23 |
+| **Last Docs Verified** | 2026-06-23 |
 | **LLM Knowledge Cutoff** | May 2025 |
 
 ## Knowledge Gap Warning
@@ -35,11 +35,17 @@ before suggesting Unity API calls.
 
 ### New Features (Post-Cutoff)
 - **DOTS**: Production-ready Entity Component System (Entities 1.3+)
-- **Graphics**: Enhanced URP/HDRP pipelines, GPU Resident Drawer
-- **Multiplayer**: Netcode for GameObjects improvements
+- **Graphics**: Enhanced URP/HDRP pipelines, GPU Resident Drawer (up to 50% CPU rendering cost reduction)
+- **URP Bloom**: Mobile-optimized bloom — Kawase filtering (small res), Dual filtering (large res)
+- **2D Physics**: New low-level 2D physics API based on Box2D v3 (runs alongside existing API, will replace it)
+- **2D Rendering**: Mesh Renderer and Skinned Mesh Renderer 2D workflow support for 2D URP
+- **Multiplayer**: Netcode for GameObjects improvements, HTTP/2 and gRPC support (~40% server load reduction on Android)
 - **UI Toolkit**: Production-ready for runtime UI (replaces UGUI for new projects)
 - **Async Asset Loading**: Improved Addressables performance
 - **Web**: WebGPU support
+- **Cross-Platform API**: Unified API for account management, save data, controller ownership, achievements
+- **Sprite Atlas Analyzer**: Built-in tool for finding inefficiencies (coverage, compression, wasted space)
+- **Performance**: Shorter import times, quicker Play mode entry, faster build times
 
 ### Deprecated Systems
 - **Legacy Input Manager**: Use new Input System package

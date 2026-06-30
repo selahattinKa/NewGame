@@ -1,0 +1,2 @@
+- [Project Context](project-canavar-zindanlari.md) — Canavar Zindanları mobile RPG: 1-pet pivot, energy system deprecated, stat ranges
+- [User Preferences](user-preferences.md) — Turkish communication, adversarial/technical analysis style

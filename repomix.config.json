@@ -1,0 +1,33 @@
+{
+  "output": {
+    "filePath": "repomix-output.txt",
+    "style": "xml",
+    "removeComments": false,
+    "removeEmptyLines": true,
+    "topFilesLength": 5
+  },
+  "include": [
+    "Assets/Scripts/**/*.cs",
+    "**/*.md",
+    "**/*.txt"
+  ],
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": [
+      "**/Library/**",
+      "**/Temp/**",
+      "**/Logs/**",
+      "**/UserSettings/**",
+      "**/obj/**",
+      "**/*.meta",
+      "**/*.unity",
+      "**/*.asset",
+      "**/*.prefab",
+      "repomix-output.txt"
+    ]
+  },
+  "security": {
+    "enableShield": true
+  }
+}

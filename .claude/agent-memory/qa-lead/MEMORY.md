@@ -1,0 +1,1 @@
+- [UI Framework GDD Review](project_ui_framework_review.md) — Adversarial AC audit for ui-framework.md; 7 BLOCKING defects confirmed 2026-06-25

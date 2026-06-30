@@ -1,6 +1,6 @@
 # Unity 6.3 LTS — Deprecated APIs
 
-**Last verified:** 2026-02-13
+**Last verified:** 2026-06-23
 
 Quick lookup table for deprecated APIs and their replacements.
 Format: **Don't use X** → **Use Y instead**
@@ -54,6 +54,20 @@ Format: **Don't use X** → **Use Y instead**
 | `CommandBuffer.DrawMesh()` | RenderGraph API | URP/HDRP render passes |
 | `OnPreRender()` / `OnPostRender()` | `RenderPipelineManager` callbacks | SRP compatibility |
 | `Camera.SetReplacementShader()` | Custom render pass | Not supported in SRP |
+| `SetupRenderPasses()` | `AddRenderPasses()` | URP Scriptable Renderer Features |
+| URP Compatibility Mode | Render Graph API | Hard-obsolete in 6.4 |
+| `VisualElement.transform` | Alternative API (check 6.3 docs) | UI Toolkit |
+| `ExecuteDefaultAction()` | `HandleEventBubbleUp()` | UI Toolkit event system |
+| `GetInstanceID()` | `EntityId` | Warnings in 6.4, hard errors in 6.5 |
+
+## Multiplayer SDKs
+
+| Deprecated | Replacement | Notes |
+|------------|-------------|-------|
+| Lobby SDK (standalone) | Unity Building Blocks | Consolidated approach |
+| Matchmaker SDK (standalone) | Unity Building Blocks | Consolidated approach |
+| Multiplay SDK (standalone) | Unity Building Blocks | Consolidated approach |
+| Relay SDK (standalone) | Unity Building Blocks | Consolidated approach |
 
 ---
 

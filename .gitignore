@@ -69,8 +69,8 @@ export_presets.cfg
 *.VC.db
 crashlytics-buildid.txt
 sysinfo.txt
-# Uncomment if using Unity:
-# [Aa]ssets/[Aa]sset[Ss]tore[Tt]ools/
+[Aa]ssets/[Aa]sset[Ss]tore[Tt]ools/
+unity-create.log
 
 # === Engine: Unreal ===
 Binaries/

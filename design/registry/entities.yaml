@@ -37,7 +37,8 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: ""
+last_updated: "2026-06-24"
+# Updated: otofarm-idle.md design-review revision — idle_gold_formula tiered, idle_floors_cleared max(1,...), referenced_by updates
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
 # Named game-world objects: enemies, NPCs, characters, factions, bosses.
@@ -77,7 +78,54 @@ entities: []
 # Attribute fields: value_gold, weight, stackable, category, and any stat
 #   modifiers that another system (e.g., economy, crafting) might reference.
 
-items: []
+items:
+  - name: ates_tasi
+    status: active
+    source: design/gdd/canavar-guclendirme.md
+    referenced_by:
+      - design/gdd/canavar-guclendirme.md
+      - design/gdd/loot-odul-sistemi.md
+    category: evolution_material
+    element: fire
+    stackable: true
+    added: 2026-06-24
+    revised: ""
+
+  - name: su_tasi
+    status: active
+    source: design/gdd/canavar-guclendirme.md
+    referenced_by:
+      - design/gdd/canavar-guclendirme.md
+      - design/gdd/loot-odul-sistemi.md
+    category: evolution_material
+    element: water
+    stackable: true
+    added: 2026-06-24
+    revised: ""
+
+  - name: toprak_tasi
+    status: active
+    source: design/gdd/canavar-guclendirme.md
+    referenced_by:
+      - design/gdd/canavar-guclendirme.md
+      - design/gdd/loot-odul-sistemi.md
+    category: evolution_material
+    element: earth
+    stackable: true
+    added: 2026-06-24
+    revised: ""
+
+  - name: hava_tasi
+    status: active
+    source: design/gdd/canavar-guclendirme.md
+    referenced_by:
+      - design/gdd/canavar-guclendirme.md
+      - design/gdd/loot-odul-sistemi.md
+    category: evolution_material
+    element: air
+    stackable: true
+    added: 2026-06-24
+    revised: ""
 
 # Example:
 #
@@ -106,7 +154,347 @@ items: []
 #   output_range[min, max], added
 # Optional: expression (the actual formula), notes
 
-formulas: []
+formulas:
+  - name: stat_distribution_formula
+    status: active
+    source: design/gdd/canavar-veritabani.md
+    referenced_by:
+      - design/gdd/canavar-veritabani.md
+      - design/gdd/saglik-can-sistemi.md
+      - design/gdd/hasar-hesaplama.md
+    variables:
+      - total_stat_pool
+      - archetype_percentage
+    output_range: [15, 78]
+    expression: "floor(total_stat_pool * archetype_percentage)"
+    notes: "Canavar Lv1 bireysel stat hesaplama. Yuvarlama kaybı HP'ye eklenir. Max=floor(225×0.35)=78."
+    added: 2026-06-24
+    revised: "2026-06-25"
+
+  - name: evolution_stat_formula
+    status: active
+    source: design/gdd/canavar-veritabani.md
+    referenced_by:
+      - design/gdd/canavar-veritabani.md
+      - design/gdd/canavar-guclendirme.md
+    variables:
+      - base_stat_pool
+      - evolution_bonus
+      - stage
+    output_range: [100, 441]
+    expression: "floor(base_stat_pool * (1 + evolution_bonus) ^ (stage - 1))"
+    notes: "Evrim aşaması stat havuzu artışı. Common/Uncommon max stage=2, Rare+ max stage=3."
+    added: 2026-06-24
+    revised: ""
+
+  - name: element_damage_multiplier
+    status: active
+    source: design/gdd/canavar-veritabani.md
+    referenced_by:
+      - design/gdd/canavar-veritabani.md
+      - design/gdd/element-sistemi.md
+      - design/gdd/hasar-hesaplama.md
+    variables:
+      - attacker_element
+      - defender_element
+    output_range: [0.75, 1.50]
+    expression: "ELEMENT_MATRIX[attacker][defender]"
+    notes: "Ateş→Toprak→Hava→Su→Ateş döngüsü. Avantaj=1.5x, dezavantaj=0.75x, nötr=1.0x."
+    added: 2026-06-24
+    revised: ""
+
+  - name: level_up_cost_formula
+    status: active
+    source: design/gdd/ekonomi.md
+    referenced_by:
+      - design/gdd/ekonomi.md
+      - design/gdd/canavar-guclendirme.md
+    variables:
+      - base_level_cost
+      - rarity_cost_multiplier
+      - level
+      - cost_exponent
+    output_range: [50, 51500]
+    expression: "floor(base_level_cost × rarity_cost_multiplier × level ^ cost_exponent)"
+    notes: "Canavar seviye atlama altın maliyeti. Nadirlik ve seviye ile kademeli artar. Max: Legendary Lv49 = floor(50×3.0×343) = 51.450."
+    added: 2026-06-24
+    revised: "2026-06-25"
+
+  - name: floor_gold_formula
+    status: active
+    source: design/gdd/ekonomi.md
+    referenced_by:
+      - design/gdd/ekonomi.md
+      - design/gdd/loot-odul-sistemi.md
+      - design/gdd/dusuman-ai.md
+      - design/gdd/zindan-kesif.md
+    variables:
+      - base_gold_per_floor
+      - floor_number
+      - difficulty_multiplier
+    output_range: [100, 20000]
+    expression: "base_gold_per_floor × floor_number × difficulty_multiplier"
+    notes: "Zindan kat temizleme altın ödülü. İleri katlar daha cömert."
+    added: 2026-06-24
+    revised: ""
+
+  - name: idle_gold_formula
+    status: active
+    source: design/gdd/ekonomi.md
+    referenced_by:
+      - design/gdd/ekonomi.md
+      - design/gdd/otofarm-idle.md
+    variables:
+      - idle_gold_per_minute
+      - offline_duration
+      - tier_2_multiplier
+      - tier_3_multiplier
+    output_range: [0, 54000]
+    expression: "Tier1(idle_gold_per_minute × min(D,480)) + Tier2(× 0.75 × min(max(0,D-480),480)) + Tier3(× 0.50 × min(max(0,D-960),480))"
+    notes: "Azalan getirili çevrimdışı altın birikimi. 3 kademe: 0-8h %100, 8-16h %75, 16-24h %50. Maks 1440 dk."
+    added: 2026-06-24
+    revised: "2026-06-24"
+
+  - name: evolution_cost_formula
+    status: active
+    source: design/gdd/ekonomi.md
+    referenced_by:
+      - design/gdd/ekonomi.md
+      - design/gdd/canavar-guclendirme.md
+    variables:
+      - base_evolution_cost
+      - rarity_evolution_multiplier
+      - stage
+    output_range: [1000, 10000]
+    expression: "base_evolution_cost × rarity_evolution_multiplier × stage"
+    notes: "Canavar evrim altın maliyeti. Common A→B=1000, Legendary B→C=10000."
+    added: 2026-06-24
+    revised: ""
+
+  - name: passive_regen_formula
+    status: active
+    source: design/gdd/saglik-can-sistemi.md
+    referenced_by:
+      - design/gdd/saglik-can-sistemi.md
+    variables:
+      - max_hp
+      - passive_regen_rate
+    output_range: [1, 3]
+    expression: "max(1, floor(max_hp * passive_regen_rate))"
+    notes: "Savaş turu başına pasif HP rejenerasyonu. Minimum 1 HP. Çok yavaş — ana iyileşme kaynağı destekçi yeteneğidir."
+    added: 2026-06-24
+    revised: ""
+
+  - name: healer_heal_formula
+    status: active
+    source: design/gdd/saglik-can-sistemi.md
+    referenced_by:
+      - design/gdd/saglik-can-sistemi.md
+      - design/gdd/hibrit-savas.md
+      - design/gdd/yetenek-sistemi.md
+    variables:
+      - target_max_hp
+      - healer_skill_rate
+    output_range: [3, 33]
+    expression: "floor(target_max_hp * healer_skill_rate)"
+    notes: "Destekçi arketip yetenek iyileşme miktarı. healer_skill_rate=0.15-0.25 yetenek seviyesine göre."
+    added: 2026-06-24
+    revised: ""
+
+  - name: stat_growth_formula
+    status: active
+    source: design/gdd/canavar-guclendirme.md
+    referenced_by:
+      - design/gdd/canavar-guclendirme.md
+      - design/gdd/hasar-hesaplama.md
+      - design/gdd/saglik-can-sistemi.md
+    variables:
+      - base_stat
+      - growth_rate
+      - level
+    output_range: [15, 195]
+    expression: "floor(base_stat × (1 + growth_rate × (level - 1)))"
+    notes: "Seviye başına stat büyüme. growth_rate nadirliğe göre: Common=0.02, Uncommon=0.022, Rare=0.025, Epic=0.028, Legendary=0.03."
+    added: 2026-06-24
+    revised: ""
+
+  - name: final_stat_pipeline
+    status: active
+    source: design/gdd/canavar-guclendirme.md
+    referenced_by:
+      - design/gdd/canavar-guclendirme.md
+      - design/gdd/hasar-hesaplama.md
+      - design/gdd/saglik-can-sistemi.md
+      - design/gdd/takim-kurma.md
+    variables:
+      - base_stat
+      - growth_rate
+      - level
+      - evolution_bonus
+      - evo_stage
+      - star_bonus
+    output_range: [15, 499]
+    expression: "floor(base_stat × (1 + growth_rate × (level - 1)) × (1 + evolution_bonus) ^ (evo_stage - 1) × (1 + star_bonus))"
+    notes: "Tam güçlendirme pipeline'ı: seviye büyüme × evrim × yıldız. Hasar Hesaplama ve Sağlık/Can bu çıktıyı kullanır."
+    added: 2026-06-24
+    revised: ""
+
+  - name: damage_formula
+    status: active
+    source: design/gdd/hasar-hesaplama.md
+    referenced_by:
+      - design/gdd/hasar-hesaplama.md
+      - design/gdd/canavar-guclendirme.md
+      - design/gdd/hibrit-savas.md
+    variables:
+      - effective_ATK
+      - effective_DEF
+      - defense_reduction_factor
+      - element_multiplier
+      - crit_chance
+      - crit_multiplier
+    output_range: [1, 1800]
+    # was: [1, 290] before 2026-06-25 — updated after canavar-guclendirme GDD revealed effective_ATK max ~499 (full pipeline: Lv50 + Form C + ★5)
+    expression: "max(1, floor(max(1, effective_ATK - floor(effective_DEF / defense_reduction_factor)) × element_multiplier × crit_multiplier?))"
+    notes: "Tam hasar pipeline'ı. 6 adım: stat çözümleme → temel hasar → element → kritik → clamp → uygulama. Min=1 garantili. Max ~1800 (max ATK 599 with synergy, min DEF, element advantage, crit)."
+    added: 2026-06-24
+    revised: "2026-06-25"
+
+  - name: team_power_formula
+    status: active
+    source: design/gdd/takim-kurma.md
+    referenced_by:
+      - design/gdd/takim-kurma.md
+      - design/gdd/otofarm-idle.md
+    variables:
+      - pipeline_STAT
+      - synergy_atk_bonus
+      - synergy_def_bonus
+      - synergy_spd_bonus
+    output_range: [60, 6864]
+    expression: "Σ(monster_i) [effective_HP + effective_ATK + effective_DEF + effective_SPD]"
+    notes: "Takım toplam güç skoru. Effective stat'lar sinerji dahil. HP'ye sinerji uygulanmaz."
+    added: 2026-06-25
+    revised: ""
+
+  - name: fit_score_formula
+    status: active
+    source: design/gdd/takim-kurma.md
+    referenced_by:
+      - design/gdd/takim-kurma.md
+    variables:
+      - monster_power
+      - element_context_multiplier
+    output_range: [45, 2574]
+    expression: "monster_power × element_context_multiplier"
+    notes: "Auto-Suggest canavar sıralama skoru. Zindan bağlamında element avantajı 1.5x, dezavantaj 0.75x."
+    added: 2026-06-25
+    revised: ""
+
+  - name: preset_slot_cost_formula
+    status: active
+    source: design/gdd/takim-kurma.md
+    referenced_by:
+      - design/gdd/takim-kurma.md
+    variables:
+      - base_preset_cost
+      - slot_index
+    output_range: [50, 3200]
+    expression: "base_preset_cost × 2 ^ (slot_index - 4)"
+    notes: "Ek preset slot açma elmas maliyeti. İlk 3 slot ücretsiz. Slot 4=50, 5=100, 6=200..."
+    added: 2026-06-25
+    revised: ""
+
+  - name: enemy_level_formula
+    status: active
+    source: design/gdd/dusuman-ai.md
+    referenced_by:
+      - design/gdd/dusuman-ai.md
+      - design/gdd/zindan-kesif.md
+    variables:
+      - floor_number
+      - difficulty_multiplier
+    output_range: [1, 200]
+    expression: "floor(floor_number × difficulty_multiplier)"
+    notes: "Düşman seviyesi kat numarasına göre. MVP'de difficulty_multiplier=1.0 (lineer). İleride bölge başına ölçeklenir."
+    added: 2026-06-25
+    revised: ""
+
+  - name: expansion_cost_formula
+    status: active
+    source: design/gdd/canavar-toplama-evrim.md
+    referenced_by:
+      - design/gdd/canavar-toplama-evrim.md
+    variables:
+      - base_expansion_cost
+      - expansion_count
+    output_range: [50, 6400]
+    expression: "base_expansion_cost × 2 ^ (expansion_count - 1)"
+    notes: "Envanter genişletme elmas maliyeti. Üstel artış, hard cap 8 genişletme (max 60 slot). 8. genişletme = 6.400 elmas."
+    added: 2026-06-25
+    revised: "2026-06-25"  # hard cap 8 genişletme, max kapasite 200→60
+
+  - name: sell_price_formula
+    status: active
+    source: design/gdd/canavar-toplama-evrim.md
+    referenced_by:
+      - design/gdd/canavar-toplama-evrim.md
+    variables:
+      - base_sell_value
+      - level
+      - star_rank
+    output_range: [102, 2500]
+    expression: "floor(base_sell_value × (1 + level × 0.02 + star_rank × 0.10))"
+    notes: "Güçlendirilmiş canavar satış fiyatı. Kasıtlı olarak düşük — satış ana gelir kaynağı değil."
+    added: 2026-06-25
+    revised: "2026-06-25"  # min 100→102 (Common Lv1 ★0 = 100×1.02)
+
+  - name: enemy_stat_formula
+    status: active
+    source: design/gdd/dusuman-ai.md
+    referenced_by:
+      - design/gdd/dusuman-ai.md
+    variables:
+      - rarity_pool
+      - archetype_pct
+      - growth_rate
+      - enemy_level
+    output_range: [15, 195]
+    expression: "floor(floor(rarity_pool × archetype_pct) × (1 + growth_rate × (enemy_level - 1)))"
+    notes: "Düşman bireysel stat hesaplama. Oyuncu canavarlarıyla aynı stat dağıtım sistemi. Normal=Common-Uncommon, mini-boss=Rare, boss=Epic-Legendary."
+    added: 2026-06-25
+    revised: ""
+
+  - name: idle_floors_cleared_formula
+    status: active
+    source: design/gdd/otofarm-idle.md
+    referenced_by:
+      - design/gdd/otofarm-idle.md
+    variables:
+      - offline_duration
+      - idle_minutes_per_floor
+    output_range: [1, 480]
+    expression: "max(1, floor(offline_duration / idle_minutes_per_floor))"
+    notes: "İdle geçilen kat sayısı. idle_minutes_per_floor varsayılan=5.0, min clamp=3.0. M_floor=3.0'da maks 1440/3=480 kat. Yalnızca offline_duration > 0 ise hesaplanır, min 1 kat."
+    added: 2026-06-24
+    revised: "2026-06-24"
+
+  - name: offline_duration_formula
+    status: active
+    source: design/gdd/kaydetme-yukleme.md
+    referenced_by:
+      - design/gdd/kaydetme-yukleme.md
+      - design/gdd/ekonomi.md
+      - design/gdd/otofarm-idle.md
+    variables:
+      - now_utc
+      - save_timestamp
+      - max_offline_minutes
+    output_range: [0, 1440]
+    expression: "clamp(now_utc - save_timestamp, 0, max_offline_minutes)"
+    notes: "Çevrimdışı süre hesaplama (dakika). Ekonomi idle_gold_formula bu çıktıyı offline_minutes olarak kullanır. Tavan 1440 dk (24 saat)."
+    added: 2026-06-24
+    revised: ""
 
 # Example:
 #
@@ -139,7 +527,643 @@ formulas: []
 #
 # Required fields: name, status, source, referenced_by, value, unit, added
 
-constants: []
+constants:
+  - name: synergy_bonus_formula
+    status: active
+    source: design/gdd/element-sistemi.md
+    referenced_by:
+      - design/gdd/element-sistemi.md
+      - design/gdd/hasar-hesaplama.md
+      - design/gdd/takim-kurma.md
+    variables:
+      - same_element_count
+    output_range: [0.00, 0.20]
+    expression: "SYNERGY_TABLE[same_element_count] → {atk_bonus, def_bonus, spd_bonus}"
+    notes: "Takım element sinerjisi. 2=+10%ATK, 3=+15%ATK/+10%DEF, 4=+20%ATK/+15%DEF/+10%SPD. Bonus sadece aynı elementteki canavarlara uygulanır."
+    added: 2026-06-24
+    revised: ""
+
+  - name: evolution_bonus
+    status: active
+    source: design/gdd/canavar-veritabani.md
+    referenced_by:
+      - design/gdd/canavar-veritabani.md
+      - design/gdd/canavar-guclendirme.md
+    value: 0.40
+    unit: multiplier
+    added: 2026-06-24
+    revised: ""
+
+  - name: synergy_table
+    status: active
+    source: design/gdd/element-sistemi.md
+    referenced_by:
+      - design/gdd/element-sistemi.md
+      - design/gdd/takim-kurma.md
+    value: "2=+10%ATK, 3=+15%ATK/+10%DEF, 4=+20%ATK/+15%DEF/+10%SPD"
+    unit: stat_percentage_bonus
+    added: 2026-06-24
+    revised: ""
+
+  - name: rarity_stat_pools
+    status: active
+    source: design/gdd/canavar-veritabani.md
+    referenced_by:
+      - design/gdd/canavar-veritabani.md
+      - design/gdd/ekonomi.md
+      - design/gdd/saglik-can-sistemi.md
+      - design/gdd/canavar-guclendirme.md
+      - design/gdd/takim-kurma.md
+    value: "Common=100, Uncommon=120, Rare=150, Epic=185, Legendary=225"
+    unit: stat_points
+    added: 2026-06-24
+    revised: ""
+
+  - name: monster_sell_value
+    status: active
+    source: design/gdd/ekonomi.md
+    referenced_by:
+      - design/gdd/ekonomi.md
+      - design/gdd/loot-odul-sistemi.md
+      - design/gdd/canavar-toplama-evrim.md
+    value: "Common=100, Uncommon=200, Rare=400, Epic=700, Legendary=1000"
+    unit: gold
+    added: 2026-06-24
+    revised: ""
+
+  - name: max_energy
+    status: active
+    source: design/gdd/ekonomi.md
+    referenced_by:
+      - design/gdd/ekonomi.md
+      - design/gdd/zindan-kesif.md
+    value: 100
+    unit: energy
+    added: 2026-06-24
+    revised: ""
+
+  - name: energy_regen_interval
+    status: active
+    source: design/gdd/ekonomi.md
+    referenced_by:
+      - design/gdd/ekonomi.md
+      - design/gdd/zindan-kesif.md
+    value: 5
+    unit: minutes
+    added: 2026-06-24
+    revised: ""
+
+  - name: passive_regen_rate
+    status: active
+    source: design/gdd/saglik-can-sistemi.md
+    referenced_by:
+      - design/gdd/saglik-can-sistemi.md
+    value: 0.02
+    unit: hp_percentage_per_turn
+    added: 2026-06-24
+    revised: ""
+
+  - name: critical_threshold
+    status: active
+    source: design/gdd/saglik-can-sistemi.md
+    referenced_by:
+      - design/gdd/saglik-can-sistemi.md
+    value: 0.25
+    unit: hp_ratio
+    added: 2026-06-24
+    revised: ""
+
+  - name: crit_chance
+    status: active
+    source: design/gdd/hasar-hesaplama.md
+    referenced_by:
+      - design/gdd/hasar-hesaplama.md
+      - design/gdd/hibrit-savas.md
+    value: 0.10
+    unit: probability
+    added: 2026-06-24
+    revised: ""
+
+  - name: crit_multiplier
+    status: active
+    source: design/gdd/hasar-hesaplama.md
+    referenced_by:
+      - design/gdd/hasar-hesaplama.md
+      - design/gdd/hibrit-savas.md
+    value: 2.0
+    unit: multiplier
+    added: 2026-06-24
+    revised: ""
+
+  - name: defense_reduction_factor
+    status: active
+    source: design/gdd/hasar-hesaplama.md
+    referenced_by:
+      - design/gdd/hasar-hesaplama.md
+      - design/gdd/hibrit-savas.md
+    value: 2
+    unit: divisor
+    added: 2026-06-24
+    revised: ""
+
+  - name: min_damage
+    status: active
+    source: design/gdd/hasar-hesaplama.md
+    referenced_by:
+      - design/gdd/hasar-hesaplama.md
+    value: 1
+    unit: damage
+    added: 2026-06-24
+    revised: ""
+
+  - name: star_bonus_table
+    status: active
+    source: design/gdd/canavar-guclendirme.md
+    referenced_by:
+      - design/gdd/canavar-guclendirme.md
+    value: "★1=+5%, ★2=+10%, ★3=+15%, ★4=+22%, ★5=+30%"
+    unit: stat_percentage_bonus
+    added: 2026-06-24
+    revised: ""
+
+  - name: growth_rates
+    status: active
+    source: design/gdd/canavar-guclendirme.md
+    referenced_by:
+      - design/gdd/canavar-guclendirme.md
+    value: "Common=0.02, Uncommon=0.022, Rare=0.025, Epic=0.028, Legendary=0.03"
+    unit: per_level_multiplier
+    added: 2026-06-24
+    revised: ""
+
+  - name: base_monster_rate
+    status: active
+    source: design/gdd/loot-odul-sistemi.md
+    referenced_by:
+      - design/gdd/loot-odul-sistemi.md
+      - design/gdd/zindan-kesif.md
+      - design/gdd/otofarm-idle.md
+    value: 0.15
+    unit: probability
+    added: 2026-06-25
+    revised: ""
+
+  - name: boss_gold_multiplier
+    status: active
+    source: design/gdd/loot-odul-sistemi.md
+    referenced_by:
+      - design/gdd/loot-odul-sistemi.md
+      - design/gdd/zindan-kesif.md
+    value: 3.0
+    unit: multiplier
+    added: 2026-06-25
+    revised: ""
+
+  - name: gold_per_energy_base
+    status: active
+    source: design/gdd/loot-odul-sistemi.md
+    referenced_by:
+      - design/gdd/loot-odul-sistemi.md
+      - design/gdd/ekonomi.md
+    value: 50
+    unit: gold_per_energy
+    added: 2026-06-25
+    revised: ""
+
+  - name: idle_loot_efficiency
+    status: active
+    source: design/gdd/loot-odul-sistemi.md
+    referenced_by:
+      - design/gdd/loot-odul-sistemi.md
+      - design/gdd/otofarm-idle.md
+    value: 0.25
+    unit: multiplier
+    added: 2026-06-25
+    revised: ""
+
+  - name: monster_pity_increment
+    status: active
+    source: design/gdd/loot-odul-sistemi.md
+    referenced_by:
+      - design/gdd/loot-odul-sistemi.md
+      - design/gdd/otofarm-idle.md
+    value: 0.03
+    unit: probability_per_floor
+    notes: "Aktif pity artışı (kat başına). İdle pity için ayrı bkz: idle_pity_increment."
+    added: 2026-06-25
+    revised: "2026-06-24"
+
+  - name: idle_pity_increment
+    status: active
+    source: design/gdd/otofarm-idle.md
+    referenced_by:
+      - design/gdd/otofarm-idle.md
+      - design/gdd/loot-odul-sistemi.md
+    value: 0.06
+    unit: probability_per_floor
+    notes: "İdle-spesifik pity artışı. Aktifin 2x hızı (0.06 vs 0.03) — idle'ın düşük base rate'ini (%3.75) telafi eder. 8 ardışık miss'te tavana (0.45) ulaşır. Yalnızca offline_duration >= 30dk ise birikir."
+    added: 2026-06-24
+    revised: ""
+
+  - name: xp_potion_values
+    status: active
+    source: design/gdd/loot-odul-sistemi.md
+    referenced_by:
+      - design/gdd/loot-odul-sistemi.md
+    value: "Mini=25, Small=100, Medium=500, Large=2000, Giant=10000"
+    unit: xp
+    added: 2026-06-25
+    revised: ""
+
+  - name: max_team_size
+    status: active
+    source: design/gdd/takim-kurma.md
+    referenced_by:
+      - design/gdd/takim-kurma.md
+      - design/gdd/element-sistemi.md
+      - design/gdd/canavar-toplama-evrim.md
+    value: 4
+    unit: monsters
+    added: 2026-06-25
+    revised: ""
+
+  - name: free_preset_slots
+    status: active
+    source: design/gdd/takim-kurma.md
+    referenced_by:
+      - design/gdd/takim-kurma.md
+    value: 3
+    unit: slots
+    added: 2026-06-25
+    revised: ""
+
+  - name: base_preset_cost
+    status: active
+    source: design/gdd/takim-kurma.md
+    referenced_by:
+      - design/gdd/takim-kurma.md
+    value: 50
+    unit: diamonds
+    added: 2026-06-25
+    revised: ""
+
+  - name: strong_multiplier
+    status: active
+    source: design/gdd/dusuman-ai.md
+    referenced_by:
+      - design/gdd/dusuman-ai.md
+    value: 2.0
+    unit: multiplier
+    added: 2026-06-25
+    revised: ""
+
+  - name: aoe_multiplier
+    status: active
+    source: design/gdd/dusuman-ai.md
+    referenced_by:
+      - design/gdd/dusuman-ai.md
+    value: 0.75
+    unit: multiplier
+    added: 2026-06-25
+    revised: ""
+
+  - name: boss_rage_hp_threshold
+    status: active
+    source: design/gdd/dusuman-ai.md
+    referenced_by:
+      - design/gdd/dusuman-ai.md
+    value: 0.50
+    unit: hp_ratio
+    added: 2026-06-25
+    revised: ""
+
+  - name: rage_spd_bonus
+    status: active
+    source: design/gdd/dusuman-ai.md
+    referenced_by:
+      - design/gdd/dusuman-ai.md
+    value: 0.20
+    unit: multiplier
+    added: 2026-06-25
+    revised: ""
+
+  - name: commander_atk_bonus
+    status: active
+    source: design/gdd/hibrit-savas.md
+    referenced_by:
+      - design/gdd/hibrit-savas.md
+    value: 0.10
+    unit: multiplier
+    added: 2026-06-25
+    revised: ""
+
+  - name: energy_per_turn
+    status: deprecated
+    source: design/gdd/hibrit-savas.md
+    referenced_by:
+      - design/gdd/hibrit-savas.md
+    value: 25
+    unit: energy
+    added: 2026-06-25
+    revised: "2026-06-29"
+    notes: "Cooldown bazlı yetenek sistemi (yetenek-sistemi.md) ile değiştirildi. Hibrit Savaş Kural 6 revize edilecek."
+
+  - name: energy_threshold
+    status: deprecated
+    source: design/gdd/hibrit-savas.md
+    referenced_by:
+      - design/gdd/hibrit-savas.md
+    value: 100
+    unit: energy
+    added: 2026-06-25
+    revised: "2026-06-29"
+    notes: "Cooldown bazlı yetenek sistemi (yetenek-sistemi.md) ile değiştirildi. Hibrit Savaş Kural 6 revize edilecek."
+
+  - name: skill_atk_multiplier
+    status: active
+    source: design/gdd/hibrit-savas.md
+    referenced_by:
+      - design/gdd/hibrit-savas.md
+      - design/gdd/yetenek-sistemi.md
+    value: 2.0
+    unit: multiplier
+    added: 2026-06-25
+    revised: ""
+
+  - name: skill_aoe_multiplier
+    status: active
+    source: design/gdd/hibrit-savas.md
+    referenced_by:
+      - design/gdd/hibrit-savas.md
+      - design/gdd/yetenek-sistemi.md
+    value: 0.75
+    unit: multiplier
+    added: 2026-06-25
+    revised: ""
+
+  - name: skill_def_multiplier
+    status: active
+    source: design/gdd/hibrit-savas.md
+    referenced_by:
+      - design/gdd/hibrit-savas.md
+      - design/gdd/yetenek-sistemi.md
+    value: 2.0
+    unit: multiplier
+    added: 2026-06-25
+    revised: ""
+
+  - name: skill_buff_duration
+    status: active
+    source: design/gdd/hibrit-savas.md
+    referenced_by:
+      - design/gdd/hibrit-savas.md
+      - design/gdd/yetenek-sistemi.md
+    value: 2
+    unit: turns
+    added: 2026-06-25
+    revised: ""
+
+  - name: cd_heavy
+    status: active
+    source: design/gdd/yetenek-sistemi.md
+    referenced_by:
+      - design/gdd/yetenek-sistemi.md
+    value: 3
+    unit: turns
+    added: 2026-06-29
+    revised: ""
+    notes: "Oyuncu Slot 1 (Ağır Saldırı) cooldown süresi."
+
+  - name: cd_support
+    status: active
+    source: design/gdd/yetenek-sistemi.md
+    referenced_by:
+      - design/gdd/yetenek-sistemi.md
+    value: 5
+    unit: turns
+    added: 2026-06-29
+    revised: ""
+    notes: "Oyuncu Slot 2 (Destekleyici Yetenek) cooldown süresi."
+
+  - name: cd_special
+    status: active
+    source: design/gdd/yetenek-sistemi.md
+    referenced_by:
+      - design/gdd/yetenek-sistemi.md
+    value: 8
+    unit: turns
+    added: 2026-06-29
+    revised: ""
+    notes: "Oyuncu Slot 3 (Sınıf Özel Yetenek) cooldown süresi."
+
+  - name: cd_pet
+    status: active
+    source: design/gdd/yetenek-sistemi.md
+    referenced_by:
+      - design/gdd/yetenek-sistemi.md
+    value: 4
+    unit: turns
+    added: 2026-06-29
+    revised: ""
+    notes: "Aktif pet arketip yeteneği cooldown süresi (tüm arketipler için sabit)."
+
+  - name: normal_atk_multiplier
+    status: active
+    source: design/gdd/yetenek-sistemi.md
+    referenced_by:
+      - design/gdd/yetenek-sistemi.md
+    value: 1.0
+    unit: multiplier
+    added: 2026-06-29
+    revised: ""
+    notes: "Oyuncu Slot 0 (Normal Saldırı) ATK çarpanı. Tüm sınıflarda sabit."
+
+  - name: autobattle_hp_threshold
+    status: active
+    source: design/gdd/yetenek-sistemi.md
+    referenced_by:
+      - design/gdd/yetenek-sistemi.md
+    value: 0.40
+    unit: hp_ratio
+    added: 2026-06-29
+    revised: ""
+    notes: "Oto-savaşta Slot 2 iyileştirme yeteneği tetiklenme eşiği. HP < %40 ise iyileştirme önce seçilir."
+
+  - name: base_inventory_capacity
+    status: active
+    source: design/gdd/canavar-toplama-evrim.md
+    referenced_by:
+      - design/gdd/canavar-toplama-evrim.md
+    value: 20
+    unit: slots
+    added: 2026-06-25
+    revised: ""
+
+  - name: inventory_expansion_size
+    status: active
+    source: design/gdd/canavar-toplama-evrim.md
+    referenced_by:
+      - design/gdd/canavar-toplama-evrim.md
+    value: 5
+    unit: slots
+    added: 2026-06-25
+    revised: ""
+
+  - name: base_expansion_cost
+    status: active
+    source: design/gdd/canavar-toplama-evrim.md
+    referenced_by:
+      - design/gdd/canavar-toplama-evrim.md
+    value: 50
+    unit: diamonds
+    added: 2026-06-25
+    revised: ""
+
+  - name: max_inventory_capacity
+    status: active
+    source: design/gdd/canavar-toplama-evrim.md
+    referenced_by:
+      - design/gdd/canavar-toplama-evrim.md
+    value: 60
+    unit: slots
+    added: 2026-06-25
+    revised: "2026-06-25"  # was 200, corrected to 60 (20 base + 8 expansions * 5) during design-review blocker revision
+
+  - name: pending_buffer_size
+    status: active
+    source: design/gdd/canavar-toplama-evrim.md
+    referenced_by:
+      - design/gdd/canavar-toplama-evrim.md
+    value: 10
+    unit: monsters
+    added: 2026-06-25
+    revised: ""
+
+  - name: pending_expiry_days
+    status: active
+    source: design/gdd/canavar-toplama-evrim.md
+    referenced_by:
+      - design/gdd/canavar-toplama-evrim.md
+    value: 7
+    unit: days
+    added: 2026-06-25
+    revised: ""
+
+  - name: energy_per_floor
+    status: active
+    source: design/gdd/zindan-kesif.md
+    referenced_by:
+      - design/gdd/zindan-kesif.md
+      - design/gdd/ekonomi.md
+    value: 2
+    unit: energy
+    added: 2026-06-24
+    revised: ""
+
+  - name: boss_floor_interval
+    status: active
+    source: design/gdd/zindan-kesif.md
+    referenced_by:
+      - design/gdd/zindan-kesif.md
+    value: 5
+    unit: floors
+    added: 2026-06-24
+    revised: ""
+
+  - name: base_first_clear_gems
+    status: active
+    source: design/gdd/zindan-kesif.md
+    referenced_by:
+      - design/gdd/zindan-kesif.md
+      - design/gdd/loot-odul-sistemi.md
+    value: 5
+    unit: diamonds
+    added: 2026-06-24
+    revised: ""
+
+  - name: boss_first_clear_gems
+    status: active
+    source: design/gdd/zindan-kesif.md
+    referenced_by:
+      - design/gdd/zindan-kesif.md
+      - design/gdd/loot-odul-sistemi.md
+    value: 50
+    unit: diamonds
+    added: 2026-06-24
+    revised: ""
+
+  - name: final_boss_first_clear_gems
+    status: active
+    source: design/gdd/zindan-kesif.md
+    referenced_by:
+      - design/gdd/zindan-kesif.md
+      - design/gdd/loot-odul-sistemi.md
+    value: 100
+    unit: diamonds
+    added: 2026-06-24
+    revised: ""
+
+  - name: wave_count_normal
+    status: active
+    source: design/gdd/zindan-kesif.md
+    referenced_by:
+      - design/gdd/zindan-kesif.md
+    value: 2
+    unit: waves
+    added: 2026-06-24
+    revised: ""
+
+  - name: wave_count_boss
+    status: active
+    source: design/gdd/zindan-kesif.md
+    referenced_by:
+      - design/gdd/zindan-kesif.md
+    value: 3
+    unit: waves
+    added: 2026-06-24
+    revised: ""
+
+  - name: region_element_weight
+    status: active
+    source: design/gdd/zindan-kesif.md
+    referenced_by:
+      - design/gdd/zindan-kesif.md
+    value: 0.50
+    unit: probability
+    added: 2026-06-24
+    revised: ""
+
+  - name: background_timeout_minutes
+    status: active
+    source: design/gdd/zindan-kesif.md
+    referenced_by:
+      - design/gdd/zindan-kesif.md
+    value: 30
+    unit: minutes
+    added: 2026-06-24
+    revised: ""
+
+  - name: idle_minutes_per_floor
+    status: active
+    source: design/gdd/otofarm-idle.md
+    referenced_by:
+      - design/gdd/otofarm-idle.md
+    value: 5.0
+    unit: minutes
+    added: 2026-06-24
+    revised: ""
+
+  - name: max_offline_minutes
+    status: active
+    source: design/gdd/kaydetme-yukleme.md
+    referenced_by:
+      - design/gdd/kaydetme-yukleme.md
+      - design/gdd/ekonomi.md
+      - design/gdd/otofarm-idle.md
+    value: 1440
+    unit: minutes
+    added: 2026-06-24
+    revised: ""
 
 # Example:
 #

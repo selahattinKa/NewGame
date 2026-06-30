@@ -1,6 +1,6 @@
 # Unity 6.3 LTS — Breaking Changes
 
-**Last verified:** 2026-02-13
+**Last verified:** 2026-06-23
 
 This document tracks breaking API changes and behavioral differences between Unity 2022 LTS
 (likely in model training) and Unity 6.3 LTS (current version). Organized by risk level.
@@ -63,6 +63,50 @@ public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer
 ```
 
 **Migration:** Update custom render passes to use RenderGraph API.
+
+---
+
+### UI Toolkit Event System Overhaul
+**Versions:** Unity 6.0+
+
+```csharp
+// ❌ OLD: ExecuteDefaultAction pattern
+protected override void ExecuteDefaultAction(EventBase evt) { }
+protected override void ExecuteDefaultActionAtTarget(EventBase evt) { }
+
+// ✅ NEW: HandleEventBubbleUp pattern
+protected override void HandleEventBubbleUp(EventBase evt) { }
+// Replace PreventDefault() with StopPropagation()
+```
+
+**Warning:** Mixing old `ExecuteDefaultAction` calls with upgraded controls may cause logic desync.
+
+---
+
+### URP Compatibility Mode Removed
+**Versions:** Unity 6.4 (hard-obsolete)
+
+URP Compatibility Mode was deprecated in 6.0 and all dependent methods become hard-obsolete in 6.4. All custom render passes MUST use the Render Graph API.
+
+---
+
+### InstanceID/GetInstanceID() Deprecated
+**Versions:** Unity 6.4 (warnings), Unity 6.5 (hard errors)
+
+```csharp
+// ❌ OLD: InstanceID
+int id = gameObject.GetInstanceID();
+
+// ✅ NEW: EntityId
+// Use EntityId instead — exact API TBD, check 6.5 migration guide
+```
+
+---
+
+### Built-In Render Pipeline Deprecation Starting
+**Versions:** Unity 6.5+
+
+Official deprecation process begins in 6.5. All new projects should use URP or HDRP.
 
 ---
 

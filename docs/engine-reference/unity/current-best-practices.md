@@ -1,6 +1,6 @@
 # Unity 6.3 LTS — Current Best Practices
 
-**Last verified:** 2026-02-13
+**Last verified:** 2026-06-23
 
 Modern Unity 6 patterns that may not be in the LLM's training data.
 These are production-ready recommendations as of Unity 6.3 LTS.
@@ -190,6 +190,34 @@ public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer
 ```
 
 **Replaces:** Old `CommandBuffer.Execute()` pattern.
+
+---
+
+## Mobile-Specific (Unity 6.3 LTS)
+
+### Use GPU Resident Drawer for Large Scenes
+GPU Resident Drawer keeps per-object data in GPU memory and uses BatchRendererGroup (BRG) API for GPU-side batching/culling. **Up to 50% CPU rendering cost reduction** in scenes with thousands of objects.
+
+### Use URP Bloom for Mobile
+Unity 6.3 adds mobile-optimized URP Bloom:
+- **Kawase filtering**: Optimized for smaller resolutions (low-end mobile)
+- **Dual filtering**: Better quality for larger resolutions (high-end mobile)
+
+### Use Sprite Atlas Analyzer
+Built-in tool (Unity 6.3+) that identifies sprite atlas inefficiencies:
+- Coverage percentage per atlas
+- Texture compression data
+- Wasted space per atlas page
+- Sprite counts and distribution
+
+### Use New 2D Physics API (Box2D v3)
+Unity 6.3 adds a new low-level 2D physics API based on Box2D v3. Currently runs alongside the existing API but will eventually replace it. Use for better performance in physics-heavy 2D games.
+
+### HTTP/2 and gRPC for Networking
+Unity 6.3 adds HTTP/2 and gRPC support. Early Android tests show:
+- ~40% server load reduction
+- ~15-20% on-device CPU load reduction
+Use for all server communication in new projects.
 
 ---
 
