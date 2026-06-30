@@ -28,7 +28,7 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 | 6 | Sağlık / Can Sistemi | Core | MVP | Revised | design/gdd/saglik-can-sistemi.md | Oyuncu Sınıf Sistemi, Ekipman Sistemi, Pet/Canavar Veritabanı |
 | 7 | Hasar Hesaplama | Core | MVP | Revised | design/gdd/hasar-hesaplama.md | Oyuncu Sınıf Sistemi, Ekipman Sistemi, Element Sistemi, Keşif Alanı |
 | 8 | Pet Evrim Sistemi | Progression | MVP | Revision Needed | design/gdd/canavar-toplama-evrim.md | Pet/Canavar Veritabanı, Ekonomi |
-| 9 | Ödül Ekranı / Loot Sistemi | Economy | MVP | Revision Needed | design/gdd/loot-odul-sistemi.md | Pet/Canavar Veritabanı, Ekonomi |
+| 9 | Ödül Ekranı / Loot Sistemi | Economy | MVP | Revised | design/gdd/loot-odul-sistemi.md | Pet/Canavar Veritabanı, Ekonomi |
 | 10 | Oyuncu Sınıf Sistemi | Gameplay | MVP | Designed | design/gdd/oyuncu-sinif-sistemi.md | Ekonomi, Kaydetme, Hasar Hesaplama, Sağlık/Can, Yetenek Sistemi |
 | 11 | Düşman AI | Gameplay | MVP | Approved | design/gdd/dusuman-ai.md | Hasar Hesaplama, Sağlık, Element Sistemi |
 | 12 | Savaş Sistemi | Gameplay | MVP | Designed | design/gdd/savas-sistemi.md | Hasar Hesaplama, Sağlık, Düşman AI, Oyuncu Sınıf Sistemi, Yetenek Sistemi |
