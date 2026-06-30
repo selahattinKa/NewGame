@@ -25,8 +25,8 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 | 3 | Ekonomi / Kaynak Yönetimi | Economy | MVP | Approved | design/gdd/ekonomi.md | — |
 | 4 | Kaydetme / Yükleme | Persistence | MVP | Approved | design/gdd/kaydetme-yukleme.md | — |
 | 5 | UI Framework | UI | MVP | Approved | design/gdd/ui-framework.md | — |
-| 6 | Sağlık / Can Sistemi | Core | MVP | Approved | design/gdd/saglik-can-sistemi.md | Pet/Canavar Veritabanı |
-| 7 | Hasar Hesaplama | Core | MVP | Approved | design/gdd/hasar-hesaplama.md | Pet/Canavar Veritabanı, Element Sistemi |
+| 6 | Sağlık / Can Sistemi | Core | MVP | Revised | design/gdd/saglik-can-sistemi.md | Oyuncu Sınıf Sistemi, Ekipman Sistemi, Pet/Canavar Veritabanı |
+| 7 | Hasar Hesaplama | Core | MVP | Revised | design/gdd/hasar-hesaplama.md | Oyuncu Sınıf Sistemi, Ekipman Sistemi, Element Sistemi, Keşif Alanı |
 | 8 | Pet Evrim Sistemi | Progression | MVP | Revision Needed | design/gdd/canavar-toplama-evrim.md | Pet/Canavar Veritabanı, Ekonomi |
 | 9 | Ödül Ekranı / Loot Sistemi | Economy | MVP | Revision Needed | design/gdd/loot-odul-sistemi.md | Pet/Canavar Veritabanı, Ekonomi |
 | 10 | Oyuncu Sınıf Sistemi | Gameplay | MVP | Designed | design/gdd/oyuncu-sinif-sistemi.md | Ekonomi, Kaydetme, Hasar Hesaplama, Sağlık/Can, Yetenek Sistemi |
@@ -109,7 +109,7 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 2. **Savaş Sistemi** — bağlı: Hasar Hesaplama, Sağlık, Düşman AI, Oyuncu Sınıf Sistemi; tur bazlı cooldown + oto-savaş toggle
 3. **Zindan Keşif Sistemi** — bağlı: Savaş Sistemi, Loot, Pet Evrim Sistemi
 4. **Otofarm / Idle Sistemi** — bağlı: Savaş Sistemi, Loot, Ekonomi, Kaydetme
-5. **Ekipman Sistemi** — bağlı: Savaş Sistemi, Hasar Hesaplama, Ekonomi; oyuncu (2 slot) + pet (3 slot); F/D/C/B tier; iksir (pot) sistemi dahil — savaş içi HP iyileşme
+5. **Ekipman Sistemi** — bağlı: Savaş Sistemi, Hasar Hesaplama, Ekonomi; oyuncu (11 slot: Kask/Zırh/Pantalon/Eldiven/Bot/Silah/2×Yüzük/2×Küpe/Kolye) + pet (2 slot: Silah/Aksesuar); F/D/C/B tier
 6. **Dükkan Sistemi** — bağlı: Ekipman Sistemi, Ekonomi; altın bazlı NPC dükkanı; günlük dönen ekipman rafı (4 item) + sabit iksir tezgâhı
 7. **IAP + Reklam Sistemi** — bağlı: Ekonomi, Pet/Canavar Veritabanı; Google Play Billing (IAP) + AdMob (rewarded/interstitial); enerji/bonus reklam ödülü
 

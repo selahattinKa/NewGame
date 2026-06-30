@@ -1,6 +1,6 @@
 # Canavar Veritabanı (Monster Database)
 
-> **Status**: Designed
+> **Status**: Revised
 > **Author**: user + game-designer, systems-designer
 > **Last Updated**: 2026-06-24
 > **Implements Pillar**: Topla Hepsini, Güç Hisset
@@ -11,7 +11,7 @@
 
 Oyuncu bu sistemi doğrudan görmez, ancak koleksiyondaki her canavarın benzersiz hissetmesi, güçlendirme sırasında stat büyümesinin tatmin edici olması ve element sinerjilerinin keşfedilebilir olması bu veritabanının zenginliğine bağlıdır. Savaş, güçlendirme, loot, takım kurma ve evrim sistemlerinin tamamı Canavar Veritabanı'nın tanımlarını tüketir; hiçbiri canavar verisini kendisi üretmez.
 
-Prototype kapsamında 10-15 canavar türü (4 element × 4 arketip matrisinden seçilen), **4 nadirlik kademesi (F-D-C-B)** ve temel stat yapısı tanımlanır. A, S ve SS kademeleri Google Play soft-launch verisi sonrasında MVP güncellemesiyle eklenecektir. Tam vizyonda 200+ canavar türüne ölçeklenebilir bir şema hedeflenir.
+MVP kapsamında 15-20 pet türü (4 element × 4 arketip matrisinden seçilen), **7 nadirlik kademesi (F-D-C-B-A-S-SS)** ve tam tier şeması tanımlanır. Prototype B-A-S tier petlere odaklanır; F-D-C evrim malzemesi ve erken oyun dolgusu olarak tasarlanır. Tam vizyonda 200+ canavar türüne ölçeklenebilir bir şema hedeflenir.
 
 > **Kapsam notu**: Bu veritabanı **toplanabilir pet canavarlarını** (oyuncunun koleksiyonuna aldığı varlıklar) kapsar. F/D/C/B tier sistemi yalnızca bu petler ve ekipman için geçerlidir. Keşif Alanı'nda savaşılan **düşman canavarlarının** tier'ı yoktur — güçleri **SG (Saldırı Gücü)** ile ölçülür.
 
@@ -37,7 +37,7 @@ Her canavar türü aşağıdaki sabit kimlik alanlarıyla tanımlanır:
 | `display_name` | string | Oyuncuya gösterilen isim | "Cehennem Pençesi" |
 | `element` | enum | Ateş / Su / Toprak / Hava | `fire` |
 | `archetype` | enum | Saldırgan / Tank / Destekçi / Büyücü | `striker` |
-| `base_rarity` | enum | F / D / C / B (prototype); A/S/SS MVP sonrası | `C` |
+| `base_rarity` | enum | F / D / C / B / A / S / SS | `C` |
 | `evolution_stage` | int | Mevcut evrim aşaması (1, 2 veya 3) | `1` |
 | `evolves_to` | string\|null | Evrimleştiği canavarın id'si | `fire-striker-infernalclaw-2` |
 | `evolves_from` | string\|null | Evrimleştiği kaynak id | `null` |
@@ -68,18 +68,17 @@ Toplam stat havuzunun yüzdesel dağılımı:
 
 **Kural 4 — Nadirlik Kademeleri**
 
-> **Prototype kapsamı**: F-D-C-B (4 tier). A, S, SS Google Play soft-launch sonrası MVP güncellemesiyle eklenecek.
+| Kademe | Stat Havuzu (Lv1) | Max Evrim Tier | Düşme Çarpanı | Oyuncu Beklentisi |
+|--------|-------------------|----------------|---------------|-------------------|
+| **F** (Temel) | 100 | C | 1.0x | Evrim malzemesi, erken oyun doldurma |
+| **D** (Seyrek) | 120 | B | 0.5x | İlk güçlenme hissi |
+| **C** (Nadir) | 150 | A | 0.15x | Orta vadeli yatırım |
+| **B** (Epik) | 185 | SS | 0.04x | Güçlü yardımcı — **MVP odak** |
+| **A** (İleri) | 215 | SS | 0.01x | Elit savaşçı |
+| **S** (Güçlü) | 250 | SS | 0.005x | Nadir, yıkıcı güç |
+| **SS** (Efsanevi) | 300 | — (terminal) | 0.001x | Doruk tier — bazı petler buraya ulaşamaz |
 
-| Kademe | Stat Havuzu (Lv1) | Max Evrim | Düşme Çarpanı | Oyuncu Beklentisi |
-|--------|-------------------|-----------|---------------|-------------------|
-| **F** (Yaygın) | 100 | 2 (A→B) | 1.0x | Başlangıç takımı |
-| **D** (Seyrek) | 120 | 2 (A→B) | 0.5x | İlk güçlenme hissi |
-| **C** (Nadir) | 150 | 3 (A→B→C) | 0.15x | Takımın omurgası |
-| **B** (Epik) | 185 | 3 (A→B→C) | 0.04x | Endgame gücü — prototype boss tier |
-
-*MVP sonrası eklenecek: A (215, 0.01x), S (250, 0.005x), SS (300, 0.001x)*
-
-**Tasarım notu**: F ve D tier canavarlar yapısal olarak C+ seviyesine ulaşamaz (F B max=140 < C A=150). Bu genre standardıdır (gacha fodder pattern): F/D canavarlar erken oyun takımı filler'ı ve yıldız yükseltme (star-up) birleştirme malzemesi olarak tasarlanmıştır. "Topla Hepsini" pillar'ı bu kademeler için "koleksiyon kaydı tamamlama" ve "güçlendirme malzemesi" değeri üzerinden sağlanır, endgame viability değil.
+**Tasarım notu**: F ve D tier petler SS'e ulaşamaz (max C/B) — bu genre standardıdır (gacha fodder pattern). F/D petler erken oyun takımı doldurucusu ve evrim malzemesidir. "Topla Hepsini" pillar'ı bu kademeler için "koleksiyon tamamlama" ve "malzeme" değeriyle sağlanır, endgame viability değil. B ve üstü SS'e ulaşabilir; C tier A'ya kadar çıkabilir.
 
 **Kural 5 — Element Etkileşim Matrisi**
 
@@ -96,11 +95,23 @@ Avantajlı: 1.5x hasar. Dezavantajlı: 0.75x. Nötr/Aynı: 1.0x.
 
 **Kural 6 — Evrim Sistemi**
 
-- F ve D: 2 aşama (Form A → Form B)
-- C ve B: 3 aşama (Form A → Form B → Form C)
-- Evrim element ve arketipi değiştirmez — sadece statları, görseli ve yetenek setini güçlendirir
-- Her evrim aşaması stat havuzunu %40 artırır (Nadir Lv1: A=150, B=210, C=294)
-- Evrim gereksinimleri Canavar Güçlendirme GDD'sinde tanımlanacak
+Evrim iki aşamalı çalışır: (1) tier içi form gelişimi, (2) tier-up (bir üst kademine geçiş).
+
+**Tier içi formlar:**
+- Her tier'da 2-3 form aşaması (Form 1, Form 2, Form 3)
+- Her form %40 stat artışı sağlar: `evolved_pool = floor(base_pool × 1.40^(form-1))`
+- F ve D: 2 form — Form 1 → Form 2
+- C, B, A, S: 3 form — Form 1 → Form 2 → Form 3
+
+**Tier-up (kademe yükseltme):**
+- Max form aşamasına ulaşınca bir üst kademine geçiş açılır (F→D, D→C, C→B, B→A, A→S, S→SS)
+- Tier-up görünüşü değiştirir — yeni AI görsel üretilir (silüet farklılaşır)
+- Tier-up element ve arketipi değiştirmez
+- Her petin max tier'ı Kural 4 tablosunda tanımlanmıştır (F max=C, D max=B, B+ max=SS)
+
+**"Bazıları SS'e ulaşamaz":** F ve D tier petler tasarım gereği SS'e ulaşamaz. C tier A'ya, B ve üstü SS'e ulaşabilir. Bu, oyuncuyu güçlü pet koleksiyonuna teşvik eder.
+
+Evrim malzeme gereksinimleri Canavar Toplama ve Evrim GDD'sinde tanımlanmıştır.
 
 **Kural 7 — Yetenek Slotları**
 
@@ -150,9 +161,9 @@ Veri akışı tek yönlüdür — veritabanı runtime'da immutable'dır.
 | Arketip yüzdesi | archetype_percentage | float | 0.15–0.35 | Arketip tablosundan (Kural 3) |
 | Bireysel stat | individual_stat | int | 15–78 | Sonuç — floor ile yuvarlanır |
 
-**Çıktı Aralığı**: 15 ile 78. Max non-HP stat = floor(225 × 0.35) = 78.
+**Çıktı Aralığı**: 15 ile 105. Max non-HP stat = floor(300 × 0.35) = 105.
 
-**Örnek**: Nadir Saldırgan Lv1 → HP=31, ATK=52, DEF=22, SPD=45 (havuz=150)
+**Örnek**: C Tier Saldırgan Lv1 → HP=30, ATK=52, DEF=22, SPD=45 (havuz=150)
 
 **Yuvarlama Kuralı**: `hp_final = floor(pool × hp%) + (pool - Σfloor(pool × stat%_i))`. Tüm statlar floor ile yuvarlanır, kalan fark HP'ye eklenir. Toplam her zaman pool'a eşittir.
 
@@ -167,9 +178,10 @@ Veri akışı tek yönlüdür — veritabanı runtime'da immutable'dır.
 | Aşama | stage | int | 1–3 | Evrim aşaması |
 | Evrimleşmiş havuz | evolved_stat_pool | int | 100–441 | Sonuç |
 
-**Çıktı Aralığı**: 100 (Yaygın A) ile 441 (Efsanevi C: 225 × 1.4² = 441)
+**Çıktı Aralığı**: 100 (F Form 1) ile 588 (SS Form 3: 300 × 1.4² = 588)
 
-**Örnek**: Nadir → A=150, B=210, C=294
+**Örnek**: C Tier (havuz=150) → Form1=150, Form2=210, Form3=294
+**Örnek**: S Tier (havuz=250) → Form1=250, Form2=350, Form3=490
 
 Evrimleşmiş stat dağılımı aynı arketip yüzdeleriyle (Kural 3) yapılır — evrim arketip dağılımını değiştirmez, sadece havuzu büyütür.
 
@@ -231,24 +243,26 @@ Tüm bağımlılıklar tek yönlü — veritabanı runtime'da immutable.
 | Knob | Değer | Güvenli Aralık | Çok Yüksekse | Çok Düşükse |
 |------|-------|----------------|-------------|-------------|
 | `evolution_bonus` | 0.40 | 0.25–0.60 | Evrimli canavarlar çok güçlü → eskiler anlamsız | Evrim tatmin etmez |
-| `rarity_stat_pool_common` | 100 | 80–120 | Yaygınlar çok güçlü → nadirlik farkı anlamsız | Yaygınlar işe yaramaz |
-| `rarity_stat_pool_uncommon` | 120 | 100–140 | — | — |
-| `rarity_stat_pool_rare` | 150 | 130–180 | — | — |
-| `rarity_stat_pool_epic` | 185 | 160–220 | — | — |
-| `rarity_stat_pool_legendary` | 225 | 200–280 | Legendary çok baskın → PvP meta tek boyutlu | "Efsanevi" hissetmez |
+| `stat_pool_F` | 100 | 80–120 | F petler çok güçlü → tier farkı anlamsız | F işe yaramaz, erken hayal kırıklığı |
+| `stat_pool_D` | 120 | 100–140 | — | — |
+| `stat_pool_C` | 150 | 130–180 | — | — |
+| `stat_pool_B` | 185 | 160–220 | — | — |
+| `stat_pool_A` | 215 | 190–250 | — | — |
+| `stat_pool_S` | 250 | 220–290 | — | — |
+| `stat_pool_SS` | 300 | 260–360 | SS çok baskın → meta tek boyutlu | "Efsanevi" hissetmez |
 | `element_advantage_multiplier` | 1.50 | 1.25–2.00 | Element seçimi çok kritik | Element önemsizleşir |
 | `element_disadvantage_multiplier` | 0.75 | 0.50–0.90 | Dezavantaj çok ağır | Dezavantaj hissedilmez |
 | `archetype_stat_percentages` | Kural 3 | ±5% her oran | Arketipler benzeşir | Aşırı uzmanlaşma |
 
-**Etkileşim Uyarısı**: `evolution_bonus` × `rarity_stat_pool_legendary` birlikte Efsanevi Form C gücünü belirler (225 × 1.4² = 441). İkisini aynı anda artırmak güç eğrisini kırabilir.
+**Etkileşim Uyarısı**: `evolution_bonus` × `stat_pool_SS` birlikte SS Form 3 gücünü belirler (300 × 1.4² = 588). İkisini aynı anda artırmak güç eğrisini kırabilir.
 
 ## Acceptance Criteria
 
-1. **GIVEN** Nadir Saldırgan tanımı, **WHEN** `GetBaseStats("fire-striker-infernalclaw", 1)` çağrılırsa, **THEN** HP=31, ATK=52, DEF=22, SPD=45 döner (toplam=150).
+1. **GIVEN** C Tier Saldırgan tanımı, **WHEN** `GetBaseStats("fire-striker-infernalclaw", 1)` çağrılırsa, **THEN** HP=30, ATK=52, DEF=22, SPD=45 döner (toplam=150).
 
-2. **GIVEN** Yaygın canavar Form A (havuz=100), **WHEN** Form B'ye evrimleşirse, **THEN** stat havuzu = 140.
+2. **GIVEN** F Tier canavar Form 1 (havuz=100), **WHEN** Form 2'ye evrimleşirse, **THEN** stat havuzu = 140.
 
-3. **GIVEN** Efsanevi canavar (havuz=225), **WHEN** Form C'ye evrimleşirse, **THEN** stat havuzu = 441.
+3. **GIVEN** SS Tier canavar (havuz=300), **WHEN** Form 3'e evrimleşirse, **THEN** stat havuzu = 588.
 
 4. **GIVEN** Ateş saldırgan, **WHEN** Toprak savunana saldırırsa, **THEN** element çarpanı = 1.5x.
 
@@ -272,11 +286,11 @@ Tüm bağımlılıklar tek yönlü — veritabanı runtime'da immutable.
 
 14. **GIVEN** stat havuzu 0 veya negatif olan canavar tanımı, **WHEN** stat dağıtılırsa, **THEN** tüm statlara minimum 1 uygulanır ve hata loglanır.
 
-15. **GIVEN** Yaygın canavar, **WHEN** evolution_stage sorgulanırsa, **THEN** max_stage = 2 (Form A→B). VE Nadir canavar için max_stage = 3 (Form A→B→C).
+15. **GIVEN** F Tier canavar, **WHEN** max_tier sorgulanırsa, **THEN** max_tier = C. VE B Tier canavar için max_tier = SS.
 
 16. **GIVEN** Tank arketip havuz=100, **WHEN** stat dağıtılırsa, **THEN** HP=30, ATK=15, DEF=35, SPD=20 (toplam=100, yuvarlama kaybı yok).
 
-17. **GIVEN** Büyücü arketip havuz=225 (Legendary), **WHEN** stat dağıtılırsa, **THEN** HP=floor(225×0.18)+2=42, ATK=floor(225×0.35)=78, DEF=floor(225×0.17)=38, SPD=floor(225×0.30)=67 (toplam=225, yuvarlama kaybı=2→HP'ye).
+17. **GIVEN** Büyücü arketip havuz=300 (SS Tier), **WHEN** stat dağıtılırsa, **THEN** HP=floor(300×0.18)+2=56, ATK=floor(300×0.35)=105, DEF=floor(300×0.17)=51, SPD=floor(300×0.30)=90 (toplam=302→fark HP'den çıkar: HP=54, toplam=300).
 
 ## Open Questions
 
