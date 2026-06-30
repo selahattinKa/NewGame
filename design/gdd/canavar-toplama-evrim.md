@@ -25,7 +25,7 @@ Kopya canavarlar bile değerlidir: yıldız birleştirme malzemesi olarak güce,
 
 **Çekirdek duygu**: Keşif heyecanı + tamamlama tatmini. Her zindan girişi potansiyel bir yeni keşif, her keşif koleksiyonun bir adım büyümesi, her tamamlama ödülü somut güçlenme.
 
-**Negatif fantezi (kaçınılacak)**: "Envanter dolu, hiçbir şey yapamıyorum" çıkmazı — loot düştüğünde beklemeye alma mekanizması bunu önler. "50 zindan boyunca hep aynı Common" monotonluğu — Loot GDD'nin pity ve nadirlik artışı bu sorunu zaten ele alır.
+**Negatif fantezi (kaçınılacak)**: "Envanter dolu, hiçbir şey yapamıyorum" çıkmazı — loot düştüğünde beklemeye alma mekanizması bunu önler. "50 zindan boyunca hep aynı F tier" monotonluğu — Loot GDD'nin pity ve nadirlik artışı bu sorunu zaten ele alır.
 
 **Pillar bağlantısı**: "Topla Hepsini" — Pokédex tamamlama dürtüsü, keşif ödülleri. "Güç Hisset" — her toplanan canavar potansiyel güce dönüşür (yıldız, takım genişlemesi). "Cömert Zindan" — her zindan çıkışı koleksiyona en az bir katkı bırakır.
 
@@ -94,8 +94,8 @@ Envanter kapasitesi doluyken yeni canavar düşerse:
 1. Canavar **bekleme alanına** (pending buffer) eklenir
 2. Bekleme alanı kapasitesi: 10 canavar (envanter dışı, geçici)
 3. Bekleme süresi nadirliğe göre değişir:
-   - Common / Uncommon: **7 gün**
-   - Rare / Epic / Legendary: **14 gün** + push notification gönderilir ("Nadir canavarınız beklemede — [X] gün kaldı!")
+   - F / D: **7 gün**
+   - C / B: **14 gün** + push notification gönderilir ("Nadir canavarınız beklemede — [X] gün kaldı!")
 4. Süre dolduğunda bekleme alanındaki ilgili canavar otomatik satılır (altına çevrilir)
 5. Bekleme alanı da doluysa: yeni canavar otomatik satılır ve altın olarak eklenir (loot raporu "envanter dolu — satıldı" notu gösterir)
 6. Oyuncu bilgilendirilir: "Envanter dolu! [X] canavar beklemede — yer aç veya sat."
@@ -151,13 +151,12 @@ Milestone ödülleri tek seferlik — ikinci kez verilemez.
 | **Otomatik satış filtresi** | Kurallar belirle, eşleşen düşen canavarlar otomatik satılır |
 
 Satış fiyatları (registry'den — `monster_sell_value`):
-| Nadirlik | Satış Fiyatı |
-|----------|-------------|
-| Common | 100 altın |
-| Uncommon | 200 altın |
-| Rare | 400 altın |
-| Epic | 700 altın |
-| Legendary | 1.000 altın |
+| Tier | Satış Fiyatı |
+|------|-------------|
+| F | 100 altın |
+| D | 200 altın |
+| C | 400 altın |
+| B | 700 altın |
 
 Güçlendirilmiş canavarlar bonus fiyatla satılır:
 `sell_price = base_sell_value × (1 + level × 0.02 + star_rank × 0.10)`
@@ -174,13 +173,13 @@ Oyuncu yapılandırılabilir kurallar belirler:
 
 | Parametre | Seçenekler | Varsayılan |
 |-----------|-----------|-----------|
-| Nadirlik filtresi | Common / Uncommon / Kapalı | Kapalı |
+| Tier filtresi | F / D / Kapalı | Kapalı |
 | Yıldız filtresi | ★0 / ★1 altı / Kapalı | Kapalı |
-| Güvenlik kilidi | Rare+ otomatik satış filtresinden muaf | Açık (kapatılamaz) |
+| Güvenlik kilidi | C/B tier otomatik satış filtresinden muaf | Açık (kapatılamaz) |
 
 Otomatik satış kuralları:
 1. Filtre **sadece yeni düşen** canavarlara uygulanır — mevcut envantere dokunmaz
-2. **Rare, Epic, Legendary canavarlar otomatik satış filtresinden muaftır** — güvenlik kilidi. (Not: bekleme alanı süresi dolduğunda Rare+ canavarlar da satılabilir — bkz. Kural 4.3. Bekleme süresi 14 güne uzatılmıştır.)
+2. **C ve B tier canavarlar otomatik satış filtresinden muaftır** — güvenlik kilidi. (Not: bekleme alanı süresi dolduğunda C/B canavarlar da satılabilir — bkz. Kural 4.3. Bekleme süresi 14 güne uzatılmıştır.)
 3. Otomatik satılan canavarlar loot raporunda "otomatik satıldı: +[X] altın" notu ile gösterilir
 4. Filtre oyuncu tarafından açılıp kapatılabilir
 5. İlk kez keşfedilen (Pokédex'e yeni eklenen) canavar otomatik satılmaz — ilk kopya her zaman koleksiyona eklenir
@@ -270,21 +269,21 @@ Canavar instance yaşam döngüsü:
 **Değişkenler:**
 | Değişken | Sembol | Tip | Aralık | Açıklama |
 |----------|--------|-----|--------|----------|
-| Temel satış fiyatı | base_sell_value | int | 100–1.000 | Registry: `monster_sell_value` |
+| Temel satış fiyatı | base_sell_value | int | 100–700 | Registry: `monster_sell_value` |
 | Seviye | level | int | 1–50 | Canavar seviyesi |
 | Yıldız sırası | star_rank | int | 0–5 | Canavar yıldızı |
-| Satış fiyatı | sell_price | int | 102–2.500 | Sonuç altın |
+| Satış fiyatı | sell_price | int | 102–1.750 | Sonuç altın |
 
-**Çıktı Aralığı**: 102 (Common Lv1 ★0) – 2.500 (Legendary Lv50 ★5)
+**Çıktı Aralığı**: 102 (F Lv1 ★0) – 1.750 (B Lv50 ★5)
 
 **Örnek satışlar:**
 
 | Canavar | Level | Yıldız | Hesaplama | Satış Fiyatı |
 |---------|-------|--------|-----------|-------------|
-| Common Lv1 ★0 | 1 | 0 | 100 × (1 + 0.02 + 0) | **102** |
-| Common Lv10 ★0 | 10 | 0 | 100 × (1 + 0.20) | **120** |
-| Rare Lv25 ★2 | 25 | 2 | 400 × (1 + 0.50 + 0.20) | **680** |
-| Legendary Lv50 ★5 | 50 | 5 | 1.000 × (1 + 1.00 + 0.50) | **2.500** |
+| F Lv1 ★0 | 1 | 0 | 100 × (1 + 0.02 + 0) | **102** |
+| F Lv10 ★0 | 10 | 0 | 100 × (1 + 0.20) | **120** |
+| C Lv25 ★2 | 25 | 2 | 400 × (1 + 0.50 + 0.20) | **680** |
+| B Lv50 ★5 | 50 | 5 | 700 × (1 + 1.00 + 0.50) | **1.750** |
 
 **Denge notu**: Satış fiyatları kasıtlı olarak düşük — canavar satma kaynak kazanımının ana yolu olmamalı. Ana altın kaynağı zindan loot'udur. Satış envanter yönetimi aracıdır.
 
@@ -303,19 +302,19 @@ Canavar instance yaşam döngüsü:
 
 **Not (REVISED)**: "Sahip olunan" = Pokédex'te "Sahip Olundu" kalıcı durumuna geçmiş (en az bir kez bir instance kazanılmış). Satılan türler sayılmaya DEVAM EDER. Satış sırasında o tür bir kez daha kazanılmadığı sürece completion_pct sabit kalır. Pokédex "Keşfedildi" durumu ayrı izlenir, completion_pct'ye dokunmaz — yalnızca "Sahip Olundu" (permanent) sayılır.
 
-**Örnek**: 45 tür keşfedildi ve 45 tür sahip (form olsun veya olmasın) / 60 toplam = floor(75) = **%75** → milestone ödülü tetiklenir. Oyuncu sonra 5 Rare türünü satsa: tamamlama hâlâ **%75** (45 still "ever-owned").
+**Örnek**: 45 tür keşfedildi ve 45 tür sahip (form olsun veya olmasın) / 60 toplam = floor(75) = **%75** → milestone ödülü tetiklenir. Oyuncu sonra 5 C tier türünü satsa: tamamlama hâlâ **%75** (45 still "ever-owned").
 
 ## Edge Cases
 
-- **If envanter dolu ve bekleme alanı da doluyken (10/10 beklemede) yeni canavar düşerse**: Yeni canavar otomatik satılır, altına çevrilir. Loot raporunda "envanter + bekleme dolu — otomatik satıldı: +[X] altın" notu gösterilir. Rare+ canavarlar da bu durumda otomatik satılır — ancak Rare+ canavarların bekleme süresi 14 gün olduğundan (Kural 4.3), bu duruma düşme olasılığı düşüktür. Bekleme alanında Rare+ canavar varken alan doluysa, önce Common/Uncommon canavarlar (7 gün süresi daha kısa olanlar) satılarak yer açılır.
+- **If envanter dolu ve bekleme alanı da doluyken (10/10 beklemede) yeni canavar düşerse**: Yeni canavar otomatik satılır, altına çevrilir. Loot raporunda "envanter + bekleme dolu — otomatik satıldı: +[X] altın" notu gösterilir. C/B tier canavarlar da bu durumda otomatik satılır — ancak C/B tier canavarların bekleme süresi 14 gün olduğundan (Kural 4.3), bu duruma düşme olasılığı düşüktür. Bekleme alanında C/B canavar varken alan doluysa, önce F/D tier canavarlar (7 gün süresi daha kısa olanlar) satılarak yer açılır.
 
 - **If oyuncu tüm canavarlarını satmaya çalışırsa (1 canavar kalana kadar)**: Son canavar satılamaz. "Sat" butonu devre dışı kalır. "Koleksiyonda en az 1 canavar bulunmalı" mesajı gösterilir.
 
-- **If otomatik satış filtresi açıkken ilk kez keşfedilen bir Common canavar düşerse**: İlk kopya otomatik satılmaz — Pokédex'e eklenir ve koleksiyona girer. Aynı türün sonraki kopyaları filtre kuralına tabidir.
+- **If otomatik satış filtresi açıkken ilk kez keşfedilen bir F tier canavar düşerse**: İlk kopya otomatik satılmaz — Pokédex'e eklenir ve koleksiyona girer. Aynı türün sonraki kopyaları filtre kuralına tabidir.
 
-- **If oyuncu otomatik satış filtresini "Common" olarak ayarlamışken tüm Common canavarlarını satmışsa ve yeni Common düşerse**: Canavar zaten otomatik satılır. Pokédex'te "sahip olundu" durumu korunur ama tamamlama yüzdesinden düşer (aktif instance yok).
+- **If oyuncu otomatik satış filtresini "F" olarak ayarlamışken tüm F tier canavarlarını satmışsa ve yeni F tier canavar düşerse**: Canavar zaten otomatik satılır. Pokédex'te "sahip olundu" durumu korunur ama tamamlama yüzdesinden düşer (aktif instance yok).
 
-- **If canavar bekleme alanında süre dolunca ama oyuncu o sürede hiç giriş yapmadıysa**: Timer oyuncu girişinde hesaplanır (offline süre dahil). Giriş anında süresi dolmuş canavarlar satılır (Common/Uncommon: 7 gün, Rare+: 14 gün), altın eklenir ve bildirim gösterilir. Rare+ canavar satıldıysa özel bildirim: "Nadir canavarınız bekleme süresinde satıldı — [X] altın kazandınız."
+- **If canavar bekleme alanında süre dolunca ama oyuncu o sürede hiç giriş yapmadıysa**: Timer oyuncu girişinde hesaplanır (offline süre dahil). Giriş anında süresi dolmuş canavarlar satılır (F/D: 7 gün, C/B: 14 gün), altın eklenir ve bildirim gösterilir. C/B canavar satıldıysa özel bildirim: "Nadir canavarınız bekleme süresinde satıldı — [X] altın kazandınız."
 
 - **If yıldız birleştirme için seçilen kopya canavar bekleme alanındaysa**: Bekleme alanındaki canavarlar birleştirme malzemesi olarak seçilebilir — bu onları bekleme alanından kaldırır ve tüketir. Slot açma gerekmez.
 
@@ -374,8 +373,8 @@ Canavar instance yaşam döngüsü:
 | `max_inventory_capacity` | 60 | 40–100 | Çok geniş → envanter yönetimi gereksiz | Çok dar → endgame koleksiyon sınırlı |
 | `max_expansion_count` | 8 | 5–12 | Çok fazla → üstel maliyet anlamsız | Çok az → kapasite artışı yetersiz |
 | `pending_buffer_size` | 10 | 5–20 | Bekleme çok geniş → envanter yönetimi gevşer | Bekleme çok dar → canavar kaybı riski artar |
-| `pending_expiry_days` | 7 (Common/Uncommon) | 3–14 | Çok uzun → oyuncu umursamaz | Çok kısa → geri dönüş süresi yetersiz |
-| `pending_expiry_days_rare` | 14 (Rare+) | 7–30 | Çok uzun → bekleme alanı tıkanır | Çok kısa → nadir canavar kaybı riski |
+| `pending_expiry_days` | 7 (F/D tier) | 3–14 | Çok uzun → oyuncu umursamaz | Çok kısa → geri dönüş süresi yetersiz |
+| `pending_expiry_days_rare` | 14 (C/B tier) | 7–30 | Çok uzun → bekleme alanı tıkanır | Çok kısa → nadir canavar kaybı riski |
 | `discovery_gem_reward` | 5 | 2–10 | Keşif ödülü çok cömert → elmas enflasyonu | Keşif hissedilmez |
 | `first_owned_gem_reward` | 10 | 5–25 | İlk sahiplik çok cömert → elmas enflasyonu | Heyecan düşük |
 | `first_owned_gold_reward` | 500 | 200–1.000 | — | — |
@@ -413,7 +412,7 @@ Canavar instance yaşam döngüsü:
 | Olay | Ses | Öncelik |
 |------|-----|---------|
 | Yeni canavar keşfi | Gizemli açılış tonu + "shimmer" (1 sn) | MVP |
-| İlk sahiplik | Keşif fanfarı + nadirlik bazlı jingle (Common=kısa, Legendary=epik) | MVP |
+| İlk sahiplik | Keşif fanfarı + nadirlik bazlı jingle (F=kısa, B=epik) | MVP |
 | Canavar satma | Metalik "clink" + yumuşak "swoosh" | MVP |
 | Toplu satış | Hızlanan "clink-clink-clink" + toplam "ka-ching" | MVP |
 | Milestone ödülü | Kutlama fanfarı (2-3 sn) + konfeti sesi | MVP |
@@ -430,7 +429,7 @@ Canavar instance yaşam döngüsü:
 - **Pokédex görünümü**: Grid tüm türleri gösterir. Keşfedilmemişler siyah siluet + "???". Keşfedilmişler gri ikon + isim. Sahip olunanlar tam renkli. Tamamlama barı üstte.
 - **Canavar detay ekranı**: Envanterdeki canavarı tıklayınca açılır. Portre (büyük), isim, element, arketip, nadirlik. Statlar (HP/ATK/DEF/SPD) barlarla. Alt butonlar: "Takıma Ekle", "Güçlendir" (→ Güçlendirme ekranı), "Sat", "Kilitle/Aç", "Favori". Lore metni alt bölümde.
 - **Satış ekranı**: Tek satış: detay ekranından "Sat" → onay dialogu + satış fiyatı gösterilir. Toplu satış: envanter listesinde "Toplu Sat" modu → checkbox seçimi → toplam fiyat + "Sat" butonu.
-- **Otomatik satış ayarları**: Ayarlar ekranında veya envanter ekranında dişli ikonu → filtre kuralları: nadirlik dropdown (Kapalı/Common/Uncommon) + yıldız dropdown (Kapalı/★0/★1 altı). "Rare+ asla satılmaz" güvenlik notu sabit gösterilir.
+- **Otomatik satış ayarları**: Ayarlar ekranında veya envanter ekranında dişli ikonu → filtre kuralları: tier dropdown (Kapalı/F/D) + yıldız dropdown (Kapalı/★0/★1 altı). "C/B tier asla satılmaz" güvenlik notu sabit gösterilir.
 - **Envanter genişletme**: Envanter ekranında kapasite barı yanında "+" butonu → genişletme dialogu: mevcut kapasite, yeni kapasite, elmas maliyeti, "Satın Al" butonu.
 - **Bekleme alanı**: Envanter ekranında sarı uyarı bandı: "[X] canavar beklemede — [Y] gün kaldı". Tıklayınca bekleme listesi açılır. Her canavar: portre + isim + kalan gün + "Envantere Al" (slot varsa) veya "Sat" butonu.
 - **Milestone ödül ekranı**: Pokédex'te milestone barı üzerinde ödül ikonları. Alınmamış milestone'lar parlayarak dikkat çeker. Tıklayınca ödül içeriği popup'ta gösterilir.
@@ -444,7 +443,7 @@ Canavar instance yaşam döngüsü:
 
 2. **GIVEN** oyuncunun envanteri 20/20 dolu, **WHEN** yeni canavar düşerse, **THEN** canavar bekleme alanına eklenir ve "Envanter dolu!" bildirimi gösterilir.
 
-3. **GIVEN** bekleme alanında 7 günden fazla bekleyen Common canavar var, **WHEN** oyuncu giriş yaparsa, **THEN** canavar otomatik satılır (100 altın) ve bildirim gösterilir.
+3. **GIVEN** bekleme alanında 7 günden fazla bekleyen F tier canavar var, **WHEN** oyuncu giriş yaparsa, **THEN** canavar otomatik satılır (100 altın) ve bildirim gösterilir.
 
 4. **GIVEN** bekleme alanı 10/10 dolu ve envanter 20/20 dolu, **WHEN** yeni canavar düşerse, **THEN** canavar anında otomatik satılır ve loot raporunda not gösterilir.
 
@@ -456,37 +455,37 @@ Canavar instance yaşam döngüsü:
 
 8. **GIVEN** oyuncu 20 benzersiz tür sahip (MVP: %100), **WHEN** tamamlama kontrolü yapılırsa, **THEN** %100 milestone ödülü: 500 elmas + 100.000 altın + "Canavar Lordu" başlığı.
 
-9. **GIVEN** Common Lv10 ★0 canavar, **WHEN** satılırsa, **THEN** satış fiyatı = floor(100 × (1 + 10×0.02 + 0)) = **120 altın**.
+9. **GIVEN** F tier Lv10 ★0 canavar, **WHEN** satılırsa, **THEN** satış fiyatı = floor(100 × (1 + 10×0.02 + 0)) = **120 altın**.
 
-10. **GIVEN** Rare Lv25 ★2 canavar, **WHEN** satılırsa, **THEN** satış fiyatı = floor(400 × (1 + 25×0.02 + 2×0.10)) = **680 altın**.
+10. **GIVEN** C tier Lv25 ★2 canavar, **WHEN** satılırsa, **THEN** satış fiyatı = floor(400 × (1 + 25×0.02 + 2×0.10)) = **680 altın**.
 
 11. **GIVEN** envanterde 1 canavar kalmış, **WHEN** oyuncu satmaya çalışırsa, **THEN** işlem engellenir ve "Son canavar satılamaz" mesajı gösterilir.
 
 12. **GIVEN** kilitli canavar, **WHEN** oyuncu satmaya veya yıldız birleştirme malzemesi yapmaya çalışırsa, **THEN** işlem engellenir.
 
-13. **GIVEN** otomatik satış filtresi "Common" ayarlı, **WHEN** ilk kez keşfedilen Common canavar düşerse, **THEN** otomatik satılmaz — koleksiyona eklenir.
+13. **GIVEN** otomatik satış filtresi "F" ayarlı, **WHEN** ilk kez keşfedilen F tier canavar düşerse, **THEN** otomatik satılmaz — koleksiyona eklenir.
 
-14. **GIVEN** otomatik satış filtresi "Common" ayarlı, **WHEN** daha önce keşfedilmiş Common canavar düşerse (kopya), **THEN** otomatik satılır ve loot raporunda "otomatik satıldı: +100 altın" gösterilir.
+14. **GIVEN** otomatik satış filtresi "F" ayarlı, **WHEN** daha önce keşfedilmiş F tier canavar düşerse (kopya), **THEN** otomatik satılır ve loot raporunda "otomatik satıldı: +100 altın" gösterilir.
 
 15. **GIVEN** 3. envanter genişletme satın alınacak, **WHEN** oyuncu genişletme butonuna basarsa, **THEN** maliyet = 50 × 2² = **200 elmas**, kapasite 30→35 olur.
 
 16. **GIVEN** oyuncu envanter 19/20, bekleme alanında 2 canavar var, **WHEN** envanterde 1 slot açılırsa, **THEN** bekleme alanından en eski canavar otomatik envantere taşınır (FIFO).
 
-17. **GIVEN** favori canavar, otomatik satış filtresi "Common" ayarlı, **WHEN** Common favori canavar düşerse, **THEN** otomatik satılmaz — favori muafiyeti uygulanır.
+17. **GIVEN** favori canavar, otomatik satış filtresi "F" ayarlı, **WHEN** F tier favori canavar düşerse, **THEN** otomatik satılmaz — favori muafiyeti uygulanır.
 
 18. **GIVEN** oyuncu %50 milestone almamış ama %75'e ulaşmış, **WHEN** milestone kontrolü yapılırsa, **THEN** hem %50 hem %75 ödülleri sırayla verilir.
 
 19. **GIVEN** oyuncu 8. genişletmeyi tamamlamış (60/60 kapasite), **WHEN** genişletme butonuna basarsa, **THEN** buton devre dışıdır ve "Maksimum kapasiteye ulaştınız" mesajı gösterilir.
 
-20. **GIVEN** bekleme alanında Rare canavar 13 gündür bekliyor, **WHEN** oyuncu giriş yaparsa, **THEN** canavar henüz satılmaz (14 gün süresi dolmamış) ve push notification gönderilir: "Nadir canavarınız beklemede — 1 gün kaldı!"
+20. **GIVEN** bekleme alanında C tier canavar 13 gündür bekliyor, **WHEN** oyuncu giriş yaparsa, **THEN** canavar henüz satılmaz (14 gün süresi dolmamış) ve push notification gönderilir: "Nadir canavarınız beklemede — 1 gün kaldı!"
 
-21. **GIVEN** bekleme alanında Common canavar 7+ gündür ve Rare canavar 5 gündür bekliyor, **WHEN** oyuncu giriş yaparsa, **THEN** Common canavar otomatik satılır (süresi dolmuş), Rare canavar beklemede kalır (14 gün süresi dolmamış).
+21. **GIVEN** bekleme alanında F tier canavar 7+ gündür ve C tier canavar 5 gündür bekliyor, **WHEN** oyuncu giriş yaparsa, **THEN** F tier canavar otomatik satılır (süresi dolmuş), C tier canavar beklemede kalır (14 gün süresi dolmamış).
 
 *`qa-lead` not consulted — Lean mode. Review manually before production.*
 
 ## Open Questions
 
-1. **Başlangıç canavarı**: MVP'de oyuncu ilk canavarını nasıl alır? Tutorial/Onboarding (Tier 2) olmadan ilk zindan girişinde garanti Common canavar düşürülebilir. → Tutorial GDD'sinde netleşecek.
+1. **Başlangıç canavarı**: MVP'de oyuncu ilk canavarını nasıl alır? Tutorial/Onboarding (Tier 2) olmadan ilk zindan girişinde garanti F tier canavar düşürülebilir. → Tutorial GDD'sinde netleşecek.
 
 2. **Koleksiyon milestone ödül dengeleme**: Pokédex milestone ödülleri (toplam ~1.150 elmas) + tekrarlı elmas kaynakları Ekonomi GDD'deki toplam elmas kazanım bütçesiyle tutarlı mı? BLOCKER: Ekonomi GDD'nin şu tekrarlı kaynaklarını tanımlaması gerekir: günlük giriş bonusu, haftalık görevler, ödünç al sistemi, arena ödülleri. Expansion sınkı (%20-30) bu kaynakların elde edilebilir olmasına bağlı. → Ekonomi GDD Blocker #3 revizyon.
 

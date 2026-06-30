@@ -179,9 +179,9 @@ namespace CanavarZindanlari.Combat
             ("Ejderha Pulu",    Rarity.B),
             ("Eski Kemik",      Rarity.F),
             ("Kristal Tozu",    Rarity.C),
-            ("Gölge Özü",       Rarity.A),
+            ("Gölge Özü",       Rarity.C),
             ("Demir Parçası",   Rarity.F),
-            ("Ruh Taşı",        Rarity.S),
+            ("Ruh Taşı",        Rarity.B),
             ("Zehir Bezi",      Rarity.D),
         };
 

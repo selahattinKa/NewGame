@@ -11,7 +11,7 @@
 
 Oyuncu bu sistemi doğrudan görmez, ancak koleksiyondaki her canavarın benzersiz hissetmesi, güçlendirme sırasında stat büyümesinin tatmin edici olması ve element sinerjilerinin keşfedilebilir olması bu veritabanının zenginliğine bağlıdır. Savaş, güçlendirme, loot, takım kurma ve evrim sistemlerinin tamamı Canavar Veritabanı'nın tanımlarını tüketir; hiçbiri canavar verisini kendisi üretmez.
 
-MVP kapsamında 15-20 canavar türü (3-4 element × 4 arketip matrisinden seçilen), 5 nadirlik kademesi ve temel stat yapısı tanımlanır. Tam vizyonda 200+ canavar türüne ölçeklenebilir bir şema hedeflenir.
+Prototype kapsamında 10-15 canavar türü (4 element × 4 arketip matrisinden seçilen), **4 nadirlik kademesi (F-D-C-B)** ve temel stat yapısı tanımlanır. A, S ve SS kademeleri Google Play soft-launch verisi sonrasında MVP güncellemesiyle eklenecektir. Tam vizyonda 200+ canavar türüne ölçeklenebilir bir şema hedeflenir.
 
 ## Player Fantasy
 
@@ -35,7 +35,7 @@ Her canavar türü aşağıdaki sabit kimlik alanlarıyla tanımlanır:
 | `display_name` | string | Oyuncuya gösterilen isim | "Cehennem Pençesi" |
 | `element` | enum | Ateş / Su / Toprak / Hava | `fire` |
 | `archetype` | enum | Saldırgan / Tank / Destekçi / Büyücü | `striker` |
-| `base_rarity` | enum | Yaygın / Seyrek / Nadir / Epik / Efsanevi | `rare` |
+| `base_rarity` | enum | F / D / C / B (prototype); A/S/SS MVP sonrası | `C` |
 | `evolution_stage` | int | Mevcut evrim aşaması (1, 2 veya 3) | `1` |
 | `evolves_to` | string\|null | Evrimleştiği canavarın id'si | `fire-striker-infernalclaw-2` |
 | `evolves_from` | string\|null | Evrimleştiği kaynak id | `null` |
@@ -66,15 +66,18 @@ Toplam stat havuzunun yüzdesel dağılımı:
 
 **Kural 4 — Nadirlik Kademeleri**
 
-| Kademe | Toplam Stat Havuzu (Lv1) | Max Evrim | Düşme Çarpanı | Oyuncu Beklentisi |
-|--------|--------------------------|-----------|---------------|-------------------|
-| Yaygın (Common) | 100 | 2 (A→B) | 1.0x | Başlangıç takımı |
-| Seyrek (Uncommon) | 120 | 2 (A→B) | 0.5x | İlk güçlenme hissi |
-| Nadir (Rare) | 150 | 3 (A→B→C) | 0.15x | Takımın omurgası |
-| Epik (Epic) | 185 | 3 (A→B→C) | 0.04x | Endgame güçleri |
-| Efsanevi (Legendary) | 225 | 3 (A→B→C) | 0.01x | "Vay canına" anı |
+> **Prototype kapsamı**: F-D-C-B (4 tier). A, S, SS Google Play soft-launch sonrası MVP güncellemesiyle eklenecek.
 
-**Tasarım notu**: Common ve Uncommon canavarlar yapısal olarak Rare+ seviyesine ulaşamaz (Common B max=140 < Rare A=150). Bu genre standardıdır (gacha fodder pattern): Common/Uncommon canavarlar erken oyun takımı filler'ı ve yıldız yükseltme (star-up) birleştirme malzemesi olarak tasarlanmıştır. "Topla Hepsini" pillar'ı bu kademeler için "koleksiyon kaydı tamamlama" ve "güçlendirme malzemesi" değeri üzerinden sağlanır, endgame viability değil.
+| Kademe | Stat Havuzu (Lv1) | Max Evrim | Düşme Çarpanı | Oyuncu Beklentisi |
+|--------|-------------------|-----------|---------------|-------------------|
+| **F** (Yaygın) | 100 | 2 (A→B) | 1.0x | Başlangıç takımı |
+| **D** (Seyrek) | 120 | 2 (A→B) | 0.5x | İlk güçlenme hissi |
+| **C** (Nadir) | 150 | 3 (A→B→C) | 0.15x | Takımın omurgası |
+| **B** (Epik) | 185 | 3 (A→B→C) | 0.04x | Endgame gücü — prototype boss tier |
+
+*MVP sonrası eklenecek: A (215, 0.01x), S (250, 0.005x), SS (300, 0.001x)*
+
+**Tasarım notu**: F ve D tier canavarlar yapısal olarak C+ seviyesine ulaşamaz (F B max=140 < C A=150). Bu genre standardıdır (gacha fodder pattern): F/D canavarlar erken oyun takımı filler'ı ve yıldız yükseltme (star-up) birleştirme malzemesi olarak tasarlanmıştır. "Topla Hepsini" pillar'ı bu kademeler için "koleksiyon kaydı tamamlama" ve "güçlendirme malzemesi" değeri üzerinden sağlanır, endgame viability değil.
 
 **Kural 5 — Element Etkileşim Matrisi**
 
@@ -91,8 +94,8 @@ Avantajlı: 1.5x hasar. Dezavantajlı: 0.75x. Nötr/Aynı: 1.0x.
 
 **Kural 6 — Evrim Sistemi**
 
-- Yaygın ve Seyrek: 2 aşama (Form A → Form B)
-- Nadir, Epik ve Efsanevi: 3 aşama (Form A → Form B → Form C)
+- F ve D: 2 aşama (Form A → Form B)
+- C ve B: 3 aşama (Form A → Form B → Form C)
 - Evrim element ve arketipi değiştirmez — sadece statları, görseli ve yetenek setini güçlendirir
 - Her evrim aşaması stat havuzunu %40 artırır (Nadir Lv1: A=150, B=210, C=294)
 - Evrim gereksinimleri Canavar Güçlendirme GDD'sinde tanımlanacak
