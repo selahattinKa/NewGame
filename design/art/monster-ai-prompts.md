@@ -1,26 +1,39 @@
 # Canavar AI Görsel Prompt Seti — Prototype (F–D–C–B)
 
 **Hedef araçlar:**
-- Kart görseli: **Google ImageFX** (Imagen 3 — imagesfx.google.com)
-- Saldırı animasyonu: **Google Flow** (Veo 3 — labs.google/flow)
+- Kart görseli: **Google ImageFX** (imagesfx.google.com)
+- Animasyonlar: **Google Flow** (labs.google/flow) — Veo 3
 
 **Prototype tier kapsamı:** F, D, C, B (A/S/SS MVP sonrası eklenir)
 
-**ImageFX genel talimatlar:**
-- Doğal dil cümleleri kullan — Midjourney gibi virgüllü keyword listesi **çalışmaz**
-- Her promptun sonuna stil satırını ekle: `Dark fantasy digital painting style, cinematic lighting, highly detailed.`
-- "without X" veya "do not include X" ile istemediğini belirt (ayrı negatif prompt kutusu yok)
-- En boy oranı: **2:3 portrait** seç (dikey kart formatı)
+---
 
-**Google Flow genel talimatlar:**
-- Yönetmen notu gibi yaz: çekim türü → özne hareketi → kamera → ses
-- Veo 3 ses üretir — ses ipucunu mutlaka ekle
-- Süre: **3–5 saniye** arası kısa clip olarak ayarla
-- "seamless loop" yazmak yerine eylemin başına ve sonuna bağlanabilir bir açıklama yaz
+## Animasyon Clip Seti — Her Canavar İçin 5 Clip
+
+| Dosya | Süre | Ne zaman oynar |
+|-------|------|----------------|
+| `idle.mp4` | 2–3 sn (loop) | Her zaman arka planda |
+| `attack_light.mp4` | 2 sn | Normal Saldırı kullanılınca |
+| `attack_heavy.mp4` | 2 sn | Ağır Saldırı kullanılınca |
+| `hit_normal.mp4` | 1–2 sn | Canavar normal hasar alınca |
+| `hit_heavy.mp4` | 1–2 sn | Canavar ağır hasar alınca |
+
+**Flow genel kurallar:**
+- Her prompt ayrı bir Flow session'ı — tek videoda birleştirme
+- Clip sonunda canavar idle pozisyonuna dönmeli (geçişler yumuşak olsun)
+- Süreyi Flow arayüzünde manuel ayarla
+- Ses ipucunu her zaman ekle — boş bırakırsan Flow rastgele ses koyar
+
+**ImageFX genel kurallar:**
+- Doğal dil cümleleri — virgüllü keyword listesi çalışmaz
+- En boy oranı: **2:3 portrait** seç
+- Her promptun sonuna ekle: `Dark fantasy digital painting style, cinematic lighting, highly detailed.`
 
 ---
 
-## Tier F — Başlangıç Canavarları
+## Tier F
+
+---
 
 ### 1. Gölge Sıçanı
 **Element:** Hava | **Tip:** Saldırgan | **Tier:** F
@@ -37,13 +50,48 @@ powerful, epic, or majestic. Dark fantasy digital painting style, cinematic ligh
 highly detailed.
 ```
 
-#### Google Flow — Saldırı Animasyonu
+#### Flow — idle
 ```
 Close-up bust shot of a scraggly shadowy rat creature facing the camera. It twitches
-its nose once, then lunges forward snapping its jaws at the camera. Shadow wisps on
-its fur briefly flare outward during the snap, then settle back. The camera holds still.
-Cut back to idle pose. Sound: a small skittering scratch followed by a quick wet snap.
-Dark fantasy lighting, 3-4 seconds.
+its nose slowly and its ears flick once. The faint shadow wisps on its fur drift
+lazily. Its small violet eyes blink once. The creature is otherwise still. The clip
+loops naturally from end back to start. Camera holds still.
+Sound: faint ambient sewer dripping, occasional small skitter. 2-3 seconds.
+```
+
+#### Flow — attack_light
+```
+Close-up bust shot of a scraggly shadowy rat creature facing the camera. It suddenly
+lunges its head forward and snaps its jaws at the camera, then quickly pulls back to
+idle position. The movement is fast and twitchy. Shadow wisps briefly flare out
+during the snap, then settle. Camera holds still.
+Sound: a quick wet snap followed by a small hiss. 2 seconds.
+```
+
+#### Flow — attack_heavy
+```
+Close-up bust shot of a scraggly shadowy rat creature facing the camera. It crouches
+low, shadow wisps on its fur swirling and expanding. It then launches its whole body
+forward toward the camera with both claws extended, violet eyes flashing bright.
+It pulls back to idle. Camera pushes in slightly during the lunge.
+Sound: a building low shriek that cuts into a sharp claw scrape. 2 seconds.
+```
+
+#### Flow — hit_normal
+```
+Close-up bust shot of a scraggly shadowy rat creature facing the camera. It suddenly
+flinches backward and to the side as if struck, head tilting away. Shadow wisps scatter
+briefly. It recovers and returns to facing the camera. Camera holds still.
+Sound: a small pained squeak. 1-2 seconds.
+```
+
+#### Flow — hit_heavy
+```
+Close-up bust shot of a scraggly shadowy rat creature facing the camera. A heavy
+impact sends it reeling hard backward, shadow wisps exploding outward in all
+directions. It shakes its head and slowly straightens back up, violet eyes dimmer
+than before. Camera shakes once on impact.
+Sound: a sharp crack followed by a pained yelp. 2 seconds.
 ```
 
 ---
@@ -62,17 +110,53 @@ look large, imposing, or menacing. Dark fantasy digital painting style, cinemati
 lighting, highly detailed.
 ```
 
-#### Google Flow — Saldırı Animasyonu
+#### Flow — idle
 ```
-Medium close-up of a small clay golem facing the camera. It slowly raises both fists
-above its head, the cracks in its clay body glowing faintly orange. It slams both fists
-down with a dull thud. A few small clay chunks scatter. The camera shakes slightly on
-impact. Sound: a heavy wet thud, like mud hitting stone. Dark fantasy lighting, 3-4 seconds.
+Medium close-up of a small clay golem facing the camera. Its body slowly rises and
+falls with a heavy breathing-like motion. Small clay fragments occasionally crumble
+and fall from its surface. The amber eye-glow pulses very faintly and slowly.
+The clip loops naturally. Camera holds still.
+Sound: low ambient rumble, occasional small crumble of dry clay. 2-3 seconds.
+```
+
+#### Flow — attack_light
+```
+Medium close-up of a small clay golem facing the camera. It raises one oversized fist
+and brings it down in a simple downward punch, then returns to idle position. The
+motion is slow and clumsy. A small clay chunk breaks loose on impact. Camera holds still.
+Sound: a dull wet thud. 2 seconds.
+```
+
+#### Flow — attack_heavy
+```
+Medium close-up of a small clay golem facing the camera. It pulls both fists back,
+amber eye-glow intensifying. It slams both fists forward simultaneously toward the
+camera. Clay chunks scatter from its arms during the slam. It slowly pulls back to
+idle. Camera shakes on impact.
+Sound: a deep resonant clay slam, like a boulder hitting mud. 2 seconds.
+```
+
+#### Flow — hit_normal
+```
+Medium close-up of a small clay golem facing the camera. It rocks backward slightly
+from an impact, a small crack forming on its chest. It steadies itself and faces
+forward again. Amber eye-glow flickers once. Camera holds still.
+Sound: a dull thwack against clay. 1-2 seconds.
+```
+
+#### Flow — hit_heavy
+```
+Medium close-up of a small clay golem facing the camera. A heavy blow sends it
+lurching sideways. A large chunk of clay breaks off its shoulder and falls. It slowly
+rights itself, a new crack glowing faintly orange. Camera shakes hard on impact.
+Sound: a loud crack of clay splitting, pieces scattering. 2 seconds.
 ```
 
 ---
 
-## Tier D — Orta-Alt Canavarlar
+## Tier D
+
+---
 
 ### 3. Buz Büyücüsü
 **Element:** Su | **Tip:** Büyücü | **Tier:** D
@@ -88,19 +172,57 @@ calculating and menacing. Dark fantasy digital painting style, cinematic lightin
 highly detailed.
 ```
 
-#### Google Flow — Saldırı Animasyonu
+#### Flow — idle
 ```
-Close-up bust shot of an ice sorcerer facing the camera. The sorcerer slowly raises
-one hand toward the camera, palm open. Ice crystals spiral inward from the air,
-converging in the palm into a pulsing blue-white orb. The eyes flash bright white-blue.
-Frost breath exhales visibly. The hand opens fully as the orb releases. Camera holds still.
-Sound: a rising crystalline hum that ends with a sharp ice crack. Dark fantasy lighting,
-4-5 seconds.
+Close-up bust shot of an ice sorcerer facing the camera. Ice shards orbit the body
+slowly and steadily. Frost breath drifts upward in a thin stream. The pale blue eyes
+glow with a calm, cold light. The ice crown shimmers faintly. The clip loops naturally.
+Camera holds still.
+Sound: soft ambient wind, faint crystalline chime from orbiting ice shards. 2-3 seconds.
+```
+
+#### Flow — attack_light
+```
+Close-up bust shot of an ice sorcerer facing the camera. The sorcerer flicks one hand
+forward. A single ice shard breaks from orbit and shoots toward the camera.
+The sorcerer's expression remains cold and unmoved. The hand returns to rest.
+Camera holds still.
+Sound: a sharp crystalline crack and a brief whoosh. 2 seconds.
+```
+
+#### Flow — attack_heavy
+```
+Close-up bust shot of an ice sorcerer facing the camera. The sorcerer raises both
+hands slowly, all orbiting ice shards spiraling inward toward the palms. The eyes
+flash bright white-blue. The sorcerer thrusts both palms forward, releasing a burst
+of ice crystals and frost toward the camera. Hands return to idle. Camera pushes in
+slowly during the charge, then shakes on release.
+Sound: a building crystalline hum erupting into a sharp ice blast. 2 seconds.
+```
+
+#### Flow — hit_normal
+```
+Close-up bust shot of an ice sorcerer facing the camera. The sorcerer recoils
+slightly from an impact, head tilting back. One orbiting ice shard is knocked out
+of orbit and falls. The sorcerer straightens, expression briefly showing irritation.
+Camera holds still.
+Sound: a sharp impact, a single ice shard shattering. 1-2 seconds.
+```
+
+#### Flow — hit_heavy
+```
+Close-up bust shot of an ice sorcerer facing the camera. A powerful hit throws the
+sorcerer hard to one side. Several orbiting ice shards shatter and scatter. Frost
+breath is disrupted. The sorcerer slowly rights themselves, eyes flashing with anger.
+Camera shakes on impact.
+Sound: a heavy blow, multiple ice shards exploding, a sharp cold exhale. 2 seconds.
 ```
 
 ---
 
-## Tier C — Orta Canavarlar
+## Tier C
+
+---
 
 ### 4. Gölge Kurdu
 **Element:** Hava | **Tip:** Saldırgan | **Tier:** C
@@ -116,14 +238,49 @@ predatory and dangerous. Dark fantasy digital painting style, cinematic lighting
 highly detailed.
 ```
 
-#### Google Flow — Saldırı Animasyonu
+#### Flow — idle
 ```
-Close-up bust shot of a shadow wolf facing the camera. It lowers its head slightly
-with a slow growl, shadow tendrils on its fur writhing outward. Then it snaps forward,
-jaws wide open showing spectral translucent fangs, nearly filling the frame.
-It pulls back to idle position. Camera pushes in slightly during the snap.
-Sound: a low resonant growl that cuts into a sharp supernatural snap. Dark fantasy
-lighting, 3-4 seconds.
+Close-up bust shot of a shadow wolf facing the camera. Shadow tendrils drift slowly
+off its fur. Its amber eyes scan left and right once, then settle back on the camera.
+Its lips pull back slightly in a permanent low snarl. Faint silent lightning flickers
+once in the fur. The clip loops naturally. Camera holds still.
+Sound: low ambient forest wind, a very faint distant growl. 2-3 seconds.
+```
+
+#### Flow — attack_light
+```
+Close-up bust shot of a shadow wolf facing the camera. It snaps its jaws forward
+once, fast and sharp, spectral fangs briefly visible. Shadow tendrils flare out
+slightly on the snap. It immediately returns to idle snarl. Camera holds still.
+Sound: a sharp supernatural snap. 2 seconds.
+```
+
+#### Flow — attack_heavy
+```
+Close-up bust shot of a shadow wolf facing the camera. It lowers its head, shadow
+tendrils expanding and writhing aggressively, amber eyes flashing bright. It lunges
+its entire upper body forward toward the camera, jaws wide open showing full spectral
+fangs, a burst of shadow erupting outward. It snaps back to idle position.
+Camera pushes in fast during lunge.
+Sound: a deep resonant growl building into a vicious supernatural snarl. 2 seconds.
+```
+
+#### Flow — hit_normal
+```
+Close-up bust shot of a shadow wolf facing the camera. An impact jolts its head to
+one side. Shadow tendrils scatter briefly. It shakes its head and locks its amber
+eyes back on the camera, snarl deepening. Camera holds still.
+Sound: a solid impact thud, a brief growl of pain. 1-2 seconds.
+```
+
+#### Flow — hit_heavy
+```
+Close-up bust shot of a shadow wolf facing the camera. A powerful blow sends it
+lurching hard backward. Shadow tendrils explode outward from the impact. The amber
+eyes go dim for a moment. The wolf slowly pulls back into frame, visibly shaken,
+a low dangerous growl rising. Camera shakes on impact.
+Sound: a heavy crack of impact, shadow energy dispersing with a hiss, then a low
+threatening growl. 2 seconds.
 ```
 
 ---
@@ -142,19 +299,54 @@ floating in the air. The creature looks imposing and ancient. Dark fantasy digit
 painting style, cinematic lighting, highly detailed.
 ```
 
-#### Google Flow — Saldırı Animasyonu
+#### Flow — idle
 ```
-Medium close-up of an iron golem facing the camera. The runes carved across its body
-begin to pulse bright gold one by one. One massive fist rises slowly into frame from
-below. Stone fragments lift off the golem's shoulders and float upward. The fist
-slams downward out of frame. The camera shakes hard on impact. Runes fade back to teal.
-Sound: deep stone grinding followed by a bone-shaking metal slam. Dark fantasy lighting,
-4-5 seconds.
+Medium close-up of an iron golem facing the camera. The teal runes on its body pulse
+slowly in a steady rhythm like a heartbeat. Small stone fragments float upward off
+its shoulders and drift. The massive chest rises and falls very slightly. The clip
+loops naturally. Camera holds still.
+Sound: deep low ambient hum from the runes, distant stone settling. 2-3 seconds.
+```
+
+#### Flow — attack_light
+```
+Medium close-up of an iron golem facing the camera. One massive fist rises from below
+frame and delivers a slow but heavy forward punch, runes on that arm flashing gold.
+The fist returns. The golem's expression does not change. Camera holds still.
+Sound: heavy metal whoosh, a deep resonant impact. 2 seconds.
+```
+
+#### Flow — attack_heavy
+```
+Medium close-up of an iron golem facing the camera. All runes across its body begin
+pulsing rapidly from teal to bright gold. Both massive fists rise into frame from
+below. Stone fragments lift off its surface and float. It slams both fists downward
+and forward simultaneously. Camera shakes hard on impact.
+Sound: deep stone grinding, rising rune hum, then a ground-shaking metal slam. 2 seconds.
+```
+
+#### Flow — hit_normal
+```
+Medium close-up of an iron golem facing the camera. It absorbs an impact with barely
+a reaction — head tilts back slightly, one rune on the chest flickers. It resettles
+immediately. Camera holds still.
+Sound: a metallic clang that rings out and fades. 1-2 seconds.
+```
+
+#### Flow — hit_heavy
+```
+Medium close-up of an iron golem facing the camera. A powerful hit rocks it backward.
+A crack appears across one iron chest plate, the rune inside it sputtering orange
+before restabilizing to teal. Stone fragments scatter from the impact. It slowly
+straightens, runes pulsing faster than before. Camera shakes hard on impact.
+Sound: a massive metallic crash, sparks, a deep groan of bending iron. 2 seconds.
 ```
 
 ---
 
-## Tier B — Nadir / Boss Canavarları
+## Tier B
+
+---
 
 ### 6. Ateş Ejderi
 **Element:** Ateş | **Tip:** Saldırgan | **Tier:** B
@@ -170,14 +362,49 @@ radiates power. Dark fantasy digital painting style, epic cinematic lighting,
 highly detailed.
 ```
 
-#### Google Flow — Saldırı Animasyonu
+#### Flow — idle
 ```
-Close-up bust shot of a fire dragon facing the camera. It inhales slowly, the lava
-rivers between its scales glowing brighter. Its jaw opens revealing a column of
-white-hot fire building deep in its throat. The eyes shift from orange to blinding
-white. Smoke billows from the nostrils. The fire surges forward toward the camera.
-Camera pushes in slowly during the charge. Sound: a deep rumbling inhale building
-into a roaring eruption of flame. Dark fantasy lighting, 4-5 seconds.
+Close-up bust shot of a fire dragon facing the camera. Lava rivers between its scales
+glow and pulse slowly. Thin smoke drifts steadily from its nostrils. Its molten
+orange eyes burn with a steady inner fire. Embers float upward past the frame.
+The clip loops naturally. Camera holds still.
+Sound: deep ambient low rumble, crackling embers, slow heavy breathing. 2-3 seconds.
+```
+
+#### Flow — attack_light
+```
+Close-up bust shot of a fire dragon facing the camera. It opens its jaws and releases
+a quick sharp burst of fire that flares toward the camera, then closes its mouth.
+Scales flare briefly with heat during the burst. It returns to idle immediately.
+Camera holds still.
+Sound: a sharp ignition crack and a quick roar of flame. 2 seconds.
+```
+
+#### Flow — attack_heavy
+```
+Close-up bust shot of a fire dragon facing the camera. It inhales deeply, lava rivers
+on its scales glowing intensely brighter. Its jaw opens wide revealing white-hot fire
+building in its throat. Eyes shift from orange to blinding white. It releases a
+sustained column of fire toward the camera that fills the frame. Camera pushes in
+slowly during the charge, then shakes on release.
+Sound: a deep rumbling inhale building into a roaring sustained eruption of flame. 2 seconds.
+```
+
+#### Flow — hit_normal
+```
+Close-up bust shot of a fire dragon facing the camera. An impact lands on its side —
+its head turns toward the hit briefly, scales rattling. It turns back to face the
+camera, lava glow pulsing sharply once as if in anger. Camera holds still.
+Sound: a heavy impact against scales, a low threatening growl. 1-2 seconds.
+```
+
+#### Flow — hit_heavy
+```
+Close-up bust shot of a fire dragon facing the camera. A devastating hit snaps its
+head hard to one side. Several scales crack and flare orange along the impact line.
+Lava rivers surge brighter. It slowly turns its head back to face the camera, eyes
+now blazing intense white. Camera shakes violently on impact.
+Sound: a thunderous impact, scale cracking, a deep enraged roar. 2 seconds.
 ```
 
 ---
@@ -196,14 +423,51 @@ gothic castle with a glimpse of a stormy red moon. Dark fantasy digital painting
 style, epic cinematic lighting, highly detailed.
 ```
 
-#### Google Flow — Saldırı Animasyonu
+#### Flow — idle
 ```
-Close-up bust shot of a vampire lord facing the camera. It tilts its head slightly
-with a slow cold smile. The crimson eyes intensify in brightness. The orbiting blood
-droplets begin to spin faster. The vampire suddenly lunges forward toward the camera,
-cape flaring wide, fangs prominent. It holds for one beat before the clip ends.
-Camera zooms in slowly on the eyes before the lunge. Sound: an eerie silence broken
-by a sudden rush of wind and a sharp hiss. Dark fantasy lighting, 4-5 seconds.
+Close-up bust shot of a vampire lord facing the camera. Crimson blood droplets orbit
+slowly around the figure. The crimson eyes glow with a steady cold light. The cape
+shifts slightly as if in a faint breeze. The cold smile is fixed and permanent.
+The clip loops naturally. Camera holds still.
+Sound: distant gothic wind, very faint heartbeat-like pulse. 2-3 seconds.
+```
+
+#### Flow — attack_light
+```
+Close-up bust shot of a vampire lord facing the camera. It reaches one hand forward
+toward the camera with unnatural speed, then retracts it just as fast. One blood
+droplet from the orbit follows the hand movement and snaps back. The smile widens
+slightly for just a moment. Camera holds still.
+Sound: a sharp rush of air, a faint hiss. 2 seconds.
+```
+
+#### Flow — attack_heavy
+```
+Close-up bust shot of a vampire lord facing the camera. The orbiting blood droplets
+begin spinning faster, glowing brighter. The vampire tilts its head with a slow cold
+smile, then suddenly lunges the entire upper body forward, cape flaring wide, eyes
+blazing crimson, fangs prominent. Blood droplets surge forward with it.
+It snaps back to position. Camera zooms in on the eyes during the buildup, then
+shakes on the lunge.
+Sound: eerie silence, then a sudden explosive rush of wind and a supernatural hiss. 2 seconds.
+```
+
+#### Flow — hit_normal
+```
+Close-up bust shot of a vampire lord facing the camera. An impact causes it to step
+back slightly, the cold smile faltering for just a moment. One blood droplet orbit
+is disrupted and breaks away. The smile returns immediately, now with a dangerous
+edge. Camera holds still.
+Sound: a solid impact, a brief sharp exhale. 1-2 seconds.
+```
+
+#### Flow — hit_heavy
+```
+Close-up bust shot of a vampire lord facing the camera. A powerful blow sends it
+reeling backward, wings flaring out involuntarily to catch balance. Several orbiting
+blood droplets scatter and dissipate. It straightens slowly, the cold smile gone —
+replaced by open fury, eyes blazing intense crimson. Camera shakes on impact.
+Sound: a heavy impact, wings snapping open, a low vicious snarl. 2 seconds.
 ```
 
 ---
@@ -211,10 +475,9 @@ by a sudden rush of wind and a sharp hiss. Dark fantasy lighting, 4-5 seconds.
 ## Stil Tutarlılığı Notları
 
 - **Arka plan:** Her zaman karanlık, unsura uygun renk vurgusuyla (ateş=turuncu kor, hava=mor/mavi, toprak=yeşil/kahve, su=buz mavisi)
-- **Boyut hissi:** B ve C tier canavarlar çerçeveyi neredeyse doldurmalı; F ve D tier daha küçük hissettirmeli
-- **Bakış:** Doğrudan izleyiciye, agresif veya hesapçı ifade — asla gülümseyen/sevimli değil
-- **Işık kaynağı:** İçeriden gelen ışık (gözler, runeler, element efekti) + arkadan rim light
-- **Kart çerçevesi için boşluk:** Alt %15'te isim/tier için sade alan bırak — ImageFX'te composition olarak belirtebilirsin: "leave the lower portion of the frame relatively clear for UI text overlay"
+- **Boyut hissi:** B ve C tier büyük ve görkemli; F ve D tier daha küçük ve mütevazı
+- **Hit animasyonlarında:** Canavar çerçeveden tamamen çıkmamalı — hasar hissedilmeli ama canavar görünür kalmalı
+- **Clip sonu:** Her clip sonunda canavar idle pozisyonuna dönmeli — Flow'da "returns to idle position" ifadesini koru
 
 ## Tier Renk Paleti (UI bağlamı için)
 
@@ -227,10 +490,10 @@ by a sudden rush of wind and a sharp hiss. Dark fantasy lighting, 4-5 seconds.
 
 ## Üretim Sırası (Önerilen)
 
-1. **Ateş Ejderi (B)** → oyunun "yüzü", ilk oluştur, stil rehberi olarak kullan
-2. **Gölge Sıçanı (F)** → F tier görsel dilini kur; en basit yaratık
-3. **Kil Golem (F)** → F tier ikinci referans; tank görsel dilinin ilk formu
+1. **Ateş Ejderi (B)** → oyunun "yüzü", ilk oluştur, tüm 5 clip'i yap, stil rehberi olarak kullan
+2. **Gölge Sıçanı (F)** → F tier görsel ve animasyon dilini kur
+3. **Kil Golem (F)** → F tier ikinci referans
 4. **Gölge Kurdu (C)** → C tier orta güç hissi
-5. **Demir Golem (C)** → tank görsel dili C tier'da olgunlaşır
-6. **Kan Vampiri (B)** → B tier prestij hissi, ikinci boss
-7. **Buz Büyücüsü (D)** → D tier büyücü referans
+5. **Demir Golem (C)** → tank animasyon dili
+6. **Kan Vampiri (B)** → B tier ikinci boss
+7. **Buz Büyücüsü (D)** → D tier son
