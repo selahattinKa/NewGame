@@ -1,27 +1,29 @@
 # Savaş Sistemi
 
-> **Status**: Revised
+> **Status**: Designed
 > **Author**: user + game-designer, gameplay-programmer, systems-designer
 > **Last Updated**: 2026-06-30
 > **Implements Pillar**: Güç Hisset, Senin Tempon, Cömert Zindan
 
 ## Overview
 
-**Savaş Sistemi**, oyundaki tüm savaş etkileşimlerini yöneten tur bazlı cooldown savaş döngüsüdür. Savaşa katılan birimler **3 tanedir**: Oyuncu (seçilmiş sınıfıyla), Aktif Pet ve Düşman. Her birimin SPD stat'ına göre belirlenen tur sırasında aksiyon alır. Oyuncu sınıf yeteneklerini kullanır (4 slot, cooldown bazlı), pet kendi aktif yeteneğini kullanır (enerji bazlı, her 4 turda bir). Düşman yalnızca peti hedef alır — oyuncu hasar almaz. Defeat = pet HP = 0. Victory = düşman HP = 0.
+**Savaş Sistemi**, oyundaki tüm savaş etkileşimlerini yöneten tur bazlı cooldown savaş döngüsüdür. Savaşa katılan birimler **3 tanedir**: Oyuncu (seçilmiş sınıfı ve ekipmanıyla), Aktif Pet ve Düşman. Her birimin SPD stat'ına göre belirlenen tur sırasında aksiyon alır.
 
-Sistem iki mod sunar: **Komutan Modu** (oyuncu yetenek zamanlamasını kontrol eder, +10% ATK bonusu kazanır) ve **Otofarm Modu** (tüm kararlar otomatik alınır). Her iki modda da her savaş sonu loot düşer — "Cömert Zindan" sütunu gereği eli boş dönen savaş yoktur.
+**Oyuncu ana savaşçıdır.** HP'si vardır, hasara maruz kalır ve yenilgi koşulu oyuncunun HP'sinin sıfırlanmasıdır. Düşman oyuncuyu hedef alır. Pet ikincil saldırgandır — her turda bağımsız saldırır ve enerji bazlı yeteneğini kullanır, oyuncunun yanında savaşır. Defeat = Oyuncu HP = 0. Victory = Düşman HP = 0.
 
-MVP kapsamında tur döngüsü, iki mod, SPD sıralama, pet enerji sistemi, oyuncu sınıf cooldown sistemi, DoT (Yanma/Zehir), temel status efektleri (Sersemletme, Kalkan, DEF Kırma, ATK Zayıflatma) ve savaş sonu ödül dağıtımı yer alır.
+Sistem iki mod sunar: **Komutan Modu** (oyuncu yetenek zamanlamasını manuel yönetir, +30% ATK bonusu kazanır) ve **Otofarm Modu** (tüm kararlar otomatik alınır). Her iki modda da her savaş sonu loot düşer — "Cömert Zindan" sütunu gereği eli boş dönen savaş yoktur.
+
+MVP kapsamında tur döngüsü, iki mod, SPD sıralama, pet enerji sistemi, oyuncu sınıf cooldown sistemi, iksir kullanımı, DoT (Yanma/Zehir), temel status efektleri (Sersemletme, Kalkan, DEF Kırma, ATK Zayıflatma) ve savaş sonu ödül dağıtımı yer alır.
 
 ## Player Fantasy
 
-Oyuncu savaş sisteminde **güçlü komutan** fantezisi yaşar. Çekirdek an, petinin otomatik savaştığını izlerken doğru anda yetenek butonuna basıp düşmanı element avantajlı bir saldırıyla devirmektir — "benim zamanlamam fark yarattı" hissi. Komutan modunda oyuncu petinin generalıdır: peti ne zaman saldıracağını yönetmez (otomatik), ama kritik anlarda müdahale eder — düşük HP'li pete iyileştirme gönderir, boss'un güçlü saldırısı öncesi savunma yeteneği tetikler, element avantajlı saldırı zamanlar.
+Oyuncu savaş sisteminde **güçlü kahraman** fantezisi yaşar. Çekirdek an, kendi sınıf yetenekleriyle düşmanı dövmek — Savaşçı yakın dövüşte eziyorken Büyücü sihir patlamalarıyla hasar yağdırıyor. Pet arkadan ikincil saldırılarla destek veriyor — "ben savaşıyorum, yanımda güçlü bir yardımcım var" hissi.
 
-**Büyüme tatmini**: Aynı düşmanı geçen hafta 8 turda yenerken bu hafta 4 turda yenmek — hasar sayıları büyümüş, pet HP barı daha az kıpırdıyor. "Ne kadar güçlendik" anı savaş sisteminde en belirgin şekilde hissedilir.
+**Büyüme tatmini**: Aynı düşmanı geçen hafta 8 turda yenerken bu hafta 4 turda yenmek — ekipman takılmış, sınıf leveli artmış, hasar sayıları büyümüş. Pet de daha sert vuruyor. "Ne kadar güçlendik" anı savaşta en belirgin şekilde hissedilir.
 
-**Otofarm fantezisi**: Petin senin yerine savaşıyor. Geri döndüğünde ödüller seni bekliyor. "İmparatorluğum bensiz bile çalışıyor" — ama sen müdahale edince %20-30 daha iyi çalışıyor.
+**Otofarm fantezisi**: Oyuncu ve pet birlikte otomatik savaşıyor. Geri döndüğünde ödüller seni bekliyor. Ama sen manuel oynarsan %30-40 daha hızlı ve güçlü.
 
-**Negatif fantazi (kaçınılacak)**: Savaş asla "bekle ve izle" monotonluğuna düşmemeli. Komutan modunda anlamlı müdahale anları olmalı. Savaşlar çok uzun sürmemeli — 30 saniyede bir savaş (5-8 tur) ideal. Kayıp bile cezalandırıcı olmamalı — kaybetsen bile enerji harcanmaz, sadece o aşamadan loot alamazsın.
+**Negatif fantazi (kaçınılacak)**: Savaş "bekle ve izle" monotonluğuna düşmemeli. Komutan modunda anlamlı karar anları olmalı. Savaşlar çok uzun sürmemeli — 30 saniyede bir savaş (5-8 tur) ideal. Kayıp cezalandırıcı olmamalı — enerji harcanmaz, sadece o aşama loot'u alınamaz.
 
 *`creative-director` not consulted — Lean mode. Review manually before production.*
 
@@ -29,524 +31,324 @@ Oyuncu savaş sisteminde **güçlü komutan** fantezisi yaşar. Çekirdek an, pe
 
 ### Core Rules
 
-**Kural 1 — Savaş Akışı (Combat Flow)**
+**Kural 1 — Savaş Birimleri**
 
-Her savaş üç aşamadan oluşur:
+| Birim | Rol | HP | ATK | DEF | SPD | Özellik |
+|-------|-----|-----|-----|-----|-----|---------|
+| **Oyuncu** | Ana savaşçı | Var (sınıf bazlı) | Var (sınıf + ekipman) | Var (ekipman ağırlıklı) | Var (sınıf + ekipman) | Sınıf yetenekleri, iksir kullanımı |
+| **Aktif Pet** | İkincil saldırgan | Var (pet stats) | Var (pet stats + ekipman) | — | Var (pet stats) | Her turda saldırı + enerji yeteneği |
+| **Düşman** | Hedef / rakip | Var (SG bazlı) | Var (SG bazlı) | Var (SG bazlı) | Var (SG bazlı) | AI pattern, oyuncuyu hedef alır |
 
-```
-Savaş Öncesi (Pre-Combat) → Aktif Savaş (Combat) → Savaş Sonu (Post-Combat)
-```
+- Düşman **her zaman oyuncuyu hedef alır**.
+- Pet hasar almaz (düşmanın hedef aldığı birim yalnızca oyuncu).
+- Savaşa girildiğinde oyuncunun HP'si tam doluysa başlar (önceki savaştan kalıntı HP taşınmaz).
 
-1. **Savaş Öncesi**: Aktif pet yüklenir (`GetActivePet()`). Düşman Keşif Alanı'ndan alınır (`GetStageEnemy()`). Mod seçimi yapılır (varsayılan: son kullanılan mod). Tüm birimler `current_hp = max_hp`, `energy = 0` ile başlar. Oyuncu'nun cooldown'ları sıfırlanır.
+**Kural 2 — Savaş Modu Seçimi**
 
-2. **Aktif Savaş**: Tur döngüsü başlar (Kural 2-3). Döngü, düşman savaş dışı (kazanma) veya pet savaş dışı (kaybetme) olana kadar devam eder. Oyuncu istediği zaman çekilebilir.
+Savaş başlamadan önce oyuncu mod seçer (Keşif Alanı "SAVAŞ" butonuna basılınca):
 
-3. **Savaş Sonu**:
+| Mod | ATK Bonusu | Kontrol | Kullanım |
+|-----|-----------|---------|---------|
+| **Komutan Modu** | +30% Oyuncu ATK | Manuel — oyuncu yetenek seçer | Aktif oynanış, maksimum güç |
+| **Otofarm Modu** | Yok | Otomatik — öncelik sırasına göre | AFK farming |
 
-| Sonuç | Loot | Enerji Maliyeti | Ceza | HP |
-|-------|------|-----------------|------|----|
-| **Kazanma** | Tam ödül (Loot/Ödül Sistemi) | Harcanır | Yok | Pet tam iyileşir |
-| **Kaybetme** | Yok | Harcanmaz | Yok | Pet tam iyileşir |
-| **Çekilme** | Yok | Harcanmaz | Yok | Pet tam iyileşir |
+Bu fark UI'da gösterilmez — Otofarm modunda "−30% ATK" debuff ikonu çıkmaz. Hasar sayıları doğal olarak daha düşük akar.
 
-**Kural 2 — Tur Sıralama Sistemi (SPD-Based Turn Order)**
+**Kural 3 — Tur Sırası (Turn Order)**
 
-Her raunt'ta 3 birim SPD stat'ına göre azalan sırayla hareket eder:
-
-1. **Oyuncu SPD** = sınıfa göre sabit değer (sınıf sistemi GDD'sinde tanımlı)
-2. **Pet SPD** = pet'in effective SPD stat'ı
-3. **Düşman SPD** = düşmanın SPD stat'ı
-
-Sıralama kuralları:
-- En yüksek SPD → ilk sıra
-- SPD eşitliğinde: Oyuncu → Pet → Düşman öncelik sırası
-- Raunt başında savaş dışı birimler sıradan çıkarılır
-
-**Oyuncu'nun turu**: Yetenek kullanır. Oyuncu hasar almaz — düşman yalnızca peti hedef alır.
-**Pet'in turu**: Saldırı yapar veya pet yeteneği kullanır.
-**Düşman'ın turu**: Peti saldırır. (Oyuncu immune.)
-
-**Kural 3 — Birim Tur Fazları**
-
-Her birimin turu 5 fazda işler:
+Her tur başında tüm aktif birimler SPD değerine göre büyükten küçüğe sıralanır.
 
 ```
-1. DoT Tick          → Aktif DoT'lar uygulanır (Yanma/Zehir — Kural 10)
-2. Pasif Rejenerasyon → max(1, floor(max_hp × 0.02)) HP iyileşme (pet ve düşman için)
-3. Enerji Birikimi   → energy += energy_per_turn (25) — yalnızca pet için
-4. Aksiyon Seçimi    → Aksiyon belirlenir (mod'a ve birime göre)
-5. Aksiyon Yürütme   → Hasar/iyileşme/buff uygulama + animasyon
+entities = [Oyuncu, Pet, Düşman]
+turn_order = entities.sort(by: SPD, descending: true)
+// Eşit SPD: Oyuncu > Pet > Düşman (tiebreak sırası)
 ```
 
-- Oyuncu turu için Faz 2 ve 3 atlanır (oyuncunun HP ve enerjisi yoktur)
-- Faz 1'de birim HP=0'a düşerse savaş dışı kalır, kalan fazlar atlanır
-- Faz 4: Oyuncu → yetenek slot seçimi. Pet → saldırı/yetenek. Düşman → AI kararı. Sersemletme aktifse Faz 4 atlanır (oyuncu ve düşman için — pet için de uygulanabilir)
-- Cooldown sayacı (oyuncu sınıf yetenekleri) Faz 5 sonunda 1 azalır
+- Tur sırası her tur başında yeniden hesaplanır (SPD değiştiyse güncellenir).
+- Bir birim HP = 0 olursa o sıradaki kalan aksiyonları iptal edilir.
 
-**Kural 4 — Komutan Modu (Commander Mode)**
+**Kural 4 — Oyuncu Aksiyonları**
 
-Oyuncunun aktif katılımla savaşa müdahale ettiği mod.
+Oyuncu'nun tur geldiğinde alabileceği aksiyonlar:
 
-**Flat ATK Bonusu**: Pete +%30 ATK:
-`commander_ATK = floor(effective_ATK × 1.30)`
+| Aksiyon | Koşul | Etki |
+|---------|-------|------|
+| **Sınıf Yeteneği** (slot 0–3) | CD = 0 | Yeteneğe özgü hasar/efekt; CD başlar |
+| **Normal Saldırı** | Her zaman (yedek) | Temel ATK hasarı, CD yok |
 
-DEF, SPD, HP'ye bonus yok — sadece ATK. Mod değiştirilirse bonus bir sonraki turdan düşer.
+- Komutan Modunda oyuncu seçer. Seçilmezse 5 saniye sonra slot 3→2→1→0 önceliğiyle otomatik tetiklenir ("AUTO-SKIP").
+- Otofarm Modunda: CD = 0 olan en yüksek slottan tetiklenir; tüm CD doluysa Normal Saldırı.
 
-**Oyuncu Müdahale Noktaları**:
+**Kural 5 — Pet Aksiyonları**
 
-| Müdahale | Mekanik | Verimlilik Etkisi |
-|----------|---------|-------------------|
-| **Yetenek Zamanlaması** | Yetenek butonuna basarak optimal anda kullan | Boss saldırısı öncesi savunma, düşük HP'de iyileştirme, hasar penceresinde güçlü saldırı |
-| **Savaş Hızı** | 1x / 2x / 3x toggle | Hesaplamaya etki yok, animasyon hızı |
+Pet'in tur geldiğinde:
 
-**Yetenek bekleme**: Slot 1-3 CD dolunca buton aktifleşir. Oyuncu butona basmadıkça yetenek kullanılmaz — Slot 0 (CD0) otomatik devreye girer. Oyuncu yeteneği stratejik olarak "doğru an" için saklayabilir.
+| Aksiyon | Koşul | Etki |
+|---------|-------|------|
+| **Temel Saldırı** | Her zaman | Pet ATK bazlı hasar |
+| **Enerji Yeteneği** | Enerji = 100 | Özel etki + enerji sıfırlanır |
 
-**Kural 5 — Otofarm Modu (Auto-Farm Mode)**
+- Pet her turda 25 enerji kazanır (normal saldırı yaparken de).
+- 4. turda enerji = 100 → otomatik yetenek. Pet yeteneği oyuncu kontrolünde değil, otomatik ateşlenir.
+- Pet hasarı Komutan Modunda artırılmaz — yalnızca oyuncu ATK'ı etkilenir.
 
-Tüm kararlar otomatik, oyuncu müdahalesi yok.
+**Kural 6 — Düşman Aksiyonları**
 
-**ATK Bonusu**: Yok. Peti effective_ATK kullanır. Bu fark UI'da gösterilmez — oyuncu bir "debuff" görmez, savaş sayıları doğal olarak daha düşük akar.
+Düşmanın tur geldiğinde:
 
-**Otomatik Yetenek Kullanımı (Pet)**: Energy=100 olduğu anda yetenek hemen kullanılır.
+- Düşman AI'sı (Düşman AI GDD) pattern seçer.
+- Hedef: **Her zaman oyuncu** (pet'i hedef almaz).
+- Hasar `enemy_ATK` ve oyuncunun `effective_DEF` ile hesaplanır (Hasar Hesaplama GDD).
 
-**Otomatik Slot Önceliği (Oyuncu)**: Slot 3 açıksa → Slot 3. Slot 2 → Slot 1 → Slot 0.
+**Kural 7 — İksir Kullanımı**
 
-**Verimlilik Farkı (Komutan vs Otofarm)**:
+- İksir butonu savaş UI'ında her zaman görünür (serbest aksiyon — oyuncunun turunu tüketmez).
+- Basıldığında Pot Panel açılır: envanterdeki iksirler listelenir.
+- Seçilen iksir oyuncunun HP'sini anında iyileştirir.
+- Otofarm modunda: Oyuncu HP ≤ %25 iken Büyük İksir → yoksa Küçük İksir otomatik kullanılır.
 
-| Fark Kaynağı | Komutan Avantajı | Tahmini Etki |
-|-------------|------------------|-------------|
-| Flat +30% ATK bonusu | Her pet saldırısında | +30% |
-| Yetenek zamanlaması | Optimal an bekleme | +10-20% |
-| **Toplam** | | **~40-50%** |
+**Kural 8 — Kazanma / Yenilme Koşulları**
 
-**Kural 6 — Pet Yetenek Sistemi (MVP)**
+| Koşul | Sonuç |
+|-------|-------|
+| Düşman HP = 0 | Zafer — Loot + EXP verilir, enerji harcanır |
+| Oyuncu HP = 0 | Yenilgi — Enerji harcanmaz, loot alınmaz |
+| Oyuncu çekilirse (Retreat) | Çekilme — Enerji harcanmaz |
 
-Pet arketipine göre 1 aktif yetenek taşır.
+- Pet HP = 0 olursa: Pet "devre dışı" kalır (savaştan çekilir), battle devam eder — oyuncu yalnız savaşır. Yenilgi koşulu tetiklenmez.
+- Savaş bittiğinde oyuncu HP tam dolmaz — bir sonraki savaşa kalıntı HP ile girer. İksir veya dinlenme gerekir.
 
-**Enerji Mekanizması**:
-- Savaş başlangıcı: `energy = 0`
-- Her tur başı (pet turu): `energy += energy_per_turn` (25)
-- Yetenek eşiği: `energy >= energy_threshold` (100)
-- Kullanım sonrası: `energy = 0`
-- Enerji 100'ü aşmaz
+**Kural 9 — Oyuncu HP Yenileme (Savaş Dışı)**
 
-**Arketip Yetenekleri**:
+- Keşif Alanı harita ekranına dönünce HP tam dolmaz.
+- HP yenileme yolları: İksir kullanımı (savaş dışında kullanılamaz — yalnızca Dükkan'da satın alınır, savaşta kullanılır), savaşlar arası oturum yenilemesi (oyuncu uygulamayı kapayıp açarsa tam HP ile başlar — mobile sessiz dinlenme).
+- Normal aşama savaşları sonrası: HP otomatik %50 yenilenir (yalnızca zafer).
+- Mini Boss ve Alan Patronu sonrası: HP tam yenilenir (zafer).
 
-| Arketip | Yetenek Adı | Etki | Hedef | Çarpan/Oran | Hasar Türü |
-|---------|-------------|------|-------|-------------|-----------|
-| **Saldırgan** | Güçlü Vuruş | Yüksek hasar | Düşman | ATK × 2.0 | Fiziksel (`defense_reduction_factor=2`) |
-| **Tank** | Koruma Duruşu | Kendi DEF'ini artırır | Kendisi | DEF × 2.0, 2 tur | — |
-| **Destekçi** | İyileştirme | Peti iyileştirir | Pet (kendisi) | max_hp × 0.20 | — |
-| **Büyücü** | Element Dalgası | Düşmana büyü hasarı | Düşman | ATK × 0.75 | Büyü (`magic_defense_factor=4`) |
+**Kural 10 — Komutan Modu ATK Bonusu (Görünmez)**
 
-**Not**: Keşif Alanı'nda her aşamada 1 düşman vardır. Büyücü'nün "AoE" etiketi MVP'de yalnızca tek hedefe uygulanır (gelecekte çok düşman içeren boss aşamalarında anlam kazanabilir).
+```
+Komutan Modu: oyuncu_ATK_etkin = floor(base_ATK × 1.30)
+Otofarm Modu: oyuncu_ATK_etkin = base_ATK
+```
 
-**Kural 7 — Oyuncu Sınıf Yetenek Sistemi (Cooldown)**
+Bu fark hiçbir UI elementinde gösterilmez — "debuff" veya "bonus" ikonu yok. Hasar sayıları doğal olarak farklı akar.
 
-Oyuncu sınıfı (Savaşçı/Büyücü/Hırsız/Şifacı), pet yetenek sisteminden bağımsız 4 yetenek slotuna sahiptir.
+**Kural 11 — Kazanma Bonus Koşulu (Auto-Skip Penaltısı)**
 
-**Slot yapısı**:
-
-| Slot | Cooldown | Açıklama |
-|------|----------|----------|
-| Slot 0 | CD0 | Her tur kullanılabilir — temel saldırı / temel eylem |
-| Slot 1 | CD3 | 3 tur bekleme — orta güç yetenek |
-| Slot 2 | CD5 | 5 tur bekleme — güçlü yetenek |
-| Slot 3 | CD8 | 8 tur bekleme — ultimate |
-
-**Cooldown mekanizması**:
-- Savaş başlangıcı: tüm CD'ler 0 (tüm yetenekler açık)
-- Yetenek kullanıldığında: `current_cd = slot_cd` set edilir
-- Her oyuncu turu sonu: `current_cd = max(0, current_cd - 1)`
-- Kullanılabilir koşul: `current_cd == 0`
-
-**Komutan modunda seçim**:
-- Oyuncu kendi turunda kullanılabilir slotlardan birini seçer
-- Seçilmezse Slot 0 (CD0) otomatik kullanılır
-- Butonlar: yalnızca `current_cd == 0` olanlar aktif
-
-**Otofarm modunda öncelik**: Slot 3 → Slot 2 → Slot 1 → Slot 0.
-
-**Sınıf yetenek tablosu (özet)** — ayrıntılar Oyuncu Sınıf Sistemi GDD'sinde:
-
-| Sınıf | Slot 0 | Slot 1 (CD3) | Slot 2 (CD5) | Slot 3 (CD8) |
-|-------|--------|--------------|--------------|--------------|
-| Savaşçı | Normal saldırı | Sersemletme + hasar | DEF Kırma + Kalkan | AoE (boss kitleri için) |
-| Büyücü | Büyü saldırısı | Hafif büyü | Ağır büyü + Yanma DoT | Güçlü büyü |
-| Hırsız | Normal saldırı | Zehir + hasar | Kaçınma duruşu | Çoklu vuruş combo |
-| Şifacı | Hafif büyü | Pete İyileştirme | Pete Diriliş | ATK buff + Kesin Kritik |
-
----
-
-**Kural 8 — DoT Sistemi (Damage over Time)**
-
-DoT efektleri hasar pipeline'ından bağımsızdır — DEF'i bypass eder, doğrudan HP düşürür.
-
-**DoT türleri**:
-
-| Tip | Kaynak | Oran | Süre | Uygulama |
-|-----|--------|------|------|----------|
-| **Yanma** | Büyücü Slot 2 | max_hp × 0.05 / tur | 3 tur | Hedef birim tur başı (Faz 1) |
-| **Zehir** | Hırsız Slot 1 | max_hp × 0.04 / tur | 4 tur | Hedef birim tur başı (Faz 1) |
-
-**Uygulama kuralları**:
-- `dot_damage = max(1, floor(target_max_hp × dot_rate))`
-- DoT, rejenerasyondan (Faz 2) önce gelir
-- Aynı tipten DoT stack'lenmez: tekrar uygulanırsa süre yenilenir
-- Farklı tipler (Yanma + Zehir) aynı anda aktif olabilir
-- DoT düşmana da pette de uygulanabilir (kaynağa bağlı)
-
-**Boss bağışıklığı**: Boss Sersemletme'ye bağışıklıdır. DoT'a bağışıklık yok.
-
----
-
-**Kural 9 — Status Efektleri**
-
-| Efekt | Kaynak | Etki | Süre | Boss Bağışıklığı |
-|-------|--------|------|------|-----------------|
-| **Sersemletme** | Savaşçı Slot 1 | Hedef Faz 4'ü atlar | 1 tur | Evet |
-| **DEF Kırma** | Savaşçı Slot 2 | Hedef DEF × 0.70 | 2 tur | Hayır |
-| **ATK Zayıflatma** | Şifacı Slot 3 | Hedef ATK × 0.80 | 2 tur | Hayır |
-| **Kalkan** | Savaşçı Slot 2 | Hasar absorbe eder (max_hp × 0.25) | 3 tur veya dolana dek | Hayır |
-| **Kesin Kritik** | Şifacı Slot 3 | Sonraki saldırı garantili kritik | 1 kullanım | Hayır |
-| **Hasar Azaltma** | Savaşçı Slot 1 | Alınan hasar × 0.75 | 2 tur | Hayır |
-
-**Uygulama kuralları**:
-- Aynı tip efekt stack'lenmez — tekrar uygulanırsa süre yenilenir
-- Farklı efektler aynı anda aktif olabilir
-- Kalkan aktifken gelen hasar önce kalkanı tüketir
-- `shield_hp = floor(target_max_hp × 0.25)`; hasar aştığında kalan HP'ye gider
-- Status süresi: her UnitTurnEnd'de 1 azalır (etkilenen birimin turunda)
-
----
-
-**Kural 10 — Mod Geçişi**
-
-- Savaş öncesinde mod seçilir (varsayılan: son kullanılan)
-- Savaş sırasında mod toggle edilebilir (tek dokunuş)
-- Değişiklik bir sonraki turdan geçerli
-- Komutan → Otofarm: ATK bonusu düşer, yetenek butonları kaybolur
-- Otofarm → Komutan: ATK bonusu aktifleşir, yetenek butonları belirir
-- Cooldown sayaçları mod değişiminden etkilenmez
-
-**Kural 11 — Savaş Hız Kontrolü**
-
-| Hız | Tur Süresi | Kullanım |
-|-----|-----------|----------|
-| 1x | ~2 sn/tur | İlk savaşlar |
-| 2x | ~1 sn/tur | Normal oyun |
-| 3x | ~0.5 sn/tur | Farming |
-
-Hız yalnızca animasyon süresini etkiler — hesaplama değişmez. Tercih kaydedilir.
+Komutan Modunda oyuncu hiç manuel seçim yapmadan (her aksiyon auto-skip ile tetiklendiyse) tam ödülü alır — penaltı yok. Auto-skip, oyuncunun geç dokunmasından kaynaklanır, oyundan ayrılmaz.
 
 ### States and Transitions
 
-**Üst Düzey Savaş Durumları**
-
-| Durum | Açıklama | Giriş | Çıkış |
-|-------|----------|-------|-------|
-| **PreCombat** | Pet yükleme, mod seçimi | Savaş başlatma | → Combat |
-| **Combat** | Aktif tur döngüsü | PreCombat tamamlanınca | → Victory / Defeat / Retreat |
-| **Victory** | Düşman HP=0 | Son düşman düşünce | → PostCombat |
-| **Defeat** | Pet HP=0 | Pet düşünce | → PostCombat |
-| **Retreat** | Oyuncu çekildi | "Çekil" butonu | → PostCombat |
-| **PostCombat** | Loot dağıtımı, iyileşme | Victory/Defeat/Retreat | → Keşif Alanı'na döner |
-
 ```
-PreCombat → Combat ──→ Victory  ──→ PostCombat
-                   ├──→ Defeat   ──→ PostCombat
-                   └──→ Retreat  ──→ PostCombat
+[Keşif Alanı Haritası]
+    └─ "SAVAŞ" butonu → Mod Seçim Ekranı (veya doğrudan savaşa)
+        └─ Komutan / Otofarm seçimi → [Savaş Ekranı]
+
+[Savaş Ekranı — Tur Döngüsü]
+    Oyuncu Turu:
+        ├─ Yetenek seç (Komutan) → hasar / efekt → CD başlar
+        ├─ Auto-skip 5s (Komutan) → en hazır slot tetiklenir
+        └─ Otofarm → öncelik sırasıyla tetiklenir
+
+    Pet Turu:
+        ├─ Temel saldırı → pet ATK hasarı
+        └─ Enerji = 100 → Yetenek → enerji sıfır
+
+    Düşman Turu:
+        └─ AI pattern → oyuncuya hasar
+
+    İksir (serbest aksiyon):
+        └─ Her an basılabilir → Pot Panel → seç → HP iyileşir
+
+[Savaş Sonu]
+    ├─ Düşman HP = 0 → Zafer Overlay (loot + EXP)
+    ├─ Oyuncu HP = 0 → Yenilgi Overlay ("Enerji harcanmadı")
+    └─ Retreat → Çekilme Onay Dialog → Haritaya dön
 ```
-
-**Combat İçi Tur Döngüsü**
-
-```
-RoundStart → [Oyuncu, Pet, Düşman SPD sırasıyla]:
-  UnitTurnStart → DoTPhase → RegenPhase → EnergyPhase → DecisionPhase → ActionPhase → ResolutionPhase → UnitTurnEnd
-→ RoundEnd → (kazanma/kaybetme kontrolü) → RoundStart (veya Victory/Defeat)
-```
-
-| Faz | Ne Olur |
-|-----|---------|
-| **RoundStart** | Sıra listesi SPD'ye göre güncellenir, savaş dışı birimler çıkarılır |
-| **DoTPhase** | Aktif DoT'lar uygulanır; HP=0 ise savaş dışı |
-| **RegenPhase** | Pasif rejenerasyon (pet ve düşman — oyuncuya uygulanmaz) |
-| **EnergyPhase** | energy += 25 (yalnızca pet turu) |
-| **DecisionPhase** | Mod'a göre aksiyon belirlenir; Sersemletme aktifse atlanır |
-| **ActionPhase** | Saldırı/yetenek animasyonu + hasar hesaplama |
-| **ResolutionPhase** | HP güncelleme, savaş dışı kontrolü |
-| **UnitTurnEnd** | CD sayaçları -1, status süreleri -1, sonraki birime geç |
-| **RoundEnd** | Victory/Defeat kontrolü |
-
-### Interactions with Other Systems
-
-| Sistem | Yön | Veri Akışı | Arayüz |
-|--------|-----|-----------|--------|
-| **Pet Sistemi** | ← okur | Aktif pet (ID, effective stats, element, arketip) | `GetActivePet()` → {petId, effective_stats, element, archetype} |
-| **Canavar Veritabanı** | ← okur | Pet kimliği, yetenek tanımı | `GetMonsterIdentity(petId)` → {element, archetype}; `GetSkillDef(archetype)` |
-| **Canavar Güçlendirme** | ← okur | Pipeline stat çıktısı | `GetEffectiveStats(petId)` → {hp, atk, def, spd} |
-| **Element Sistemi** | ← okur | Element çarpanı | `GetElementMultiplier(atkElement, defElement)` → float |
-| **Hasar Hesaplama** | → tetikler | Saldırı komutu → hasar değeri | `CalculateDamage(attackerId, targetId, damageType)` → int |
-| **Oyuncu Sınıf Sistemi** | ← okur | Oyuncunun damageType, SPD değeri, slot yetenekleri | Savaş sistemi sınıf verisini buradan alır |
-| **Sağlık / Can Sistemi** | ↔ çift yönlü | HP durumu okur; hasar/iyileşme uygular | `IsAlive(id)`, `GetCurrentHP(id)`, `TakeDamage(id, amount)`, `Heal(id, amount)`, `FullHeal(petId)` |
-| **Düşman AI** | ← okur | Düşman aksiyon kararı | `GetEnemyAction(enemyId)` → {actionType, targetId, skillId} |
-| **Loot / Ödül Sistemi** | → tetikler | Savaş sonucu → loot | `DistributeLoot(battleResult, stageNumber)` |
-| **Keşif Alanı** | ↔ çift yönlü | Düşman alır; savaş sonucu bildirir | `GetStageEnemy(stageId)` ←; `OnBattleComplete(result)` → |
-| **Savaş UI** | → sağlar | Tüm savaş durumu, animasyon tetiklemeleri | `OnTurnStart`, `OnActionExecuted`, `OnBattleEnd`, `OnModeChanged` events |
 
 ## Formulas
 
-### Formül 1: Komutan ATK Bonusu
-
-`commander_ATK = floor(effective_ATK × (1 + commander_atk_bonus))`
-
-| Değişken | Değer | Açıklama |
-|----------|-------|----------|
-| effective_ATK | 15–600 | Pet'in pipeline ATK çıktısı |
-| commander_atk_bonus | 0.30 | Sabit %30 |
-
-**Örnek — F tier Pet (effective_ATK=35)**:
-→ commander_ATK = floor(35 × 1.30) = **45** (+10 ATK)
-
-**Örnek — B tier Pet Lv20 (effective_ATK=117)**:
-→ commander_ATK = floor(117 × 1.30) = **152** (+35 ATK)
-
-### Formül 2: Saldırgan Yeteneği — Güçlü Vuruş
+### Formül 1: Tur Sırası
 
 ```
-1. boosted_ATK = floor(ATK_source × 2.0)
-2. def_reduction = floor(target_DEF / 2)
-3. base_damage = max(1, boosted_ATK - def_reduction)
-4. element_damage = floor(base_damage × element_multiplier)
-5. skill_damage = was_crit ? floor(element_damage × 2.0) : element_damage
+turn_order = sort([oyuncu.SPD, pet.SPD, enemy.SPD], descending)
+// Eşitlik: Oyuncu > Pet > Düşman
 ```
 
-**Örnek (Komutan)**: F tier Saldırgan (ATK=45) vs F tier Düşman (DEF=35), nötr, crit yok
-→ boosted=90, def_red=17, base=73, final=**73**
-
-### Formül 3: Büyücü Yeteneği — Element Dalgası
+### Formül 2: Oyuncu Hasar (Sınıf Yeteneği veya Normal Saldırı)
 
 ```
-1. boosted_ATK = floor(ATK_source × 0.75)
-2. def_reduction = floor(target_DEF / 4)   ← büyü hasarı DEF'i yarım etkiler
-3. base_damage = max(1, boosted_ATK - def_reduction)
-4. skill_damage = floor(base_damage × element_multiplier)
+// Oyuncu ATK (ekipman dahil — Ekipman Sistemi GDD'den)
+effective_player_ATK = base_class_ATK
+    + silah_ATK
+    + eldiven_ATK
+    + aksesuar_ATK_toplamı   // yüzükler + küpeler + kolye
+
+// Komutan Modu uygulama:
+if komutan_modu:
+    attacking_ATK = floor(effective_player_ATK × 1.30)
+else:
+    attacking_ATK = effective_player_ATK
+
+// Hasar Hesaplama GDD formülü:
+raw_damage = attacking_ATK × yetenek_carpani   // normal saldırı: çarpan = 1.0
+damage_reduction = floor(enemy.DEF × 0.50)
+base_damage = max(1, raw_damage - damage_reduction)
+final_damage = floor(base_damage × element_multiplier)  // prototipte 1.0
 ```
 
-**Örnek**: F tier Büyücü (ATK=38) vs Düşman (DEF=35), nötr
-→ boosted=28, def_red=floor(35/4)=8, base=20, final=**20**
+### Formül 3: Pet Hasar
 
-### Formül 4: Tank Yeteneği — Koruma Duruşu
+```
+effective_pet_ATK = pet.base_ATK + pet_silah_ATK + pet_aksesuar_ATK
+raw_pet_damage = effective_pet_ATK
+damage_reduction = floor(enemy.DEF × 0.50)
+pet_damage = max(1, raw_pet_damage - damage_reduction)
+```
 
-`buffed_DEF = floor(effective_DEF × 2.0)` — 2 tur sürer
+### Formül 4: Düşman Hasarı (Oyuncuya)
 
-**Örnek**: F tier Tank (DEF=35) → buffed_DEF=70 → gelen hasar dramatik düşer
+```
+// Düşman ATK, SG bazlı (Keşif Alanı + rubber-band ile adjust edilmiş)
+effective_enemy_ATK = enemy.base_ATK × rubber_band_factor
 
-### Formül 5: Destekçi Yeteneği — İyileştirme
+effective_player_DEF = base_class_DEF
+    + kask_DEF + zirh_DEF + pantalon_DEF
+    + eldiven_DEF + bot_DEF
+    + aksesuar_DEF_toplamı
 
-`heal_amount = floor(pet_max_hp × 0.20)`
+damage_reduction = floor(effective_player_DEF × 0.50)
+enemy_damage = max(1, effective_enemy_ATK - damage_reduction)
+new_player_HP = player.HP - enemy_damage
+```
 
-### Formül 6: Enerji Progresyonu
+### Formül 5: Pet Enerji Döngüsü
 
-`turns_to_ability = ceil(100 / 25) = 4 tur`
+```
+pet.energy += 25  // her tur, temel saldırı veya bekleme
+if pet.energy >= 100:
+    trigger_pet_ability()
+    pet.energy = 0
+```
 
-Pet her 4 turda bir yeteneğini kullanabilir.
+### Formül 6: HP Yenileme (Savaş Arası)
 
-### Formül 7: Savaş Süresi Tahmini
+```
+// Normal aşama zaferi:
+player.HP = min(player.max_HP, player.HP + floor(player.max_HP × 0.50))
 
-`estimated_turns = ceil(enemy_HP / (pet_DPS + player_skill_DPS))`
+// Mini Boss / Alan Patronu zaferi:
+player.HP = player.max_HP
 
-**Hedef**: 5-8 tur (30 saniyede bir savaş @ 2x hız).
+// Yenilgi / Çekilme:
+player.HP değişmez
+```
 
-### Formül 8: DoT Hasarı
+### Formül 7: İksir İyileşmesi
 
-`dot_damage_per_tick = max(1, floor(target_max_hp × dot_rate))`
+```
+// (Ekipman Sistemi GDD ile aynı — oyuncu HP'sine uygulanır)
+heal_small = floor(player.max_HP × 0.30)
+heal_large = floor(player.max_HP × 0.70)
+new_HP = min(player.HP + heal, player.max_HP)
+```
 
-| DoT | Oran | Süre | Toplam (F tier max_hp≈60) |
-|-----|------|------|--------------------------|
-| Yanma | 0.05 | 3 tur | ~9 hasar |
-| Zehir | 0.04 | 4 tur | ~9 hasar |
-
-### Formül 9: Cooldown Yönetimi
-
-`is_available = (current_cd == 0)`
-
-Savaş başlangıcında tüm CD'ler 0 → ilk turda tüm yetenekler açık.
+**Örnek Savaş (Warrior sınıfı, D tier Silah):**
+- Player: HP=250, base_ATK=40, Silah +12 → effective_ATK=52
+- Komutan Modu: attacking_ATK = floor(52 × 1.30) = 67
+- Enemy DEF=20 → damage_reduction=10 → final_damage=57
+- Pet ATK=25 → pet_damage=15 (düşman DEF=20, red=10 → 15)
+- Tur toplam hasar: 57 (oyuncu) + 15 (pet) = 72
 
 ## Edge Cases
 
-- **If pet HP=0 olursa**: Defeat anında tetiklenir. Oyuncu turu gelmişse iptal edilir. PostCombat'a geçilir, enerji harcanmaz.
+- **If pet HP = 0 olursa**: Savaş devam eder, pet sırası atlanır. Oyuncu yalnız dövüşür. Yenilgi koşulu tetiklenmez. Savaş sonunda pet HP restore edilmez — bir sonraki savaşa petsize girilebilir. (Öneri: Dükkan'da pet için de "iksir" tipi eklenerek pet iyileştirilir — gelecek versiyon.)
 
-- **If oyuncu turunda hiçbir slot açık değilse**: Mümkün değil — Slot 0 (CD0) her zaman açıktır.
+- **If oyuncu HP sıfıra inerse pet hâlâ saldırı sırasındaysa**: Oyuncu HP = 0 anında savaş durur. Pet saldırısı beklemede olsa bile yenilgi ekranı açılır.
 
-- **If komutan modunda oyuncu yetenek butonuna basmazsa**: Slot 0 otomatik kullanılır. Slot 1-3 açıksa enerji/CD boşa gitmez — oyuncu sonraki turunda kullanabilir.
+- **If tüm skill CD'leri doluysa ve 5 saniye geçerse (Komutan Modu)**: Slot 3 → 2 → 1 → 0 sırasıyla CD = 0 olan ilk slot tetiklenir. CD = 0 olan yoksa Normal Saldırı tetiklenir. "AUTO-SKIP" etiketi 0.5 saniye ekranda belirir.
 
-- **If pet energy=100'deyken pet savaş dışı kalırsa**: Enerji kaybolur. Savaş sonu sıfırlanır.
+- **If Otofarm modunda tüm iksirler bittiyse**: Oto-iksir tetiklemez, HP ≤ %25'e düşse bile devam eder. Oyuncu yenilirse loot yok, enerji harcanmaz — sessiz yenilgi.
 
-- **If savaş sırasında mod değiştirilirse**: Değişiklik bir sonraki turdan geçerli. Mevcut tur eski modla tamamlanır.
+- **If düşman öldürücü darbe vurunca oyuncu HP'si tam sıfıra inerken iksir basılırsa**: Hasar ve iksir aynı "frame"de gelirse: hasar önce işlenir, HP = 0 → yenilgi tetiklenir. İksir iptal olur, sarf edilmez.
 
-- **If Tank Koruma Duruşu aktifken pet tekrar yetenek kullanırsa**: Süre yenilenir (2 tura sıfır). Stack'lenmez.
+- **If pet devre dışıyken (HP = 0) Otofarm devam ederse**: Pet tur sırası atlanır. Oyuncu tüm enerji barı olmadan yavaş dövüşür. Uzun sürer, yenilgi riski artar.
 
-- **If oyuncu "Çekil" butonuna PreCombat'ta basarsa**: Savaş başlamaz, enerji harcanmaz.
+- **If Retreat dialog açıkken düşman öldürücü darbe vurursa**: Dialog kapatılır, yenilgi ekranı açılır.
 
-- **If savaş 20+ tur sürerse**: Devam eder — tur limiti yok. Denge sorunu olarak loglanır.
+- **If savaşta aynı tur içinde oyuncu ve düşman aynı anda HP = 0 olursa**: Oyuncu turu önce işlenir — eğer oyuncu son darbesini vurdu ve düşman ölüyorsa Zafer. Düşman aynı turda oyuncuyu öldürdüyse ancak oyuncu daha erken tura sahipse yine Zafer. Tur sırası tie-break belirler.
 
-- **If DoT uygulanmış düşman DoTPhase'de savaş dışı kalırsa**: Victory tetiklenir, kalan fazlar atlanır.
-
-- **If Yanma aktifken hedefe tekrar Yanma uygulanırsa**: Süre 3 tura yenilenir, hasar oranı değişmez.
-
-- **If Sersemletme boss'a uygulanırsa**: Stun uygulanmaz (bağışıklık). Yetenekten gelen hasar normal uygulanır.
-
-- **If Kalkan aktifken gelen hasar kalkan kapasitesinden büyükse**: Kalan hasar HP'ye gider. `hp_damage = total_damage - shield_remaining`.
-
-- **If uygulama arka plana atılırsa (mobil)**: Savaş durumu kaydedilir. Geri dönünce kaldığı yerden devam. Otofarm modundaysa arka planda tamamlanır.
+- **If Normal Savaş aşaması sonrası HP = 15/250 iken devam edilirse**: Bir sonraki savaşa HP = min(15 + floor(250×0.50), 250) = min(140, 250) = 140 ile girilir (zaferde +50% restore). İksir basılmadıysa 140 ile başlanır.
 
 ## Dependencies
 
 ### Upstream
 
-| Sistem | Tip | Arayüz | Kritiklik |
-|--------|-----|--------|-----------|
-| **Pet Sistemi** | Sert | `GetActivePet()` | Olmadan pet yüklenemez |
-| **Canavar Güçlendirme** | Sert | `GetEffectiveStats(petId)` | Olmadan stat pipeline çıktısı alınamaz |
-| **Canavar Veritabanı** | Sert | `GetMonsterIdentity(petId)`, `GetSkillDef(archetype)` | Olmadan pet kimliği ve yetenek bilinmez |
-| **Oyuncu Sınıf Sistemi** | Sert | Oyuncunun SPD, damageType, slot yetenekleri | Olmadan oyuncu turu çalışmaz |
-| **Element Sistemi** | Sert | `GetElementMultiplier(atkEl, defEl)` | Olmadan element farkı yok |
-| **Hasar Hesaplama** | Sert | `CalculateDamage(attackerId, targetId, damageType)` | Olmadan hasar üretilemez |
-| **Sağlık / Can Sistemi** | Sert | `IsAlive`, `TakeDamage`, `Heal`, `FullHeal` | Olmadan savaş döngüsü çalışmaz |
-| **Düşman AI** | Sert | `GetEnemyAction(enemyId)` | Olmadan düşman aksiyon alamaz |
-| **Keşif Alanı** | Sert | `GetStageEnemy(stageId)` | Olmadan düşman tanımı alınamaz |
+| Sistem | Veri |
+|--------|------|
+| **Oyuncu Sınıf Sistemi** | `base_HP`, `base_ATK`, `base_DEF`, `base_SPD`, skill slot tanımları, CD değerleri |
+| **Ekipman Sistemi** | `effective_player_ATK`, `effective_player_DEF`, `effective_player_HP` (ekipman bonusları dahil) |
+| **Hasar Hesaplama** | Hasar formülü, element_multiplier (prototipte 1.0), DoT, status efektleri |
+| **Düşman AI** | Enemy pattern seçimi, hedef belirleme |
+| **Pet/Canavar Veritabanı** | Pet `base_ATK`, `base_SPD`, enerji yeteneği tanımı |
+| **Ekonomi** | Enerji harcama/iade |
+| **Loot / Ödül Sistemi** | Zafer sonrası loot dağıtımı |
 
 ### Downstream
 
-| Sistem | Tip | Arayüz | Kritiklik |
-|--------|-----|--------|-----------|
-| **Loot / Ödül Sistemi** | Sert | `DistributeLoot(battleResult, stageNumber)` | Olmadan ödül dağıtılamaz |
-| **Savaş UI** | Sert | `OnTurnStart`, `OnActionExecuted`, `OnBattleEnd`, `OnModeChanged` | Olmadan savaş görüntülenemez |
-| **Keşif Alanı** | Sert | `OnBattleComplete(result)` | Olmadan aşama ilerlemesi güncellenmez |
-| **Otofarm / Idle Sistemi** | Sert | Savaş simülasyonu (basitleştirilmiş) | İdle modda savaş sonuçlarını simüle eder |
+| Sistem | Etki |
+|--------|------|
+| **Savaş UI** | Tur gösterimi, HP barları, skill butonları, iksir paneli |
+| **Keşif Alanı** | Savaş sonucu (zafer/yenilgi/çekilme) → aşama kilidi güncelleme |
+| **Loot Sistemi** | Zafer → loot trigger |
 
 ## Tuning Knobs
 
 | Knob | Değer | Güvenli Aralık | Çok Yüksekse | Çok Düşükse |
 |------|-------|----------------|-------------|-------------|
-| `commander_atk_bonus` | 0.30 | 0.15–0.40 | Komutan çok güçlü → otofarm anlamsız | Fark hissedilmez |
-| `energy_per_turn` | 25 | 15–50 | Yetenek çok sık | Yetenek çok seyrek → monotonluk |
-| `energy_threshold` | 100 | 50–200 | Yetenek çok sık | Oyuncu yetenek göremeden savaş biter |
-| `skill_atk_multiplier` | 2.0 | 1.5–3.0 | Tek vuruşta öldürür | Normal saldırıdan zar zor iyi |
-| `skill_aoe_multiplier` | 0.75 | 0.50–1.0 | Büyücü overpowered | Büyücü değersiz |
-| `skill_def_multiplier` | 2.0 | 1.5–3.0 | Hasar almaz | Tank değersiz |
-| `skill_buff_duration` | 2 | 1–4 | Sürekli kalkan | Anlık etki |
-| `healer_skill_rate` | 0.20 | 0.15–0.25 | Ölümsüzlük | İyileşme anlamsız |
-| `yanma_rate` | 0.05 | 0.03–0.10 | DoT tek başına öldürür | Fark edilmez |
-| `yanma_duration` | 3 | 2–5 | Ezici kümülatif | Çok kısa |
-| `zehir_rate` | 0.04 | 0.02–0.08 | Hırsız overpowered | Motivasyon yok |
-| `zehir_duration` | 4 | 3–6 | Boss erir | Değersiz |
-| `shield_rate` | 0.25 | 0.15–0.40 | Ölümsüzlük | Anlamsız |
-| `def_break_mult` | 0.70 | 0.50–0.85 | DEF tamamen anlamsız | Fark edilmez |
-| `atk_weaken_mult` | 0.80 | 0.60–0.90 | Düşman saldırısı sıfır | Hissedilmez |
-
-## Visual/Audio Requirements
-
-### VFX Gereksinimleri
-
-| Olay | VFX | Öncelik |
-|------|-----|---------|
-| Savaş başlangıcı | Pet giriş (soldan) + düşman belirme (sağdan) | MVP |
-| Tur sırası göstergesi | Aktif birimin çevresinde parlak çerçeve | MVP |
-| Pet enerji %100 | Enerji barı dolma + yetenek butonu pulse | MVP |
-| Saldırgan — Güçlü Vuruş | Büyük slash + element darbe dalgası + ekran sarsıntısı | MVP |
-| Tank — Koruma Duruşu | Kalkan oluşma (mavi-altın) + 2 tur sürekli aura | MVP |
-| Destekçi — İyileştirme | Yeşil ışınlar + "+X HP" text | MVP |
-| Büyücü — Element Dalgası | Element renginde genişleyen dalga | MVP |
-| Komutan modu aktif | Altın komutan rozeti + pet çevresinde hafif aura | MVP |
-| Otofarm modu aktif | Gri/mavi çark ikonu + "AUTO" | MVP |
-| Kazanma | Altın ışık patlaması + "ZAFER!" + loot belirme | MVP |
-| Kaybetme | Ekran kararma + "YENİLDİN" + "Tekrar Dene" | MVP |
-
-## UI Requirements
-
-### Savaş Ekranı Ana Layout
-
-- **Üst bölüm**: Düşman (sprite + HP barı + element ikonu + CP göstergesi)
-- **Orta bölüm**: Savaş alanı — animasyonlar, hasar sayıları, VFX
-- **Alt bölüm**: Pet (sprite + HP barı + enerji barı + element ikonu)
-- **Ekran alt kenarı**: 4 oyuncu yetenek butonu + 1 pet yetenek göstergesi (komutan modunda)
-- **Ekran sol üst**: Mod toggle (Komutan/Otofarm)
-- **Ekran sağ üst**: Hız butonu (1x/2x/3x) + Çekil butonu
-
-### Yetenek Butonları (Komutan Modu)
-
-- **4 oyuncu sınıf butonu** (Slot 0-3), ekran altında yatay dizi
-- **1 pet yetenek göstergesi** (enerji radial fill) — pet turu gelince pulse
-- CD dolmamış slotlar soluk, CD=0 olanlar parlak
-- Minimum dokunma hedefi: 64×64 dp
-
-### Savaş Sonu Ekranı
-
-- **Kazanma**: "ZAFER!" + EXP kazanımı + loot listesi + "Devam" butonu
-- **Kaybetme**: "Tekrar Dene" + "Çekil" butonu (enerji harcanmadığı belirtilir)
+| `commander_atk_bonus` | 0.30 | 0.15–0.45 | Manuel çok baskın, oto değersiz | Manuel avantajı hissedilmez |
+| `auto_skip_timer` | 5s | 3s–8s | Sabırsız oyuncular için yavaş | Yanlışlıkla tetikleme |
+| `pet_energy_per_turn` | 25 | 20–33 | Pet yeteneği çok sık (her 3 tur) | Pet yeteneği nadiren gelir |
+| `normal_stage_hp_restore` | 0.50 | 0.30–0.75 | İksire gerek kalmaz | HP management çok stresli |
+| `auto_pot_threshold` | 0.25 | 0.15–0.35 | Oto-mod iksiri erken harcıyor | Pet sık ölüyor |
+| `damage_def_reduction_rate` | 0.50 | 0.40–0.60 | Savunma çok önemli, ATK anlamsız | Savunma hiç önemli değil |
+| `tiebreak_order` | Oyuncu > Pet > Düşman | — | — | — |
 
 ## Acceptance Criteria
 
-1. **GIVEN** savaş başlatıldığında, **WHEN** PreCombat tamamlanırsa, **THEN** pet current_hp=max_hp ve energy=0, tüm oyuncu CD'leri=0.
+1. **GIVEN** SPD: Oyuncu=50, Pet=65, Düşman=40, **WHEN** tur sırası hesaplanırsa, **THEN** sıra: Pet → Oyuncu → Düşman.
 
-2. **GIVEN** Pet SPD=30, Oyuncu SPD=25, Düşman SPD=20, **WHEN** ilk raunt başlarsa, **THEN** tur sırası: Pet→Oyuncu→Düşman.
+2. **GIVEN** Komutan Modu, Oyuncu base_ATK=40, Silah+12 → effective=52, **WHEN** saldırı yapılırsa, **THEN** `attacking_ATK = floor(52 × 1.30) = 67`.
 
-3. **GIVEN** SPD eşitliğinde (Pet SPD=30, Düşman SPD=30), **WHEN** sıra belirlenirse, **THEN** Pet önce hareket eder.
+3. **GIVEN** Otofarm Modu, aynı oyuncu, **WHEN** saldırı yapılırsa, **THEN** `attacking_ATK = 52` (bonus yok).
 
-4. **GIVEN** komutan modunda F tier Saldırgan Pet (effective_ATK=35), **WHEN** saldırırsa, **THEN** commander_ATK = floor(35×1.30) = 45 kullanılır.
+4. **GIVEN** Düşman ATK=30, oyuncu effective_DEF=20, **WHEN** düşman saldırırsa, **THEN** `enemy_damage = max(1, 30 - floor(20×0.50)) = max(1, 20) = 20`.
 
-5. **GIVEN** otofarm modunda aynı pet, **WHEN** saldırırsa, **THEN** effective_ATK = 35 kullanılır (commander bonusu yok). ATK farkı UI'da gösterilmez.
+5. **GIVEN** Oyuncu HP = 20/250, Büyük İksir basıldı, **WHEN** uygulanırsa, **THEN** `new_HP = min(20 + floor(250×0.70), 250) = min(195, 250) = 195`.
 
-6. **GIVEN** pet energy=75, **WHEN** pet turu enerji fazı çalışırsa, **THEN** energy = 100, yetenek göstergesi pulse başlar.
+6. **GIVEN** Oyuncu HP = 0, **WHEN** kontrol edilirse, **THEN** savaş anında durur, Yenilgi Overlay açılır, "Enerji harcanmadı" gösterilir.
 
-7. **GIVEN** pet energy=100, komutan modu, **WHEN** oyuncu pet yetenek butonuna basarsa, **THEN** yetenek kullanılır, energy = 0.
+7. **GIVEN** Düşman HP = 0, **WHEN** kontrol edilirse, **THEN** Zafer Overlay açılır, loot ve EXP verilir, enerji 1 harcanır.
 
-8. **GIVEN** pet energy=100, komutan modu, **WHEN** oyuncu basmazsa, **THEN** normal saldırı yapılır, energy = 100 kalır.
+8. **GIVEN** Pet HP = 0 iken (pet devre dışı), **WHEN** sıra Pet'e gelirse, **THEN** Pet turu atlanır — oyuncu ve düşman dövüşmeye devam eder.
 
-9. **GIVEN** pet energy=100, otofarm modu, **WHEN** pet turu gelirse, **THEN** yetenek anında kullanılır, energy = 0.
+9. **GIVEN** Komutan Modu'nda 5 saniye boyunca aksiyon seçilmezse, **WHEN** timer dolunca, **THEN** CD = 0 olan en yüksek slot tetiklenir, "AUTO-SKIP" etiketi 0.5s gösterilir.
 
-10. **GIVEN** Saldırgan Güçlü Vuruş, komutan modu (ATK=45) vs Düşman (DEF=35), nötr, crit yok, **WHEN** kullanılırsa, **THEN** boosted=90, base=90-17=73, final=**73**.
+10. **GIVEN** Otofarm Modu'nda tüm CD'ler doluysa, **WHEN** oyuncu turu gelirse, **THEN** Normal Saldırı tetiklenir.
 
-11. **GIVEN** Büyücü Element Dalgası (ATK=38) vs Düşman (DEF=35), nötr, **WHEN** kullanılırsa, **THEN** boosted=28, def_red=8, final=**20**.
+11. **GIVEN** Pet enerji = 75, tur sonu, **WHEN** pet temel saldırı yaparsa, **THEN** enerji = 100 → yetenek otomatik tetiklenir, enerji = 0.
 
-12. **GIVEN** Tank Koruma Duruşu (DEF=35), **WHEN** kullanılırsa, **THEN** buffed_DEF=70, 2 tur sürer. 3. turda DEF=35'e döner.
+12. **GIVEN** Normal aşama zaferi sonrası oyuncu HP = 80/300, **WHEN** savaş biter, **THEN** `new_HP = min(80 + floor(300×0.50), 300) = min(230, 300) = 230`.
 
-13. **GIVEN** Destekçi (max_hp=60, current_hp=30), **WHEN** yetenek kullanılırsa, **THEN** heal=floor(60×0.20)=12, current_hp=42.
+13. **GIVEN** Mini Boss zaferi, oyuncu HP = 50/300, **WHEN** savaş biter, **THEN** `new_HP = 300` (tam yenileme).
 
-14. **GIVEN** düşman HP=0, **WHEN** son hasar gelirse, **THEN** Victory tetiklenir, loot dağıtılır, pet tam HP'ye döner.
+14. **GIVEN** Komutan Modu'nda ATK bonusu +30% aktif, **WHEN** savaş UI'ına bakılırsa, **THEN** "Komutan +30%" debuff/buff ikonu görünmez — sayılar doğal yüksek akar.
 
-15. **GIVEN** pet HP=0, **WHEN** son hasar gelirse, **THEN** Defeat tetiklenir, loot yok, enerji harcanmaz, pet tam HP'ye döner.
+15. **GIVEN** Düşman oyuncuya saldırırken oyuncu aynı turda düşmanı öldürüyorsa (oyuncu daha erken tur sırasında), **WHEN** çözümlenirse, **THEN** Zafer tetiklenir — düşmanın sonraki saldırısı iptal edilir.
 
-16. **GIVEN** savaş devam ederken, **WHEN** oyuncu "Çekil" basarsa, **THEN** savaş biter, loot yok, enerji harcanmaz.
+16. **GIVEN** Retreat dialog açıkken düşman saldırır ve oyuncu HP = 0 olursa, **WHEN** çözümlenirse, **THEN** Dialog kapanır, Yenilgi Overlay açılır.
 
-17. **GIVEN** komutan modu aktif, **WHEN** oyuncu mod toggle'a basarsa, **THEN** bir sonraki turdan otofarm aktif, ATK bonusu düşer.
+17. **GIVEN** Otofarm Modu'nda oyuncu HP ≤ %25 ve Büyük İksir mevcut, **WHEN** tur başında kontrol edilirse, **THEN** Büyük İksir otomatik kullanılır.
 
-18. **GIVEN** Büyücü Slot 2 Yanma DoT uygulandı (düşman max_hp=60), **WHEN** düşman turu gelirse, **THEN** DoTPhase'de max(1, floor(60×0.05))=**3 hasar**, 3 tur devam eder.
-
-19. **GIVEN** Hırsız Slot 1 Zehir DoT (düşman max_hp=60), **WHEN** 4 tur boyunca DoTPhase çalışırsa, **THEN** max(1, floor(60×0.04))=**2 hasar/tur**, toplam 8 hasar.
-
-20. **GIVEN** Savaşçı Slot 1 stun (normal düşman), **WHEN** düşman turu gelirse, **THEN** DecisionPhase atlanır. Sonraki turda normal.
-
-21. **GIVEN** Savaşçı Slot 1 boss'a stun, **WHEN** uygulanırsa, **THEN** stun atlanır (bağışıklık), hasar normal.
-
-22. **GIVEN** Kalkan aktif (pet max_hp=60, shield_hp=15), 20 hasar geldi, **WHEN** uygulanırsa, **THEN** 15 hasar kalkanı tüketir, kalan 5 hasar HP'ye gider.
-
-23. **GIVEN** oyuncu Slot 3 (CD8) savaş başında kullanır, **WHEN** kullanılırsa, **THEN** kullanılır, current_cd=8 set edilir.
-
-24. **GIVEN** otofarm modunda Slot 2 ve Slot 3 aynı anda açık, **WHEN** oyuncu turu gelirse, **THEN** Slot 3 kullanılır.
-
-*`qa-lead` not consulted — Lean mode. Review manually before production.*
-
-## Open Questions
-
-1. **Oyuncu SPD değeri**: Oyuncu sınıfına göre sabit mi, yoksa ekipmanla artıyor mu? → Oyuncu Sınıf Sistemi GDD'sinde tanımlanacak.
-
-2. **Düşman hedef seçimi**: Düşman her zaman peti mi hedefler? Yoksa oyuncuya da saldırabilir mi (oyuncunun da HP'si olması durumunda)? → MVP'de düşman yalnızca peti hedefler. Oyuncunun HP'si yok.
-
-3. **Pet savaş dışı kalınca oyuncu devam eder mi?** → MVP'de hayır. Pet düşünce = Defeat. Oyuncu tek başına savaşamaz.
-
-4. **Çoklu düşman (gelecek içerik)**: Keşif Alanı boss aşamalarında yardımcı düşmanlar eklenirse (örn. mini-boss + 2 yardımcı), hedef seçimi ve Büyücü AoE yeniden tasarlanmalı. → Tier 2+ kararı.
-
-5. **Pasif yetenekler**: Her arketipe 1 pasif yetenek planlanıyor mu? → Tier 2+ genişletmesi.
+18. **GIVEN** Oyuncu HP = 0 anı ile iksir kullanımı aynı "frame"de gelirse, **WHEN** çözümlenirse, **THEN** Hasar önce işlenir: HP = 0 → Yenilgi. İksir sarf edilmez.
