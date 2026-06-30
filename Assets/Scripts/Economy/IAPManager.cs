@@ -1,23 +1,16 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-
-#if UNITY_PURCHASING
 using UnityEngine.Purchasing;
 using UnityEngine.Purchasing.Extension;
-#endif
 
 namespace CanavarZindanlari.Economy
 {
     /// <summary>
-    /// Google Play Billing / Apple StoreKit sarmalayıcı.
-    /// Paket yüklü değilse UNITY_PURCHASING tanımsız kalır — stub olarak çalışır.
+    /// Google Play Billing / Apple StoreKit sarmalayıcı (Unity IAP 5.x).
     /// Maps to: design/gdd/iap-reklam-sistemi (Not Started — prototype stub)
     /// </summary>
-    public class IAPManager : MonoBehaviour
-#if UNITY_PURCHASING
-        , IStoreListener
-#endif
+    public class IAPManager : MonoBehaviour, IStoreListener
     {
         public static IAPManager Instance { get; private set; }
 
@@ -26,7 +19,6 @@ namespace CanavarZindanlari.Economy
         public const string GEMS_600     = "gems_600";      // Tüketilebilir — $4.99
         public const string STARTER_PACK = "starter_pack";  // Tek seferlik  — $2.99
 
-        // Ürün başına elmas miktarı
         private static readonly Dictionary<string, int> GemRewards = new()
         {
             { GEMS_100,     100 },
@@ -36,17 +28,15 @@ namespace CanavarZindanlari.Economy
 
         // ── Eventler ───────────────────────────────────────────────────────────
         /// <summary>Satın alma başarılı — EconomyManager bu eventi dinler.</summary>
-        public event Action<string, int> OnGemsGranted;  // (productId, gemsAmount)
-        public event Action<string>      OnPurchaseFailed;
-        public event Action              OnStoreReady;
-        public event Action<string>      OnStoreInitFailed;
+        public event Action<string, int> GemsGranted;    // (productId, gemsAmount)
+        public event Action<string>      PurchaseFailed; // (productId)
+        public event Action              StoreReady;
+        public event Action<string>      StoreInitFailed;
 
         public bool IsInitialized { get; private set; }
 
-#if UNITY_PURCHASING
         private IStoreController   _controller;
         private IExtensionProvider _extensions;
-#endif
 
         // ── Lifecycle ──────────────────────────────────────────────────────────
 
@@ -57,18 +47,10 @@ namespace CanavarZindanlari.Economy
             DontDestroyOnLoad(gameObject);
         }
 
-        private void Start()
-        {
-#if UNITY_PURCHASING
-            InitStore();
-#else
-            Debug.LogWarning("[IAPManager] com.unity.purchasing paketi yüklü değil — stub modunda çalışıyor.");
-#endif
-        }
+        private void Start() => InitStore();
 
         // ── Başlatma ───────────────────────────────────────────────────────────
 
-#if UNITY_PURCHASING
         private void InitStore()
         {
             var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
@@ -77,14 +59,12 @@ namespace CanavarZindanlari.Economy
             builder.AddProduct(STARTER_PACK, ProductType.NonConsumable);
             UnityPurchasing.Initialize(this, builder);
         }
-#endif
 
         // ── Satın alma ─────────────────────────────────────────────────────────
 
         /// <summary>UI butonlarından çağrılır.</summary>
         public void BuyProduct(string productId)
         {
-#if UNITY_PURCHASING
             if (!IsInitialized)
             {
                 Debug.LogWarning("[IAPManager] Mağaza henüz hazır değil.");
@@ -95,22 +75,17 @@ namespace CanavarZindanlari.Economy
                 _controller.InitiatePurchase(product);
             else
                 Debug.LogWarning($"[IAPManager] Ürün bulunamadı veya satın alınamaz: {productId}");
-#else
-            // Stub: geliştirme sırasında ödül doğrudan verilir
-            SimulatePurchase(productId);
-#endif
         }
 
         // ── IStoreListener ─────────────────────────────────────────────────────
 
-#if UNITY_PURCHASING
         public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
         {
-            _controller  = controller;
-            _extensions  = extensions;
+            _controller   = controller;
+            _extensions   = extensions;
             IsInitialized = true;
             Debug.Log("[IAPManager] Mağaza başlatıldı.");
-            OnStoreReady?.Invoke();
+            StoreReady?.Invoke();
         }
 
         public void OnInitializeFailed(InitializationFailureReason error)
@@ -119,22 +94,20 @@ namespace CanavarZindanlari.Economy
         public void OnInitializeFailed(InitializationFailureReason error, string message)
         {
             Debug.LogError($"[IAPManager] Başlatma başarısız: {error} — {message}");
-            OnStoreInitFailed?.Invoke(error.ToString());
+            StoreInitFailed?.Invoke(error.ToString());
         }
 
         public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs args)
         {
-            string id = args.purchasedProduct.definition.id;
-            GrantReward(id);
+            GrantReward(args.purchasedProduct.definition.id);
             return PurchaseProcessingResult.Complete;
         }
 
         public void OnPurchaseFailed(Product product, PurchaseFailureReason reason)
         {
             Debug.LogWarning($"[IAPManager] Satın alma başarısız: {product.definition.id} — {reason}");
-            OnPurchaseFailed?.Invoke(product.definition.id);
+            PurchaseFailed?.Invoke(product.definition.id);
         }
-#endif
 
         // ── Ödül verme ─────────────────────────────────────────────────────────
 
@@ -143,15 +116,8 @@ namespace CanavarZindanlari.Economy
             if (GemRewards.TryGetValue(productId, out int gems))
             {
                 Debug.Log($"[IAPManager] {gems} elmas verildi ({productId}).");
-                OnGemsGranted?.Invoke(productId, gems);
+                GemsGranted?.Invoke(productId, gems);
             }
-        }
-
-        // Stub modunda editörde test için
-        private void SimulatePurchase(string productId)
-        {
-            Debug.Log($"[IAPManager] STUB satın alma simüle edildi: {productId}");
-            GrantReward(productId);
         }
     }
 }
