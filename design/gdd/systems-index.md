@@ -30,7 +30,7 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 | 9 | Ödül Ekranı / Loot Sistemi | Economy | MVP | Revision Needed | design/gdd/loot-odul-sistemi.md | Pet/Canavar Veritabanı, Ekonomi |
 | 10 | Oyuncu Sınıf Sistemi | Gameplay | MVP | Designed | design/gdd/oyuncu-sinif-sistemi.md | Ekonomi, Kaydetme, Hasar Hesaplama, Sağlık/Can, Yetenek Sistemi |
 | 11 | Düşman AI | Gameplay | MVP | Approved | design/gdd/dusuman-ai.md | Hasar Hesaplama, Sağlık, Element Sistemi |
-| 12 | Savaş Sistemi | Gameplay | MVP | Revision Needed | design/gdd/hibrit-savas.md | Hasar Hesaplama, Sağlık, Düşman AI, Oyuncu Sınıf Sistemi, Yetenek Sistemi |
+| 12 | Savaş Sistemi | Gameplay | MVP | Designed | design/gdd/savas-sistemi.md | Hasar Hesaplama, Sağlık, Düşman AI, Oyuncu Sınıf Sistemi, Yetenek Sistemi |
 | 13 | Zindan Keşif Sistemi | Gameplay | MVP | Approved | design/gdd/zindan-kesif.md | Savaş Sistemi, Loot, Pet Evrim Sistemi |
 | 14 | Otofarm / Idle Sistemi | Gameplay | MVP | Approved | design/gdd/otofarm-idle.md | Savaş Sistemi, Loot, Ekonomi, Kaydetme |
 | 15 | Kostüm / Elbise Sistemi | Gameplay | MVP | Not Started | — | Pet/Canavar Veritabanı, Ekonomi |
@@ -53,7 +53,7 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 
 > **Deprecated (kaldırılan sistemler):**
 > - ~~Takım Kurma~~ (design/gdd/takim-kurma.md) — Oyuncu Sınıf Sistemi + tek pet modeli ile değiştirildi
-> - ~~Hibrit Savaş Sistemi~~ (design/gdd/hibrit-savas.md) — Savaş Sistemi (#12) olarak yeniden yazılacak; dosya revision needed
+> - ~~Hibrit Savaş Sistemi~~ → Savaş Sistemi (#12) olarak yeniden yazıldı (design/gdd/savas-sistemi.md) — Designed
 > - ~~Canavar Güçlendirme~~ (design/gdd/canavar-guclendirme.md) — Pet Evrim Sistemi (#8) ile birleştirildi
 
 ---
@@ -204,7 +204,7 @@ Tespit edilmedi. Tüm bağımlılıklar tek yönlü akar.
 **Design revision gerekli (prototype sonrası veya paralel):**
 - [ ] `/design-review canavar-veritabani` — F-D-C-B-A-S-SS tier şeması, AI görsel referansları
 - [ ] `/design-review canavar-toplama-evrim` — Pet Evrim: F→SS kuralları, EXP gereksinimleri, SS ulaşamayan petler
-- [ ] `/design-review hibrit-savas` — Savaş Sistemi: tur bazlı, oto toggle, EXP ekranı, item düşmüyor
+- [ ] `/design-review savas-sistemi` �� Savaş Sistemi: tur bazlı cooldown, oto toggle, DoT, status efektleri
 - [ ] `/design-review loot-odul-sistemi` — Ödül ekranı: EXP + eşya drop tablosu (elbise/silah/takı/pet kartı); savaş sırasında değil savaş sonunda gösterim
 - [x] `/design-system oyuncu-sinif-sistemi` — 4 sınıf × 2 dal (yan sınıf içerikleri TBD)
 - [ ] `/design-system kostum-elbise-sistemi` — F-D-C-B-A-S-SS dereceli ekipman

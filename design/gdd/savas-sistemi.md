@@ -1,17 +1,19 @@
-# Hibrit Savaş Sistemi (Hybrid Combat System)
+# Savaş Sistemi
 
-> **Status**: Approved
-> **Author**: user + game-designer, gameplay-programmer
+> **Status**: Revision Needed → In Progress
+> **Author**: user + game-designer, gameplay-programmer, systems-designer
 > **Last Updated**: 2026-06-30
 > **Implements Pillar**: Güç Hisset, Senin Tempon, Cömert Zindan
 
 ## Overview
 
-**Hibrit Savaş Sistemi**, oyundaki tüm savaş etkileşimlerini yöneten turn-bazlı otomatik savaş döngüsüdür. Mekanik olarak, 4 kişilik oyuncu takımı ile düşman grubunu SPD stat'ına göre sıralanan tur sisteminde karşı karşıya getirir: her tur sırası gelen birim Hasar Hesaplama üzerinden saldırır, Sağlık/Can Sistemi HP'yi günceller, Düşman AI düşman kararlarını üretir ve döngü bir taraf tamamen savaş dışı kalana veya oyuncu çekilene kadar devam eder. Sistem iki mod sunar — **Komutan Modu** (oyuncu yetenek zamanlamasını ve hedef seçimini kontrol eder, %20-30 güç bonusu kazanır) ve **Otofarm Modu** (tüm kararlar otomatik alınır, %70-80 verimlilikle çalışır). Bu iki mod aynı savaş pipeline'ını paylaşır; fark yalnızca oyuncu tarafındaki karar katmanındadır.
+**Savaş Sistemi**, oyundaki tüm savaş etkileşimlerini yöneten tur bazlı cooldown savaş döngüsüdür. Mekanik olarak, oyuncu (seçilmiş sınıfıyla) ve 4 kişilik pet takımı ile düşman grubunu SPD stat'ına göre sıralanan tur sisteminde karşı karşıya getirir. Her tur sırası gelen birim Hasar Hesaplama üzerinden saldırır, Sağlık/Can Sistemi HP'yi günceller, Düşman AI düşman kararlarını üretir ve döngü bir taraf tamamen savaş dışı kalana veya oyuncu çekilene kadar devam eder.
 
-Oyuncu açısından savaş sistemi, "güçlü ordumu savaşırken izliyorum" deneyiminin çekirdeğidir. Komutan modunda doğru zamanda yetenek tetiklemek ve element avantajını kullanmak somut güç artışı verir — aynı takımla aynı düşmanı otofarm'da 5 turda yenerken, komutan modunda 3 turda yenmek "benim müdahalem fark yarattı" tatminidir. Otofarm modunda ise canavarlar kendi savaşır, loot otomatik toplanır ve oyuncu geri döndüğünde birikimleri heyecanla kontrol eder. Her iki modda da her savaş sonu loot düşer — "Cömert Zindan" sütunu gereği eli boş dönen savaş yoktur.
+Sistemin iki ayrı yetenek katmanı vardır: **Oyuncu Sınıf Yetenekleri** (4 slot, cooldown bazlı — Slot 0 anında, Slot 1-3 sırasıyla CD3/CD5/CD8) ve **Pet Yetenekleri** (arketip başına 1 aktif yetenek, enerji bazlı — her 4 turda bir). İki katman birbirinden bağımsız çalışır; oyuncu sınıf yeteneği kullandığında petlerin enerji birikimi durmaz.
 
-MVP kapsamında temel tur döngüsü, komutan/otofarm mod geçişi, SPD bazlı sıralama, temel yetenek sistemi (her arketipe 1 aktif yetenek), savaş sonu ödül dağıtımı ve savaş sonuç hesaplama yer alır. Buff/debuff, pasif yetenekler, DoT mekanikleri ve AoE hedefleme detayları Tier 2+'da genişletilecektir.
+Sistem iki mod sunar — **Komutan Modu** (oyuncu yetenek zamanlamasını ve hedef seçimini kontrol eder, +10% ATK bonusu kazanır, sınıf yeteneği zamanlaması oyuncuya ait) ve **Otofarm Modu** (tüm kararlar otomatik alınır, sınıf yeteneği CD dolunca anında kullanılır). Her iki modda da her savaş sonu loot düşer — "Cömert Zindan" sütunu gereği eli boş dönen savaş yoktur.
+
+MVP kapsamında tur döngüsü, iki mod, SPD sıralama, pet enerji sistemi, oyuncu sınıf cooldown sistemi, DoT (Yanma/Zehir), temel status efektleri (Sersemletme, Kalkan, DEF Kırma, ATK Zayıflatma) ve savaş sonu ödül dağıtımı yer alır.
 
 ## Player Fantasy
 
@@ -67,19 +69,23 @@ Her raunt'ta tüm hayatta birimler SPD stat'ına göre azalan sırayla hareket e
 
 **Kural 3 — Birim Tur Fazları**
 
-Her birimin turu 4 fazda işler:
+Her birimin turu 5 fazda işler:
 
 ```
-1. Pasif Rejenerasyon → max(1, floor(max_hp × 0.02)) HP iyileşme
-2. Enerji Birikimi   → energy += energy_per_turn (25)
-3. Aksiyon Seçimi    → Normal saldırı VEYA Yetenek kullanımı
-4. Aksiyon Yürütme   → Hasar/iyileşme/buff uygulama + animasyon
+1. DoT Tick          → Aktif DoT'lar uygulanır (Yanma/Zehir — Kural 10)
+2. Pasif Rejenerasyon → max(1, floor(max_hp × 0.02)) HP iyileşme
+3. Enerji Birikimi   → energy += energy_per_turn (25) — pet için
+4. Aksiyon Seçimi    → Normal saldırı VEYA Yetenek kullanımı
+5. Aksiyon Yürütme   → Hasar/iyileşme/buff uygulama + animasyon
 ```
 
-- Faz 1-2 otomatik, mod fark etmez
-- Faz 3 moda göre değişir (Kural 4-5)
-- Faz 4 sonrası savaş dışı kontrolü: hedef HP=0 ise savaş dışı tetiklenir
+- Faz 1: DoT hasarı rejenarasyondan önce gelir — regen hasarı kısmen telafi edebilir
+- Faz 1'de birim HP=0'a düşerse savaş dışı kalır, kalan fazlar atlanır
+- Faz 2-3 otomatik, mod fark etmez
+- Faz 4 moda göre değişir (Kural 4-5); Sersemletme aktifse Faz 4 atlanır
+- Faz 5 sonrası savaş dışı kontrolü: hedef HP=0 ise savaş dışı tetiklenir
 - Tüm fazlar sıralıdır
+- Cooldown sayacı (oyuncu sınıf yetenekleri) Faz 5 sonunda 1 azalır
 
 **Kural 4 — Komutan Modu (Commander Mode)**
 
@@ -160,7 +166,97 @@ Tank ve Destekçi yeteneği hasar pipeline'ı kullanmaz — doğrudan buff/iyile
 
 **Düşman AI ile tutarlılık**: Oyuncu ve düşman canavarları aynı yetenek setini kullanır. Düşman AI GDD'sindeki mini-boss yetenek çarpanları (Saldırgan 1.5x, Büyücü 0.5x, Tank DEF×2) düşman dengelemesine aittir; bu GDD oyuncu tarafının çarpanlarını tanımlar.
 
-**Kural 7 — Mod Geçişi**
+**Kural 7 — Oyuncu Sınıf Yetenek Sistemi (Cooldown)**
+
+Oyuncu sınıfı (Savaşçı/Büyücü/Hırsız/Şifacı), pet yetenek sisteminden bağımsız 4 yetenek slotuna sahiptir.
+
+**Slot yapısı**:
+
+| Slot | Cooldown | Açıklama |
+|------|----------|----------|
+| Slot 0 | CD0 | Her tur kullanılabilir — temel saldırı / temel eylem |
+| Slot 1 | CD3 | 3 tur bekleme — orta güç yetenek |
+| Slot 2 | CD5 | 5 tur bekleme — güçlü yetenek |
+| Slot 3 | CD8 | 8 tur bekleme — ultimate |
+
+**Cooldown mekanizması**:
+- Savaş başlangıcı: tüm CD'ler 0 (tüm yetenekler açık)
+- Yetenek kullanıldığında: `current_cd = slot_cd` değeri set edilir
+- Her tur sonu (Faz 5 sonrası): `current_cd = max(0, current_cd - 1)`
+- Kullanılabilir koşul: `current_cd == 0`
+
+**Komutan modunda seçim**:
+- Oyuncu Faz 4'te kullanılabilir slotlardan birini seçer
+- Seçilmezse Slot 0 (CD0) otomatik kullanılır — Slot 0 her zaman açık
+- Komutan modu yetenek butonları: sadece `current_cd == 0` olanlar aktif
+
+**Otofarm modunda seçim** (öncelik sırası):
+1. Slot 3 açıksa → Slot 3
+2. Slot 2 açıksa → Slot 2
+3. Slot 1 açıksa → Slot 1
+4. Her zaman → Slot 0
+
+**Pet yeteneği ile aynı turda**: Oyuncu sınıf yeteneği ile pet yeteneği aynı turda kullanılamaz — oyuncunun turu tek aksiyon. Pet'lerin turları ayrıdır (SPD sıralamasına göre).
+
+**Sınıf yetenek tablosu (özet)** — ayrıntılar Oyuncu Sınıf Sistemi GDD'sinde:
+
+| Sınıf | Slot 0 | Slot 1 (CD3) | Slot 2 (CD5) | Slot 3 (CD8) |
+|-------|--------|--------------|--------------|--------------|
+| Savaşçı | Normal saldırı | Sersemletme + hasar | Taunt (aggro çek) | AoE fiziksel |
+| Büyücü | Büyü saldırısı | Hafif büyü | Ağır büyü + Yanma DoT | Büyü AoE |
+| Hırsız | Normal saldırı | Zehir + hasar | Kaçınma duruşu | 5 vuruş combo |
+| Şifacı | Hafif büyü | İyileştirme | Diriliş | Takım ATK buff |
+
+---
+
+**Kural 8 — DoT Sistemi (Damage over Time)**
+
+DoT efektleri hasar pipeline'ından bağımsızdır — DEF'i bypass eder, doğrudan HP düşürür.
+
+**DoT türleri**:
+
+| Tip | Kaynak | Oran | Süre | Uygulama |
+|-----|--------|------|------|----------|
+| **Yanma** | Büyücü Slot 2 | max_hp × 0.05 / tur | 3 tur | Hedef birim tur başı (Faz 1) |
+| **Zehir** | Hırsız Slot 1 | max_hp × 0.04 / tur | 4 tur | Hedef birim tur başı (Faz 1) |
+
+**Uygulama kuralları**:
+- `dot_damage = max(1, floor(target_max_hp × dot_rate))`
+- DoT, rejenerasyondan (Faz 2) önce gelir — regen kısmen dengeleyebilir
+- Aynı tipten DoT stack'lenmez: tekrar uygulanırsa süre yenilenir, hasar çarpılmaz
+- Farklı tipler (Yanma + Zehir) aynı anda aktif olabilir — her tur ikisi de uygulanır
+- DoT ekleyen yetenek isabet etmezse (miss yoksa her zaman uygular) DoT de uygulanır
+- DoT uygulanan birim savaş dışı kalırsa DoT sona erer
+
+**Boss bağışıklığı**: Boss ve mini-boss Sersemletme'ye bağışıklıdır (Kural 9). DoT'a bağışıklık yok — Yanma ve Zehir boss'lara uygulanır.
+
+---
+
+**Kural 9 — Status Efektleri**
+
+Savaş sırasında birimlere uygulanabilen geçici durum değişiklikleri:
+
+| Efekt | Kaynak | Etki | Süre | Boss Bağışıklığı |
+|-------|--------|------|------|-----------------|
+| **Sersemletme** | Savaşçı Slot 1 | Hedef Faz 4'ü atlar (aksiyon yapamaz) | 1 tur | Evet (boss + mini-boss) |
+| **DEF Kırma** | Savaşçı Slot 2 | Hedef DEF × 0.70 | 2 tur | Hayır |
+| **ATK Zayıflatma** | Şifacı Slot 3 | Hedef ATK × 0.80 | 2 tur | Hayır |
+| **Kalkan** | Savaşçı Slot 2 / Şifacı | Hasar absorbe eder (max_hp × 0.25) | 3 tur veya dolana dek | Hayır |
+| **Kesin Kritik** | Şifacı Slot 3 | Sonraki saldırı garantili kritik | 1 kullanım | Hayır |
+| **Hasar Azaltma** | Savaşçı Slot 1 / Şifacı | Alınan hasar × 0.75 | 2 tur | Hayır |
+
+**Uygulama kuralları**:
+- Aynı tip status efekti stack'lenmez — tekrar uygulanırsa süre yenilenir
+- Farklı status efektleri (DEF Kırma + ATK Zayıflatma) aynı anda aktif olabilir
+- Kalkan aktifken gelen hasar önce Kalkan'ı tüketir; Kalkan bitince HP düşer
+- Kalkan kapasitesi: `shield_hp = floor(target_max_hp × 0.25)`. Hasar kapasiteyi aştığında kalan hasar HP'ye uygulanır
+- Sersemletme uygulandığında hedefin mevcut turu o tur yoksa sonraki turda işler
+- DEF Kırma ve ATK Zayıflatma Hasar Hesaplama pipeline'ına girmeden önce stat'ı değiştirir (effective_DEF/ATK üzerine uygulanır)
+- Status efektleri süre sayacı: her UnitTurnEnd'de 1 azalır (sahibinin turunda değil, etkilenen birimin turunda)
+
+---
+
+**Kural 10 — Mod Geçişi**
 
 - Savaş öncesinde mod seçilir (varsayılan: son kullanılan)
 - Savaş sırasında mod toggle edilebilir (tek dokunuş)
@@ -168,8 +264,9 @@ Tank ve Destekçi yeteneği hasar pipeline'ı kullanmaz — doğrudan buff/iyile
 - Komutan → Otofarm: ATK bonusu düşer, yetenek butonları kaybolur
 - Otofarm → Komutan: ATK bonusu aktifleşir, yetenek butonları belirir
 - Mod değişikliği sınırsız
+- Cooldown sayaçları mod değişiminden etkilenmez
 
-**Kural 8 — Savaş Hız Kontrolü**
+**Kural 11 — Savaş Hız Kontrolü**
 
 | Hız | Tur Süresi (animasyon dahil) | Kullanım |
 |-----|------------------------------|----------|
@@ -205,7 +302,7 @@ PreCombat → Combat ──→ Victory  ──→ PostCombat
 
 ```
 RoundStart → [her birim için SPD sırasıyla]:
-  UnitTurnStart → RegenPhase → EnergyPhase → DecisionPhase → ActionPhase → ResolutionPhase → UnitTurnEnd
+  UnitTurnStart → DoTPhase → RegenPhase → EnergyPhase → DecisionPhase → ActionPhase → ResolutionPhase → UnitTurnEnd
 → RoundEnd → (kazanma/kaybetme kontrolü) → RoundStart (veya Victory/Defeat)
 ```
 
@@ -213,12 +310,13 @@ RoundStart → [her birim için SPD sırasıyla]:
 |-----|---------|------|
 | **RoundStart** | Sıra listesi SPD'ye göre güncellenir, savaş dışı birimler çıkarılır | Anında |
 | **UnitTurnStart** | Aktif birim belirlenir, UI vurgulaması | ~0.2s |
+| **DoTPhase** | Aktif DoT'lar (Yanma/Zehir) uygulanır; HP=0 ise savaş dışı → UnitTurnEnd | Anında (VFX: 0.3s) |
 | **RegenPhase** | Pasif rejenerasyon uygulanır (Sağlık/Can GDD) | Anında (VFX: 0.3s) |
-| **EnergyPhase** | energy += 25, enerji barı güncellenir | Anında (VFX: 0.2s) |
-| **DecisionPhase** | Mod'a göre aksiyon belirlenir (Kural 4/5 veya Düşman AI) | Komutan: oyuncu girdisi bekler. Otofarm/Düşman: anında |
+| **EnergyPhase** | energy += 25, enerji barı güncellenir (pet için) | Anında (VFX: 0.2s) |
+| **DecisionPhase** | Mod'a göre aksiyon belirlenir; Sersemletme aktifse atlanır | Komutan: oyuncu girdisi bekler. Otofarm/Düşman/Stun: anında |
 | **ActionPhase** | Saldırı/yetenek animasyonu + hasar/iyileşme hesaplama | 0.5-1.0s (hıza göre) |
-| **ResolutionPhase** | HP güncelleme, savaş dışı kontrolü, buff süre azaltma | Anında |
-| **UnitTurnEnd** | Sonraki birime geç | Anında |
+| **ResolutionPhase** | HP güncelleme, savaş dışı kontrolü | Anında |
+| **UnitTurnEnd** | Cooldown sayaçları -1, status efekt süreleri -1, sonraki birime geç | Anında |
 | **RoundEnd** | Kazanma/kaybetme kontrolü — savaş devam mı? | Anında |
 
 **Mod Durumları**
@@ -229,15 +327,21 @@ CommanderMode ←──(toggle)──→ AutoFarmMode
 
 Mod değişikliği her iki yönde sınırsız, bir sonraki turdan geçerli.
 
-**Buff Durum İzleme**
+**Status Efekti ve Buff Durum İzleme**
 
-Savaş sırasında aktif buff'lar tur bazlı süre ile izlenir:
+Savaş sırasında aktif efektler tur bazlı süre ile izlenir:
 
-| Buff | Başlangıç | Süre Azaltma | Bitiş |
-|------|-----------|-------------|-------|
-| Koruma Duruşu (DEF×2) | Yetenek kullanımında aktif | Her UnitTurnStart'ta -1 tur | Süre=0 olduğunda stat eski değere döner |
+| Efekt | Başlangıç | Süre Azaltma | Bitiş |
+|-------|-----------|-------------|-------|
+| Koruma Duruşu — DEF×2 (pet Tank) | Yetenek kullanımında | Her UnitTurnEnd'de -1 | Süre=0 → DEF eski değere |
+| Yanma DoT | Büyücü Slot 2 uyguladığında | Her DoTPhase'de -1 tick | Kalan tur=0 → sona erer |
+| Zehir DoT | Hırsız Slot 1 uyguladığında | Her DoTPhase'de -1 tick | Kalan tur=0 → sona erer |
+| Sersemletme | Savaşçı Slot 1 uyguladığında | Her UnitTurnEnd'de -1 | Süre=0 → aksiyon normal |
+| DEF Kırma | Savaşçı Slot 2 uyguladığında | Her UnitTurnEnd'de -1 | Süre=0 → DEF normal |
+| Kalkan | Şifacı/Savaşçı uyguladığında | Hasar gelince kapasiteden düş | Kapasite=0 veya süre=0 |
+| ATK Zayıflatma | Şifacı Slot 3 uyguladığında | Her UnitTurnEnd'de -1 | Süre=0 → ATK normal |
 
-MVP'de tek buff türü (Tank koruması). Buff stack'lenmez — aynı buff tekrar kullanılırsa süre yenilenir.
+Stack kuralı: aynı tip efekt stack'lenmez, süre yenilenir. Farklı tipler aynı anda aktif olabilir.
 
 ### Interactions with Other Systems
 
@@ -434,7 +538,54 @@ Rare Tank Lv20 Form B (max_hp=92) → heal = floor(92×0.20) = **18 HP**
 - Takım DPS: ~235/tur, düşman DPS: ~184/tur
 - **3-5 tur** tahmini (birim ölümleri dahil)
 
-### Formül 8: Komutan vs Otofarm Verimlilik Doğrulama
+### Formül 8: DoT Hasarı
+
+`dot_damage_per_tick = max(1, floor(target_max_hp × dot_rate))`
+
+| Değişken | Sembol | Tip | Aralık | Açıklama |
+|----------|--------|-----|--------|----------|
+| Hedef max HP | target_max_hp | int | 18–258 | Pipeline max HP |
+| DoT oranı (Yanma) | yanma_rate | float | 0.05 | Büyücü Slot 2 |
+| DoT oranı (Zehir) | zehir_rate | float | 0.04 | Hırsız Slot 1 |
+| Tick hasarı | dot_damage_per_tick | int | 1–12 | Her tur başı uygulanır |
+
+**Çıktı Aralığı**: MVP'de 1–12 (Common Lv1 min=1, Rare Lv20 max ~12).
+
+**Örnek — Yanma** (Rare Tank Lv20, max_hp=92):
+`max(1, floor(92 × 0.05))` = `max(1, 4)` = **4 hasar/tur × 3 tur = 12 toplam**
+
+**Örnek — Zehir** (Common Saldırgan Lv1, max_hp=18):
+`max(1, floor(18 × 0.04))` = `max(1, 0)` = **1 hasar/tur × 4 tur = 4 toplam** (min garantisi)
+
+**Yanma + Zehir aynı anda** (Rare Saldırgan, max_hp=52):
+- Yanma: `floor(52 × 0.05)` = **2/tur**
+- Zehir: `floor(52 × 0.04)` = **2/tur**
+- Toplam: **4 hasar/tur** (bağımsız, iki tick ayrı ayrı uygulanır)
+
+### Formül 9: Cooldown Yönetimi
+
+`turns_until_available = max(0, current_cd - turns_elapsed)`
+
+| Değişken | Sembol | Tip | Aralık | Açıklama |
+|----------|--------|-----|--------|----------|
+| Slot CD değeri | slot_cd | int | {0, 3, 5, 8} | Slot 0/1/2/3 sabit CD |
+| Mevcut CD | current_cd | int | 0–8 | Kalan bekleme turu |
+| Kullanılabilir | is_available | bool | — | `current_cd == 0` ise true |
+
+**Cooldown tablosu** (yetenek kullanıldıktan sonra):
+
+| Tur | Slot 1 (CD3) | Slot 2 (CD5) | Slot 3 (CD8) |
+|-----|-------------|-------------|-------------|
+| Kullanım | CD=3 | CD=5 | CD=8 |
+| +1 | CD=2 | CD=4 | CD=7 |
+| +2 | CD=1 | CD=3 | CD=6 |
+| +3 | **CD=0 ✓** | CD=2 | CD=5 |
+| +5 | — | **CD=0 ✓** | CD=3 |
+| +8 | — | — | **CD=0 ✓** |
+
+**Not**: Slot 0 CD=0 (her zaman açık). Savaş başlangıcında tüm CD'ler 0 → tüm yetenekler ilk turda kullanılabilir.
+
+### Formül 9: Komutan vs Otofarm Verimlilik Doğrulama
 
 `commander_efficiency_ratio = 1.0 + atk_bonus_effect + targeting_effect + timing_effect`
 
@@ -489,6 +640,24 @@ Rare Tank Lv20 Form B (max_hp=92) → heal = floor(92×0.20) = **18 HP**
 - **If savaş sırasında uygulama arka plana atılırsa (mobil)**: Savaş durumu kaydedilir. Uygulama geri geldiğinde kaldığı yerdan devam eder. Otofarm modundaysa arka planda tamamlanır (Otofarm/Idle GDD Kural 1-3).
 
 - **If düşman boss öfke modu aktifleştiği turda oyuncu mod değiştirirse**: Her iki değişiklik bir sonraki turda geçerli. Boss öfke SPD artışı + oyuncu mod değişikliği bağımsız state değişiklikleri — çakışma yok.
+
+- **If DoT uygulanan birim DoTPhase'de savaş dışı kalırsa**: Savaş dışı tetiklenir, kalan fazlar (Regen, Energy, Decision, Action) atlanır. DoT sona erer. Hasar, normal saldırı hasarından önce geldiği için savaş dışı bırakma DoT ile de gerçekleşebilir.
+
+- **If aynı birimde Yanma ve Zehir aynı anda aktifse**: Her iki DoT bağımsız olarak her DoTPhase'de uygulanır. Toplam hasar = yanma_tick + zehir_tick. Süreleri bağımsız sayılır — biri bitince diğeri devam eder.
+
+- **If Yanma aktifken düşman ikinci kez Yanma alırsa**: Yanma süresi yenilenir (3 tura sıfırlanır). Hasar oranı değişmez — stack'lenmez.
+
+- **If Sersemletme boss'a uygulanırsa**: Stun uygulanmaz (boss bağışıklığı). Yeteneğin diğer etkileri (hasar) normal uygulanır — sadece stun atlanır.
+
+- **If Sersemletme süresi 1 turken birim o tur zaten aksiyonunu tamamladıysa**: Stun bir sonraki birim turunda işler — birim hasar alır, aksiyon yapamaz. Stun "gelecek tur" geçerlidir, geriye dönük değil.
+
+- **If Kalkan aktifken gelen hasar kalkan kapasitesinden büyükse**: Kalan hasar HP'ye uygulanır. `hp_damage = total_damage - shield_remaining`. Kalkan sıfırlanır ve kaldırılır.
+
+- **If oyuncu sınıf Slot 3 (CD8) savaş başında kullanılırsa (CD=0)**: Kullanılır, CD=8 olarak set edilir. İlk kullanımda herhangi bir kısıtlama yok — CD0 kuralı savaş başlangıcı için geçerli.
+
+- **If otofarm modunda Slot 2 ve Slot 3 aynı anda açıksa**: Öncelik Slot 3'e aittir (Kural 7 otofarm öncelik sırası). Slot 2 bir sonraki tura saklı kalır.
+
+- **If Şifacı Slot 2 (Diriliş) ile canavar diriltilirse**: Diriltilen canavar HP=1 ile savaşa döner (ayrıntılar Oyuncu Sınıf Sistemi GDD). Sıra listesine bir sonraki raundda eklenir.
 
 - **If energy_per_turn veya skill_atk_multiplier 0 olursa (yapılandırma hatası)**: energy_per_turn = 1 olarak fallback; skill çarpanı = 0 ise base_damage = max(1, ...) = 1. Hata loglanır.
 
@@ -548,6 +717,16 @@ Rare Tank Lv20 Form B (max_hp=92) → heal = floor(92×0.20) = **18 HP**
 | `autofarm_random_weight` | 60 | 40–80 | Çok rastgele → verimsiz | Çok hedefli → komutan farkı azalır |
 | `autofarm_lowHP_weight` | 25 | 10–40 | Komutan farkı azalır | "Aptal" hisseder |
 | `autofarm_highATK_weight` | 15 | 5–25 | Taktik AI gibi → fark azalır | Stratejik fark artar |
+| `yanma_rate` | 0.05 | 0.03–0.10 | DoT tek başına öldürür → diğer hasarlar anlamsız | Yanma fark edilmez |
+| `yanma_duration` | 3 | 2–5 | Uzun savaşlarda ezici kümülatif hasar | Çok kısa → bir tur | 
+| `zehir_rate` | 0.04 | 0.02–0.08 | Zehir tek başına yeterli → Hırsız overpowered | Zehir motivasyonu yok |
+| `zehir_duration` | 4 | 3–6 | Boss'u bile eritir kümülatif | Çok kısa → değersiz |
+| `shield_rate` | 0.25 | 0.15–0.40 | Ölümsüzlük — tank gibi oynar | Kalkan anlamsız |
+| `shield_duration` | 3 | 2–4 | Sürekli kalkan (3 tur + 3 CD) | Tek vurş bozulur |
+| `def_break_mult` | 0.70 | 0.50–0.85 | DEF tamamen anlamsız | Kırma fark edilmez |
+| `def_break_duration` | 2 | 1–3 | Uzun → sürekli kırık DEF | Zamanlama kritik ama kısa |
+| `atk_weaken_mult` | 0.80 | 0.60–0.90 | Düşman saldırı gücü sıfıra yakın | Zayıflatma hissedilmez |
+| `damage_reduce_mult` | 0.75 | 0.60–0.90 | Hasar azaltma kalkanla birlikte çok güçlü | Hayatta kalma fark yok |
 
 **Etkileşim Uyarıları**:
 - `commander_atk_bonus` × `defense_reduction_factor` (registry=2): DEF azaltması sabit olduğundan ATK bonusu efektif etkisi +10%'dan fazla (+12-19%). Bonus'u artırırken bu amplifikasyonu hesaba kat.
@@ -721,6 +900,26 @@ Tüm interaktif elemanlar minimum 44×44 dp (technical-preferences.md). Yetenek 
 19. **GIVEN** komutan modu, oyuncu düşman A'yı hedef seçmiş, **WHEN** düşman A savaş dışı bırakılırsa, **THEN** hedef otomatik en yüksek HP düşmana geçer.
 
 20. **GIVEN** Tank Koruma Duruşu aktif (2 tur), **WHEN** Tank savaş dışı kalırsa, **THEN** buff anında sona erer.
+
+21. **GIVEN** Büyücü Slot 2 ile Yanma DoT uygulandı (hedef max_hp=52), **WHEN** hedefin turu gelirse, **THEN** DoTPhase'de `max(1, floor(52×0.05))` = **2 hasar** uygulanır, 3 tur devam eder.
+
+22. **GIVEN** aynı hedefe Yanma (kalan 2 tur) tekrar Yanma uygulanırsa, **WHEN** DoT set edilirse, **THEN** süre 3 tura yenilenir, hasar oranı değişmez (stack'lenmez).
+
+23. **GIVEN** Hırsız Slot 1 ile Zehir DoT uygulandı (hedef max_hp=18), **WHEN** 4 tur boyunca DoTPhase çalışırsa, **THEN** her tur `max(1, floor(18×0.04))` = **1 hasar**, toplam 4 hasar.
+
+24. **GIVEN** Yanma ve Zehir aynı anda aktif (hedef max_hp=52), **WHEN** DoTPhase çalışırsa, **THEN** Yanma 2 + Zehir `floor(52×0.04)`=2 → toplam **4 hasar** o turda.
+
+25. **GIVEN** Savaşçı Slot 1 stun uyguladı (normal düşman, stun_duration=1), **WHEN** hedef birimin turu gelirse, **THEN** DecisionPhase atlanır, aksiyon yapamaz. Sonraki turda normal.
+
+26. **GIVEN** Savaşçı Slot 1 boss'a stun uyguladı, **WHEN** stun set edilirse, **THEN** stun uygulanmaz (boss bağışıklığı), diğer hasarlar normal.
+
+27. **GIVEN** Kalkan aktif (max_hp=40, shield_hp=10), 15 hasar geldi, **WHEN** hasar uygulanırsa, **THEN** 10 hasar kalkanı tüketir, kalan 5 hasar HP'ye gider.
+
+28. **GIVEN** oyuncu Slot 3 (CD8) savaş başında kullanır (current_cd=0), **WHEN** yetenek kullanılırsa, **THEN** kullanılır, current_cd=8 set edilir.
+
+29. **GIVEN** oyuncu Slot 3 kullandı (current_cd=8), **WHEN** 8 tur geçerse, **THEN** current_cd=0, yetenek tekrar kullanılabilir.
+
+30. **GIVEN** otofarm modunda Slot 2 ve Slot 3 aynı anda açık (current_cd=0), **WHEN** oyuncu turu gelirse, **THEN** Slot 3 kullanılır (öncelik kuralı).
 
 *`qa-lead` not consulted — Lean mode. Review manually before production.*
 
