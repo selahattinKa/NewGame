@@ -137,16 +137,16 @@ adjusted_stat = floor(base_stat × rubber_band_factor)
 
 ### Alan Örneği (MVP): Karanlık Orman
 
-| Aşama | Tip | Monster (Taslak) | Tahmini SG |
-|-------|-----|-----------------|-----------|
-| 1-4 | Normal | F tier Hava/Toprak | ~100-160 |
-| 5 | Şampiyon | D tier Hava | ~200 |
-| 6-9 | Normal | D tier Su/Hava | ~220-280 |
-| 10 | Mini Boss | D tier Su | ~300 |
-| 11-14 | Normal | C tier Toprak/Hava | ~320-400 |
-| 15 | Şampiyon | C tier Toprak | ~420 |
-| 16-19 | Normal | C/B tier Hava/Ateş | ~450-550 |
-| 20 | Alan Patronu | B tier Ateş | ~700 |
+| Aşama | Tip | Monster Element | Tahmini SG |
+|-------|-----|----------------|-----------|
+| 1-4 | Normal | Hava / Toprak | ~100-160 |
+| 5 | Şampiyon | Hava | ~200 |
+| 6-9 | Normal | Su / Hava | ~220-280 |
+| 10 | Mini Boss | Su | ~300 |
+| 11-14 | Normal | Toprak / Hava | ~320-400 |
+| 15 | Şampiyon | Toprak | ~420 |
+| 16-19 | Normal | Hava / Ateş | ~450-550 |
+| 20 | Alan Patronu | Ateş | ~700 |
 
 > **Not**: SG değerleri taslak — Canavar Veritabanı ve Pet Evrim Sistemi formülleri kesinleşince güncellenecek.
 

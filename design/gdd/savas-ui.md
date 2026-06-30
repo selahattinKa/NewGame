@@ -7,11 +7,13 @@
 
 ## Overview
 
-**Savaş UI**, Savaş Sistemi'nin tüm görsel katmanıdır. Oyuncu + Pet vs Düşman savaşını üç dikey bölgede (Düşman Zonu, Savaş Alanı, Pet Zonu) sunar; alt kenar boyunca uzanan Aksiyon Çubuğu'nda oyuncu sınıf yeteneklerini (4 slot) ve pet yeteneği göstergesini barındırır. HUD (altın/elmas/enerji) savaş süresince gizlenir; ekranın sol üstünde Mod Toggle (Komutan/Otofarm), sağ üstünde Hız (1x/2x/3x) ve Çekil butonu yer alır. Tab Bar görünür ama kilitli kalır (UI Framework Kural 9).
+**Savaş UI**, Savaş Sistemi'nin tüm görsel katmanıdır. Oyuncu + Pet vs Düşman savaşını dört dikey bölgede (Düşman Zonu, Savaş Alanı, Oyuncu Zonu, Pet Zonu) sunar; alt kenar boyunca uzanan Aksiyon Çubuğu'nda oyuncu sınıf yeteneklerini (4 slot), pet yeteneği göstergesini ve iksir butonunu barındırır. HUD (altın/elmas/enerji) savaş süresince gizlenir; ekranın sol üstünde Mod Toggle (Komutan/Otofarm), sağ üstünde Hız (1x/2x/3x) ve Çekil butonu yer alır. Tab Bar görünür ama kilitli kalır (UI Framework Kural 9).
+
+**Oyuncu ana savaşçıdır.** Düşman oyuncuyu hedef alır; oyuncu HP barı ekranın odağındadır. Pet ikincil saldırgan olarak daha küçük bir alanda gösterilir. Defeat = Oyuncu HP = 0.
 
 Komutan modunda Aksiyon Çubuğu etkileşimli; oyuncu doğru anda doğru butona basar. Otofarm modunda butonlar gri/pasif; her şey otomatik ilerler. Her tur aktif birimin zonunda renkli çerçeve belirir; hasar sayıları yüzen metin olarak hedefe yakın çıkar. Savaş sonu Victory veya Defeat overlay'i sahnede kaybolmadan açılır.
 
-MVP kapsamında tüm savaş layout'u, skill butonları, hasar sayıları, status efekt ikonları, tur göstergesi, enerji barı, Komutan/Otofarm mod farkı, Victory/Defeat overlay ve savaş ödül ekranı yer alır.
+MVP kapsamında tüm savaş layout'u, skill butonları, hasar sayıları, status efekt ikonları, tur göstergesi, enerji barı, iksir butonu, Komutan/Otofarm mod farkı, Victory/Defeat overlay ve savaş ödül ekranı yer alır.
 
 ## Player Fantasy
 
@@ -38,34 +40,38 @@ Tam ekran dikey (portrait). HUD katmanı gizli. Tab Bar görünür ama `LockTabs
 │ [◀ MOD]  [SPD]        [✕ KAÇ] │  Üst Çubuk — 48 dp
 ├────────────────────────────────┤
 │                                │
-│   DÜŞMAN ZONU                  │  ~185 dp
+│   DÜŞMAN ZONU                  │  ~160 dp
 │   [El] Monster Adı   SG: 300   │   ↑ 28 dp başlık
-│        [ SPRITE ]              │   ↑ ~105 dp sprite
+│        [ SPRITE ]              │   ↑ ~90 dp sprite
 │   HP ████████████░░░ 240/300   │   ↑ 28 dp HP barı
-│   [status ikon satırı]         │   ↑ 24 dp
+│   [status ikon satırı]         │   ↑ 14 dp
 │                                │
 ├────────────────────────────────┤
 │                                │
-│   SAVAŞ ALANI                  │  ~220 dp
+│   SAVAŞ ALANI                  │  ~140 dp
 │   (animasyonlar, hasar sayılar)│
 │                                │
 ├────────────────────────────────┤
 │                                │
-│   PET ZONU                     │  ~185 dp
-│   [El] Pet Adı       SG: 255   │
-│        [ SPRITE ]              │
-│   HP ████████████░░░ 200/250   │
-│   EN ██████████░░░░░  75/100   │
+│   OYUNCU ZONU          ◀ ANA   │  ~130 dp
+│   [Avatar/Sınıf İkonu]         │
+│   HP ████████████░░  200/300 [🧪] │  ← Büyük HP barı + İksir
 │   [status ikon satırı]         │
 │                                │
 ├────────────────────────────────┤
-│ [PET▣] [SK0] [SK1] [SK2] [SK3]│  Aksiyon Çubuğu — 88 dp
+│   PET ZONU (ikincil)           │  ~80 dp
+│   [Pet İkonu] Pet Adı          │
+│   HP ██████░░ 150/200          │  ← Küçük HP barı
+│   EN ████░░░░  50/100          │  ← Enerji barı
+├────────────────────────────────┤
+│ [SK0] [SK1] [SK2] [SK3] [PET▣]│  Aksiyon Çubuğu — 88 dp
 ├────────────────────────────────┤
 │ [Ana] [Keşif] [Koleksiyon]..  │  Tab Bar — 56 dp (kilitli, gri)
 └────────────────────────────────┘
 ```
 
-- Toplam içerik alanı: 48 + 185 + 220 + 185 + 88 = 726 dp + safe area + Tab Bar.
+- Toplam içerik alanı: 48 + 160 + 140 + 130 + 80 + 88 = 646 dp + safe area + Tab Bar.
+- Oyuncu HP barı ekranın en büyük ve görünür HP barıdır — oyuncu ana savaşçıdır.
 - Tüm dokunma hedefleri minimum 64×64 dp (Aksiyon Çubuğu butonları).
 
 ---
@@ -82,7 +88,7 @@ Tam ekran dikey (portrait). HUD katmanı gizli. Tab Bar görünür ama `LockTabs
 
 **Kural 3 — Düşman Zonu**
 
-Ekranın üst bölümü. Düşman yalnızca peti hedefler; bu zonun arka planı düz koyu — sprite odak noktasıdır.
+Ekranın üst bölümü. Düşman oyuncuyu hedef alır; hasar sayıları Oyuncu Zonu'nda belirir. Bu zonun arka planı düz koyu — sprite odak noktasıdır.
 
 | Eleman | Detay |
 |--------|-------|
@@ -124,31 +130,73 @@ Ortadaki boş alan; statik arka plan yok, sadece animasyonlar ve yüzen elementl
 
 ---
 
-**Kural 5 — Pet Zonu**
+**Kural 5 — Oyuncu Zonu**
 
-Ekranın alt bölümü (aksiyon çubuğunun hemen üstü).
+Düşman ve Savaş Alanı'nın hemen altı. Oyuncu ana savaşçı olduğundan bu zon ekranın en önemli bilgi alanıdır.
 
 | Eleman | Detay |
 |--------|-------|
-| **Başlık Satırı** | Element ikonu + Pet Adı + SG (düşmanla aynı format) |
-| **Sprite** | Merkezi. Boyut: ~110×110 dp. Komutan modunda altın hafif aura. |
-| **HP Barı** | Yeşil dolgu. "200/250" metni sağda. Hasar: hızlı azalır (200ms), iyileşme: yavaş dolar (400ms). |
-| **Enerji Barı** | HP barının hemen altında, daha ince (14 dp yüksek). Mavi/mor dolgu. "75" metni sağda. |
-| **Status İkon Satırı** | Enerji barının altında. |
-| **Aktif Tur Çerçevesi** | Pet turu aktifken mavi glow border. |
+| **Sınıf Avatarı** | Sol köşede küçük (48×48 dp) sınıf ikonu/avatarı. Sınıf renginde çerçeve. |
+| **Sınıf Adı** | Avatar yanında, küçük metin. |
+| **HP Barı** | Geniş (ekran genişliğinin ~80%'i), 18 dp yüksek. Kırmızı dolgu. Sağda "200/300" metni. Hasar: hızlı azalır (200ms tween). İyileşme: yavaş dolar (400ms). |
+| **İksir Butonu [🧪]** | HP barının sağında, 44×44 dp. Envanterdeki toplam iksir adetini küçük rozet olarak gösterir. Basılınca Pot Panel açılır (Kural 6b). |
+| **Status İkon Satırı** | HP barının altında. |
+| **Aktif Tur Çerçevesi** | Oyuncu turu aktifken zone etrafında altın glow border. |
+
+**Oyuncu HP barı rengi**:
+- HP > %50: Kırmızı (canlı)
+- HP %25–50: Turuncu
+- HP < %25: Sarı + hızlı pulse ("tehlike" uyarısı)
+
+---
+
+**Kural 6a — Pet Zonu (İkincil)**
+
+Oyuncu Zonu'nun hemen altı, Aksiyon Çubuğu'nun üstünde. Pet ikincil saldırgan — daha kompakt görünüm.
+
+| Eleman | Detay |
+|--------|-------|
+| **Pet İkonu** | Sol köşede 40×40 dp küçük sprite/ikon. Element rengi kenarlık. |
+| **Pet Adı** | İkon yanında, küçük metin. |
+| **HP Barı** | Daha ince (12 dp yüksek), yeşil dolgu. Sağda "150/200". |
+| **Enerji Barı** | HP barının altında, 10 dp yüksek, mavi. Sağda kalan enerji. |
+| **Status İkon Satırı** | Enerji barının altında, küçük ikonlar. |
+| **Aktif Tur Çerçevesi** | Pet turu aktifken zone etrafında mavi glow border. |
 
 **Pet HP barı rengi**:
 - HP > %50: Yeşil
 - HP %25–50: Sarı
-- HP < %25: Kırmızı + pulse
+- HP < %25: Kırmızı (devre dışı riski — defeat değil ama saldırı kesilir)
 
-**Enerji barı**: Düz mavi. 100'de dolar, %100'de mor/altın parlama + Aksiyon Çubuğu'ndaki pet yetenek butonu pulse başlar.
+**Enerji barı**: Mavi. 100'de dolar, %100'de altın parlama + PET▣ buton pulse başlar.
 
 ---
 
-**Kural 6 — Aksiyon Çubuğu (Commander vs Auto)**
+**Kural 6b — İksir (Pot) Paneli**
 
-Ekran en altında, Tab Bar'ın hemen üstünde. Yatay dizi: **[PET] [SK0] [SK1] [SK2] [SK3]**.
+[🧪] butonuna basılınca Oyuncu Zonu üzerine küçük panel (bottom sheet değil, overlay panel):
+
+```
+┌──────────────────────┐
+│ 🧪 İksir Kullan      │
+│                      │
+│ [Küçük İksir]  x 3   │  +30% HP — "KULLAN"
+│ [Büyük İksir]  x 1   │  +70% HP — "KULLAN"
+│                      │
+│        [İPTAL]       │
+└──────────────────────┘
+```
+
+- Paneli açmak turları durdurmaz (serbest aksiyon).
+- "KULLAN" → oyuncu HP anında iyileşir, adet 1 azalır, panel kapanır.
+- Stok 0/0 ise: satır gri + "Stok Yok".
+- Panel açıkken savaş devam eder (oyuncu iksir kullanmayı geciktirebilir).
+
+---
+
+**Kural 7 — Aksiyon Çubuğu (Commander vs Auto)**
+
+Ekran en altında, Tab Bar'ın hemen üstünde. Yatay dizi: **[SK0] [SK1] [SK2] [SK3] [PET▣]**.
 
 Her buton: 64×64 dp. Aralarında 8 dp boşluk.
 
@@ -293,7 +341,7 @@ Düşman HP=0 olunca savaş durur, Victory overlay sahneye eklenir (yeni ekrana 
 
 **Kural 13 — Defeat Overlay**
 
-Pet HP=0 olunca:
+Oyuncu HP = 0 olunca:
 
 ```
 ┌──────────────────────────────────┐
@@ -496,7 +544,7 @@ displayed_cd = current_cd   // her tur başı güncellenir
 
 15. **GIVEN** Victory overlay açık, **WHEN** "Devam"a basılırsa, **THEN** overlay 300ms fade ile kapanır, harita ekranına dönülür.
 
-16. **GIVEN** Defeat tetiklendi, **WHEN** pet HP=0 olursa, **THEN** ekran %70 dim overlay, "YENİLDİN" kırmızı metin, "Enerji harcanmadı." satırı, iki buton: "YENİDEN DENE" + "ÇEKİL".
+16. **GIVEN** Defeat tetiklendi, **WHEN** oyuncu HP=0 olursa, **THEN** ekran %70 dim overlay, "YENİLDİN" kırmızı metin, "Enerji harcanmadı." satırı, iki buton: "YENİDEN DENE" + "ÇEKİL".
 
 17. **GIVEN** Defeat overlay'de "Yeniden Dene"ye basıldı, **WHEN** basılırsa, **THEN** overlay kapanır, savaş PreCombat'tan başlar (HP full, energy=0, CD=0).
 

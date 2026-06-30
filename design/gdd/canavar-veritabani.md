@@ -13,6 +13,8 @@ Oyuncu bu sistemi doğrudan görmez, ancak koleksiyondaki her canavarın benzers
 
 Prototype kapsamında 10-15 canavar türü (4 element × 4 arketip matrisinden seçilen), **4 nadirlik kademesi (F-D-C-B)** ve temel stat yapısı tanımlanır. A, S ve SS kademeleri Google Play soft-launch verisi sonrasında MVP güncellemesiyle eklenecektir. Tam vizyonda 200+ canavar türüne ölçeklenebilir bir şema hedeflenir.
 
+> **Kapsam notu**: Bu veritabanı **toplanabilir pet canavarlarını** (oyuncunun koleksiyonuna aldığı varlıklar) kapsar. F/D/C/B tier sistemi yalnızca bu petler ve ekipman için geçerlidir. Keşif Alanı'nda savaşılan **düşman canavarlarının** tier'ı yoktur — güçleri **SG (Saldırı Gücü)** ile ölçülür.
+
 ## Player Fantasy
 
 Oyuncu Canavar Veritabanı ile doğrudan etkileşmez — hissettiği şey bu veritabanının mümkün kıldığı **çeşitlilik ve derinliktir**. Koleksiyonu taradığında her canavarın istatistikleri, element kimliği ve nadirlik seviyesi farklıdır; hiçbiri diğerinin kopyası hissetmez. Yeni bir canavar kazandığında stat kartını incelediğinde "bu ne yapabilir?" merakı uyanır. Takımını kurarken element sinerjilerini keşfeder, güçlendirme sırasında büyüyen sayılar tatmin verir.
