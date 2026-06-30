@@ -87,8 +87,8 @@ Her birimin turu 5 fazda işler:
 
 Oyuncunun aktif katılımla savaşa müdahale ettiği mod.
 
-**Flat ATK Bonusu**: Pete +%10 ATK:
-`commander_ATK = floor(effective_ATK × 1.10)`
+**Flat ATK Bonusu**: Pete +%30 ATK:
+`commander_ATK = floor(effective_ATK × 1.30)`
 
 DEF, SPD, HP'ye bonus yok — sadece ATK. Mod değiştirilirse bonus bir sonraki turdan düşer.
 
@@ -105,7 +105,7 @@ DEF, SPD, HP'ye bonus yok — sadece ATK. Mod değiştirilirse bonus bir sonraki
 
 Tüm kararlar otomatik, oyuncu müdahalesi yok.
 
-**ATK Bonusu**: Yok. Peti effective_ATK kullanır.
+**ATK Bonusu**: Yok. Peti effective_ATK kullanır. Bu fark UI'da gösterilmez — oyuncu bir "debuff" görmez, savaş sayıları doğal olarak daha düşük akar.
 
 **Otomatik Yetenek Kullanımı (Pet)**: Energy=100 olduğu anda yetenek hemen kullanılır.
 
@@ -115,9 +115,9 @@ Tüm kararlar otomatik, oyuncu müdahalesi yok.
 
 | Fark Kaynağı | Komutan Avantajı | Tahmini Etki |
 |-------------|------------------|-------------|
-| Flat +10% ATK bonusu | Her pet saldırısında | +10% |
+| Flat +30% ATK bonusu | Her pet saldırısında | +30% |
 | Yetenek zamanlaması | Optimal an bekleme | +10-20% |
-| **Toplam** | | **~20-30%** |
+| **Toplam** | | **~40-50%** |
 
 **Kural 6 — Pet Yetenek Sistemi (MVP)**
 
@@ -303,13 +303,13 @@ RoundStart → [Oyuncu, Pet, Düşman SPD sırasıyla]:
 | Değişken | Değer | Açıklama |
 |----------|-------|----------|
 | effective_ATK | 15–600 | Pet'in pipeline ATK çıktısı |
-| commander_atk_bonus | 0.10 | Sabit %10 |
+| commander_atk_bonus | 0.30 | Sabit %30 |
 
 **Örnek — F tier Pet (effective_ATK=35)**:
-→ commander_ATK = floor(35 × 1.10) = **38** (+3 ATK)
+→ commander_ATK = floor(35 × 1.30) = **45** (+10 ATK)
 
 **Örnek — B tier Pet Lv20 (effective_ATK=117)**:
-→ commander_ATK = floor(117 × 1.10) = **128** (+11 ATK)
+→ commander_ATK = floor(117 × 1.30) = **152** (+35 ATK)
 
 ### Formül 2: Saldırgan Yeteneği — Güçlü Vuruş
 
@@ -321,8 +321,8 @@ RoundStart → [Oyuncu, Pet, Düşman SPD sırasıyla]:
 5. skill_damage = was_crit ? floor(element_damage × 2.0) : element_damage
 ```
 
-**Örnek (Komutan)**: F tier Saldırgan (ATK=38) vs F tier Düşman (DEF=35), nötr, crit yok
-→ boosted=76, def_red=17, base=59, final=**59**
+**Örnek (Komutan)**: F tier Saldırgan (ATK=45) vs F tier Düşman (DEF=35), nötr, crit yok
+→ boosted=90, def_red=17, base=73, final=**73**
 
 ### Formül 3: Büyücü Yeteneği — Element Dalgası
 
@@ -430,7 +430,7 @@ Savaş başlangıcında tüm CD'ler 0 → ilk turda tüm yetenekler açık.
 
 | Knob | Değer | Güvenli Aralık | Çok Yüksekse | Çok Düşükse |
 |------|-------|----------------|-------------|-------------|
-| `commander_atk_bonus` | 0.10 | 0.05–0.20 | Komutan çok güçlü → otofarm anlamsız | Fark hissedilmez |
+| `commander_atk_bonus` | 0.30 | 0.15–0.40 | Komutan çok güçlü → otofarm anlamsız | Fark hissedilmez |
 | `energy_per_turn` | 25 | 15–50 | Yetenek çok sık | Yetenek çok seyrek → monotonluk |
 | `energy_threshold` | 100 | 50–200 | Yetenek çok sık | Oyuncu yetenek göremeden savaş biter |
 | `skill_atk_multiplier` | 2.0 | 1.5–3.0 | Tek vuruşta öldürür | Normal saldırıdan zar zor iyi |
@@ -495,9 +495,9 @@ Savaş başlangıcında tüm CD'ler 0 → ilk turda tüm yetenekler açık.
 
 3. **GIVEN** SPD eşitliğinde (Pet SPD=30, Düşman SPD=30), **WHEN** sıra belirlenirse, **THEN** Pet önce hareket eder.
 
-4. **GIVEN** komutan modunda F tier Saldırgan Pet (effective_ATK=35), **WHEN** saldırırsa, **THEN** commander_ATK = floor(35×1.10) = 38 kullanılır.
+4. **GIVEN** komutan modunda F tier Saldırgan Pet (effective_ATK=35), **WHEN** saldırırsa, **THEN** commander_ATK = floor(35×1.30) = 45 kullanılır.
 
-5. **GIVEN** otofarm modunda aynı pet, **WHEN** saldırırsa, **THEN** effective_ATK = 35 kullanılır (commander bonusu yok).
+5. **GIVEN** otofarm modunda aynı pet, **WHEN** saldırırsa, **THEN** effective_ATK = 35 kullanılır (commander bonusu yok). ATK farkı UI'da gösterilmez.
 
 6. **GIVEN** pet energy=75, **WHEN** pet turu enerji fazı çalışırsa, **THEN** energy = 100, yetenek göstergesi pulse başlar.
 
@@ -507,7 +507,7 @@ Savaş başlangıcında tüm CD'ler 0 → ilk turda tüm yetenekler açık.
 
 9. **GIVEN** pet energy=100, otofarm modu, **WHEN** pet turu gelirse, **THEN** yetenek anında kullanılır, energy = 0.
 
-10. **GIVEN** Saldırgan Güçlü Vuruş (ATK=38) vs Düşman (DEF=35), nötr, crit yok, **WHEN** kullanılırsa, **THEN** boosted=76, base=76-17=59, final=**59**.
+10. **GIVEN** Saldırgan Güçlü Vuruş, komutan modu (ATK=45) vs Düşman (DEF=35), nötr, crit yok, **WHEN** kullanılırsa, **THEN** boosted=90, base=90-17=73, final=**73**.
 
 11. **GIVEN** Büyücü Element Dalgası (ATK=38) vs Düşman (DEF=35), nötr, **WHEN** kullanılırsa, **THEN** boosted=28, def_red=8, final=**20**.
 
