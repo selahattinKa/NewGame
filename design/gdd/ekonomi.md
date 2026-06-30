@@ -80,7 +80,7 @@ Oyuncu ekonomi sisteminde **cömert zenginleşme** fantezisi yaşar. Her zindan 
 | Sink | Maliyet | Etki |
 |------|---------|------|
 | Enerji yenileme | 50 elmas → tam enerji | Anlık |
-| Nadir canavar sandığı | 100 elmas → garantili Rare+ canavar | Tek seferlik çekim |
+| Nadir canavar sandığı | 100 elmas → garantili C tier+ canavar | Tek seferlik çekim |
 | Altın paketi | 20 elmas → altın×2 saat (mevcut kat kazanımı) | Hızlandırıcı |
 
 **Kural 6 — Kaynak Tavanları**
@@ -141,24 +141,26 @@ Oyuncu ekonomi sisteminde **cömert zenginleşme** fantezisi yaşar. Her zindan 
 
 | Değişken | Sembol | Tip | Aralık | Açıklama |
 |----------|--------|-----|--------|----------|
-| Temel maliyet | base_level_cost | int | 50 | Lv1→Lv2 Common maliyet |
+| Temel maliyet | base_level_cost | int | 50 | Lv1→Lv2 F tier maliyet |
 | Nadirlik çarpanı | rarity_cost_multiplier | float | 1.0–3.0 | Nadir canavarlar daha pahalı |
 | Seviye | level | int | 1–50 | Mevcut seviye |
 | Maliyet üssü | cost_exponent | float | 1.5 | Kademeli artış eğrisi |
 
 Nadirlik çarpan tablosu:
 
-| Nadirlik | rarity_cost_multiplier |
-|----------|----------------------|
-| Common | 1.0 |
-| Uncommon | 1.3 |
-| Rare | 1.8 |
-| Epic | 2.4 |
-| Legendary | 3.0 |
+| Kademe | rarity_cost_multiplier |
+|--------|----------------------|
+| F | 1.0 |
+| D | 1.3 |
+| C | 1.8 |
+| B | 2.4 |
+| A | 3.0 |
+| S | 3.5 |
+| SS | 4.5 |
 
-**Çıktı Aralığı**: 50 (Common Lv1→2) – ~51.500 (Legendary Lv49→50: floor(50 × 3.0 × 49^1.5) = floor(50 × 3.0 × 343) = 51.450)
+**Çıktı Aralığı**: 50 (F tier Lv1→2) – ~77.175 (SS tier Lv49→50: floor(50 × 4.5 × 49^1.5) = floor(50 × 4.5 × 343) = 77.175)
 
-**Örnek**: Rare canavar Lv10→11: floor(50 × 1.8 × 10^1.5) = floor(50 × 1.8 × 31.623) = floor(2.846) = 2.846 altın
+**Örnek**: C tier canavar Lv10→11: floor(50 × 1.8 × 10^1.5) = floor(50 × 1.8 × 31.623) = floor(2.846) = 2.846 altın
 
 ### Formül 2: Zindan Kat Altın Ödülü
 
@@ -220,16 +222,18 @@ idle_gold_per_minute = active_gold_per_minute × idle_efficiency
 
 | Değişken | Sembol | Tip | Aralık | Açıklama |
 |----------|--------|-----|--------|----------|
-| Temel satış değeri | base_sell_value | int | 100 | Common canavar satışı |
+| Temel satış değeri | base_sell_value | int | 100 | F tier canavar satışı |
 | Nadirlik çarpanı | rarity_sell_multiplier | float | 1.0–10.0 | Nadir = daha değerli |
 
-| Nadirlik | rarity_sell_multiplier | Satış Değeri |
-|----------|----------------------|-------------|
-| Common | 1.0 | 100 |
-| Uncommon | 2.0 | 200 |
-| Rare | 4.0 | 400 |
-| Epic | 7.0 | 700 |
-| Legendary | 10.0 | 1.000 |
+| Kademe | rarity_sell_multiplier | Satış Değeri |
+|--------|----------------------|-------------|
+| F | 1.0 | 100 |
+| D | 2.0 | 200 |
+| C | 4.0 | 400 |
+| B | 7.0 | 700 |
+| A | 12.0 | 1.200 |
+| S | 20.0 | 2.000 |
+| SS | 35.0 | 3.500 |
 
 ### Formül 6: Evrim Maliyeti
 
@@ -237,17 +241,19 @@ idle_gold_per_minute = active_gold_per_minute × idle_efficiency
 
 | Değişken | Sembol | Tip | Aralık | Açıklama |
 |----------|--------|-----|--------|----------|
-| Temel evrim maliyeti | base_evolution_cost | int | 1.000 | A→B Common maliyeti |
-| Nadirlik çarpanı | rarity_evolution_multiplier | float | 1.0–5.0 | Nadir evrim daha pahalı |
-| Aşama | stage | int | 1–2 | Evrim aşama numarası (A→B=1, B→C=2) |
+| Temel evrim maliyeti | base_evolution_cost | int | 1.000 | F tier 1. evrim maliyeti |
+| Kademe çarpanı | rarity_evolution_multiplier | float | 1.0–6.0 | Üst kademe evrim daha pahalı |
+| Aşama | stage | int | 1–2 | Evrim aşama numarası (1. evrim=1, 2. evrim=2) |
 
-| Nadirlik | Çarpan | A→B Maliyet | B→C Maliyet |
-|----------|--------|-------------|-------------|
-| Common | 1.0 | 1.000 | — |
-| Uncommon | 1.5 | 1.500 | — |
-| Rare | 2.5 | 2.500 | 5.000 |
-| Epic | 4.0 | 4.000 | 8.000 |
-| Legendary | 5.0 | 5.000 | 10.000 |
+| Kademe | Çarpan | Evrim 1 Maliyet | Evrim 2 Maliyet |
+|--------|--------|----------------|----------------|
+| F | 1.0 | 1.000 | 2.000 |
+| D | 1.5 | 1.500 | 3.000 |
+| C | 2.5 | 2.500 | 5.000 |
+| B | 4.0 | 4.000 | 8.000 |
+| A | 5.0 | 5.000 | 10.000 |
+| S | 6.0 | 6.000 | — |
+| SS | — | — | — |
 
 ### Formül 7: Enerji Yenilenme
 
@@ -361,9 +367,9 @@ Yok — Foundation katmanı, sıfır bağımlılık. Kaynak tipleri, maliyet tab
 
 ## Acceptance Criteria
 
-1. **GIVEN** Common canavar Lv1, **WHEN** seviye atlama maliyeti sorgulanırsa, **THEN** 50 altın döner.
+1. **GIVEN** F tier canavar Lv1, **WHEN** seviye atlama maliyeti sorgulanırsa, **THEN** 50 altın döner.
 
-2. **GIVEN** Rare canavar Lv10, **WHEN** seviye atlama maliyeti sorgulanırsa, **THEN** floor(50 × 1.8 × 10^1.5) = floor(2.846,07) = 2.846 altın döner.
+2. **GIVEN** C tier canavar Lv10, **WHEN** seviye atlama maliyeti sorgulanırsa, **THEN** floor(50 × 1.8 × 10^1.5) = floor(2.846,07) = 2.846 altın döner.
 
 3. **GIVEN** oyuncu Kat 5'i temizler, **WHEN** ödül hesaplanırsa, **THEN** en az 500 altın (100 × 5 × 1.0) verilir.
 
@@ -379,9 +385,9 @@ Yok — Foundation katmanı, sıfır bağımlılık. Kaynak tipleri, maliyet tab
 
 9. **GIVEN** 100 enerji, **WHEN** oyuncu 50 kat gezer (2 enerji/kat), **THEN** enerji 0'a düşer.
 
-10. **GIVEN** Common canavar, **WHEN** satış fiyatı sorgulanırsa, **THEN** 100 altın döner. Legendary → 1.000 altın.
+10. **GIVEN** F tier canavar, **WHEN** satış fiyatı sorgulanırsa, **THEN** 100 altın döner. SS tier → 3.500 altın.
 
-11. **GIVEN** Rare canavar A→B evrimi, **WHEN** evrim maliyeti sorgulanırsa, **THEN** 2.500 altın döner.
+11. **GIVEN** C tier canavar 1. evrimi, **WHEN** evrim maliyeti sorgulanırsa, **THEN** 2.500 altın döner.
 
 12. **GIVEN** altın = 999.999, **WHEN** kat ödülü kazanılırsa, **THEN** ödül beklemeye alınır, kaybolmaz.
 

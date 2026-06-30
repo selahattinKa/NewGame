@@ -105,15 +105,15 @@ Sweep loot'u normal loot'la aynıdır — "Cömert Zindan" gereği sweep eden oy
 |-----------|-------|
 | Boss katı sıklığı | Her 5. kat (Kat 5, 10, 15...) |
 | Boss sayısı | 1 boss + 1-2 yardımcı düşman |
-| Boss nadirliği | Kat 5: Rare, Kat 10: Epic (MVP) |
+| Boss türü | Kat 5: Mini-Boss, Kat 10: Alan Patronu (MVP) |
 | Boss element | Bölge element temasına uygun |
-| Boss düşme | Loot GDD Kural 6: Rare=%5, Epic=%3, Legendary=%1 |
+| Boss düşme | Loot GDD Kural 6: B Tier=%5, A Tier=%3, S/SS Tier=%1 |
 | Boss altını | Normal kat × 3 (boss_gold_multiplier = 3.0) |
 | Sweep | Boss katı sweep edilemez |
 
 Boss savaşı tüm oyuncular için "doruk an" — sweep atlatılamaz, komutan modu bonus burada en değerli.
 
-**AI katmanı eşleştirmesi** (Düşman AI GDD terminolojisi): Bu dokümanda "boss katı" her 5. katı ifade eder. Düşman AI GDD'de Kat 5 boss'u **mini-boss (Taktik AI)**, Kat 10 boss'u **boss (Patron AI)** olarak sınıflandırılır. Implementasyonda AI katmanı seçimi boss nadirliğine göre yapılır: Rare = Taktik AI, Epic+ = Patron AI.
+**AI katmanı eşleştirmesi** (Düşman AI GDD terminolojisi): Bu dokümanda "boss katı" her 5. katı ifade eder. Düşman AI GDD'de Kat 5 boss'u **mini-boss (Taktik AI)**, Kat 10 boss'u **boss (Patron AI)** olarak sınıflandırılır. Implementasyonda AI katmanı seçimi boss türüne göre yapılır: Mini-Boss = Taktik AI, Alan Patronu = Patron AI.
 
 **Kural 7 — Düşman Grubu Oluşturma**
 
@@ -123,14 +123,14 @@ Her dalgadaki düşmanlar şu parametrelerle belirlenir:
 2. **Düşman türü**: Bölge canavar havuzundan ağırlıklı rastgele seçim
 3. **Düşman nadirliği**: Kat numarasına göre ölçeklenir:
 
-| Kat Aralığı | Normal Düşman Nadirliği | Boss Nadirliği |
-|-------------|------------------------|----------------|
-| Kat 1-3 | Common | — |
-| Kat 4 | Common + %30 Uncommon | — |
-| Kat 5 (Boss) | Uncommon | Rare |
-| Kat 6-8 | Uncommon + %20 Rare | — |
-| Kat 9 | Uncommon + %40 Rare | — |
-| Kat 10 (Boss) | Rare | Epic |
+| Kat Aralığı | Normal Düşman Gücü | Boss Türü |
+|-------------|-------------------|----------|
+| Kat 1-3 | Düşük | — |
+| Kat 4 | Düşük + %30 Orta | — |
+| Kat 5 (Boss) | Orta | Mini-Boss |
+| Kat 6-8 | Orta + %20 Yüksek | — |
+| Kat 9 | Orta + %40 Yüksek | — |
+| Kat 10 (Boss) | Yüksek | Alan Patronu |
 
 4. **Düşman seviyesi**: Düşman AI GDD'den — `floor(floor_number × difficulty_multiplier)`. MVP'de difficulty_multiplier = 1.0 (lineer).
 5. **Element dağılımı**: Bölge temasına ağırlıklı — ana bölge elementi %50, diğer elementler eşit dağılım (%50 / 3).
@@ -543,9 +543,9 @@ Sweep normal loot tablosunu kullanır — verimlilikte fark yoktur. Tek fark sü
 
 17. **GIVEN** oyuncu Kat 7 düşman grubunda yeni canavar türüyle karşılaşırsa, **WHEN** savaş başlarsa, **THEN** `OnEnemyEncountered` tetiklenir ve Pokédex güncellenir.
 
-18. **GIVEN** Kat 5 boss katında düşman grubu oluşturulurken, **WHEN** boss nadirliği belirlenirse, **THEN** boss Rare nadirliğinde olur (Kural 7 tablosu).
+18. **GIVEN** Kat 5 boss katında düşman grubu oluşturulurken, **WHEN** boss türü belirlenirse, **THEN** boss Mini-Boss türünde olur (Kural 7 tablosu).
 
-19. **GIVEN** Kat 10 boss katında, **WHEN** düşman grubu oluşturulursa, **THEN** normal düşmanlar Rare nadirliğinde, boss Epic nadirliğinde olur.
+19. **GIVEN** Kat 10 boss katında, **WHEN** düşman grubu oluşturulursa, **THEN** normal düşmanlar Yüksek güçte, boss Alan Patronu türünde olur.
 
 20. **GIVEN** oyuncu son katı (Kat 10) temizlemiş, **WHEN** "Devam" seçerse, **THEN** "Tüm katları temizlediniz!" mesajı gösterilir ve harita ekranına döner.
 

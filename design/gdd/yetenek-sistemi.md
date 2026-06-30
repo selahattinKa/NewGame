@@ -194,7 +194,7 @@ Hasar Hesaplama pipeline'ına girer, ATK multiplier = 1.0. `defense_reduction_fa
 
 **Çıktı Aralığı:** 1–~3600 (crit ile)
 
-**Örnek:** Common Saldırgan (ATK=35) vs Common Tank (DEF=35), nötr, crit yok:
+**Örnek:** F tier Saldırgan (ATK=35) vs F tier Tank (DEF=35), nötr, crit yok:
 → boosted=70, def_red=17, base=53, final=**53** (Normal saldırı: 18 → Ağır **2.9x** daha etkili)
 
 ---

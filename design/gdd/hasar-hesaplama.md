@@ -305,7 +305,7 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 
 - **If crit_chance >= 1.0 ise**: Her vuruş kritik. Geçerli — bazı buff/pasifler bunu tetikleyebilir (Tier 2+).
 
-- **If savunanın DEF'i saldıranın ATK'sının 2 katından fazlaysa**: base_damage = max(1, ATK - DEF/2). DEF/2 > ATK olduğunda negatif sonuç → 1'e clamp. Bu durum nadirlik/seviye farkında meşru olabilir (Common vs Legendary).
+- **If savunanın DEF'i saldıranın ATK'sının 2 katından fazlaysa**: base_damage = max(1, ATK - DEF/2). DEF/2 > ATK olduğunda negatif sonuç → 1'e clamp. Bu durum kademe/seviye farkında meşru olabilir (F tier vs SS tier).
 
 ## Dependencies
 

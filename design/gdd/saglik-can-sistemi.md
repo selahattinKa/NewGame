@@ -194,11 +194,11 @@ Savaş Dışı ──(kat sonu)──→ Tam Can
 | Pasif regen oranı | passive_regen_rate | float | 0.02 | Tur başına max HP yüzdesi |
 | Rejenerasyon miktarı | regen_amount | int | 1–2 | Floor ile yuvarlanır, minimum 1 |
 
-**Çıktı Aralığı**: 1 (Büyücü Common Lv1: floor(18 * 0.02) = 0 → min 1) ile 2 (Tank Legendary Form C: floor(132 * 0.02) = 2)
+**Çıktı Aralığı**: 1 (F tier Büyücü Lv1: floor(18 * 0.02) = 0 → min 1) ile 3 (SS tier Tank Form 3: floor(176 * 0.02) = 3)
 
 **Minimum Kısıtı**: Sıfır rejenerasyon anlamsızdır — her zaman en az 1 HP iyileşir.
 
-**Örnek**: Rare Tank Lv1 (max_hp=45) → floor(45 * 0.02) = floor(0.9) = 0 → min 1 → **1 HP/tur**
+**Örnek**: C tier Tank Lv1 (max_hp=45) → floor(45 * 0.02) = floor(0.9) = 0 → min 1 → **1 HP/tur**
 
 **Not**: Bu oranlarla pasif regen çok yavaştır — savaşı tek başına kurtaramaz, sadece küçük chip hasarını telafi eder. Ana iyileşme kaynağı destekçi yeteneğidir.
 
@@ -212,11 +212,11 @@ Savaş Dışı ──(kat sonu)──→ Tam Can
 | İyileştirme oranı | healer_skill_rate | float | 0.15–0.25 | Yetenek seviyesine göre |
 | İyileşme miktarı | heal_amount | int | 2–33 | Floor ile yuvarlanır, minimum 1 garantili |
 
-**Çıktı Aralığı**: 2 (Büyücü Common Lv1, %15: floor(18 * 0.15) = 2, max(1,2) = 2) ile 33 (Tank Legendary Form C, %25: floor(132 * 0.25) = 33)
+**Çıktı Aralığı**: 2 (F tier Büyücü Lv1, %15: floor(18 * 0.15) = 2) ile 44 (SS tier Tank Form 3, %25: floor(176 * 0.25) = 44)
 
 **Not**: `healer_skill_rate` yetenek seviyesine göre ölçeklenir — detayları Savaş Sistemi GDD'sinde tanımlanacak. Bu GDD sadece iyileşme uygulama mekaniklerini tanımlar.
 
-**Örnek**: Rare Tank (max_hp=45), %20 iyileşme → floor(45 * 0.20) = floor(9.0) = **9 HP**
+**Örnek**: C tier Tank (max_hp=45), %20 iyileşme → floor(45 * 0.20) = floor(9.0) = **9 HP**
 
 ### Formül 3: HP Büyüme Eğrisi (Referans)
 
@@ -302,7 +302,7 @@ Canavar Güçlendirme GDD'sinde tanımlanacak. Bu GDD, güncel max_hp değerini 
 
 **Etkileşim Uyarıları**:
 - `passive_regen_rate` × savaş turu süresi (Savaş Sistemi'ta tanımlanacak) birlikte bir savaşta toplam iyileşme miktarını belirler. Regen oranını artırırken tur sayısını da göz önünde bulundur.
-- `healer_skill_rate_max` × Tank arketip HP'si (max_hp=132 at Legendary C) birlikte tek bir iyileşmenin etkisini belirler (132 * 0.25 = 33 HP). Bu, gelen hasara göre dengelenmelidir (Hasar Hesaplama GDD'sinde).
+- `healer_skill_rate_max` × Tank arketip HP'si (max_hp=176 at SS tier Form 3) birlikte tek bir iyileşmenin etkisini belirler (176 * 0.25 = 44 HP). Bu, gelen hasara göre dengelenmelidir (Hasar Hesaplama GDD'sinde).
 - Canavar Veritabanı'ndaki arketip HP yüzdeleri bu sistemdeki tüm HP değerlerini doğrudan etkiler — HP% değişirse bu tablodaki tüm "güvenli aralık" değerleri yeniden değerlendirilmelidir.
 
 ## Visual/Audio Requirements
@@ -359,9 +359,9 @@ Canavar Güçlendirme GDD'sinde tanımlanacak. Bu GDD, güncel max_hp değerini 
 
 ## Acceptance Criteria
 
-1. **GIVEN** Rare Saldırgan Lv1 (stat havuzu=150, HP%=20%), **WHEN** savaşa girilirse, **THEN** `max_hp = 30` ve `current_hp = 30`.
+1. **GIVEN** C tier Saldırgan Lv1 (stat havuzu=150, HP%=20%), **WHEN** savaşa girilirse, **THEN** `max_hp = 30` ve `current_hp = 30`.
 
-2. **GIVEN** Common Tank Lv1 (stat havuzu=100, HP%=30%), **WHEN** savaşa girilirse, **THEN** `max_hp = 30` ve `current_hp = 30`.
+2. **GIVEN** F tier Tank Lv1 (stat havuzu=100, HP%=30%), **WHEN** savaşa girilirse, **THEN** `max_hp = 30` ve `current_hp = 30`.
 
 3. **GIVEN** canavar `current_hp = 25`, **WHEN** `TakeDamage(target, 10)` çağrılırsa, **THEN** `current_hp = 15`.
 
@@ -389,7 +389,7 @@ Canavar Güçlendirme GDD'sinde tanımlanacak. Bu GDD, güncel max_hp değerini 
 
 13. **GIVEN** canavar `current_hp = 10, max_hp = 45, critical_threshold = 0.25`, **WHEN** HP kontrol edilirse, **THEN** `10 <= 45 * 0.25 = 11.25` → Kritik durumda, HP barı kırmızı.
 
-14. **GIVEN** canavar Legendary Tank Form C (stat havuzu=441, HP%=30%), **WHEN** savaşa girilirse, **THEN** `max_hp = floor(441 * 0.30) = 132`.
+14. **GIVEN** canavar SS tier Tank Form 3 (stat havuzu=588, HP%=30%), **WHEN** savaşa girilirse, **THEN** `max_hp = floor(588 * 0.30) = 176`.
 
 15. **GIVEN** `max_hp = 0` (veri hatası), **WHEN** savaşa girilirse, **THEN** `max_hp = 1` olarak clamp edilir, hata loglanır.
 
