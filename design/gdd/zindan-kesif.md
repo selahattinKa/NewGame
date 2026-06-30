@@ -168,13 +168,13 @@ Bir zindan oturumu şu adımlardan oluşur:
 1. Zindan Harita ekranı → Kat seç (veya en son açılan kat)
 2. Enerji kontrolü (≥ 2?) → Yetersizse giriş engellenir
 3. Kat Giriş → Düşman grubu oluştur (Kural 7)
-4. Dalga 1 savaşı → Hibrit Savaş Sistemi'ne aktar
+4. Dalga 1 savaşı → Savaş Sistemi'ne aktar
    → Kazanma: Dalga 2'ye geç (HP/enerji korunur)
    → Kaybetme/Çekilme: Kat başarısız → adım 8
-5. Dalga 2 savaşı → Hibrit Savaş Sistemi'ne aktar
+5. Dalga 2 savaşı → Savaş Sistemi'ne aktar
    → Kazanma: Boss katıysa Dalga 3'e geç; normal katsa adım 7
    → Kaybetme/Çekilme: Kat başarısız → adım 8
-6. [Boss katı] Dalga 3 savaşı → Hibrit Savaş Sistemi'ne aktar
+6. [Boss katı] Dalga 3 savaşı → Savaş Sistemi'ne aktar
    → Kazanma: adım 7
    → Kaybetme/Çekilme: Kat başarısız → adım 8
 7. Kat temizlendi:

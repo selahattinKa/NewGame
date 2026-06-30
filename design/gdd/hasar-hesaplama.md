@@ -137,7 +137,7 @@ Tek "durum" kavramı: kritik vuruş olasılık dağılımı. MVP'de bu sabit %10
 | **Canavar Veritabanı** | ← okur | base_ATK, base_DEF (saldıran ve savunan) | `GetBaseStats(monsterId, level)` → {hp, atk, def, spd} |
 | **Element Sistemi** | ← okur | Element çarpanı (0.75–1.50), sinerji ATK/DEF bonusu | `GetElementMultiplier(atkElement, defElement)` → float; sinerji bonusu stat çözümleme katmanında |
 | **Sağlık / Can Sistemi** | → gönderir | Final hasar değeri | `TakeDamage(targetId, amount)` — HP azaltma Sağlık'ın sorumluluğu |
-| **Hibrit Savaş Sistemi** | ← tetiklenir | Saldırı komutu | Savaş sistemi saldırı sırasını belirler, her saldırıda `CalculateDamage(attackerId, targetId, damageType)` çağırır |
+| **Savaş Sistemi** | ← tetiklenir | Saldırı komutu | Savaş sistemi saldırı sırasını belirler, her saldırıda `CalculateDamage(attackerId, targetId, damageType)` çağırır |
 | **Oyuncu Sınıf Sistemi** | ← okur | Saldıran birimin hasar türü | Büyücü/Şifacı → "magic"; Savaşçı/Hırsız → "physical" |
 | **Düşman AI** | dolaylı | AI hasar tahminini kullanabilir | `EstimateDamage(attackerId, targetId)` → int (kritik hariç tahmini hasar) |
 | **Savaş UI** | → gönderir | Hasar gösterim verileri | `OnDamageDealt` event → {final_damage, was_critical, element_info} |
@@ -231,7 +231,7 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 
 - **If effective_ATK == effective_DEF/2 (hasar tam 0)**: `max(1, ...)` garantisi devreye girer → 1 hasar.
 
-- **If saldıran savaş dışıysa (HP=0)**: Saldırı gerçekleşmez — Hibrit Savaş Sistemi savaş dışı canavarı saldırı sırasından çıkarır. Hasar Hesaplama çağrılmaz.
+- **If saldıran savaş dışıysa (HP=0)**: Saldırı gerçekleşmez — Savaş Sistemi savaş dışı canavarı saldırı sırasından çıkarır. Hasar Hesaplama çağrılmaz.
 
 - **If savunan savaş dışıysa (HP=0)**: Hedef geçersiz — saldırı iptal, Hibrit Savaş yeni hedef seçer. Hasar Hesaplama çağrılmaz.
 
@@ -241,7 +241,7 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 
 - **If ATK veya DEF 0 veya negatifse (veri hatası)**: 0 olarak işlenir. ATK=0 → base_damage = max(1, 0 - DEF/2) = 1. DEF=0 → base_damage = ATK (tam hasar). Hata loglanır.
 
-- **If aynı anda birden fazla hedef varsa (AoE saldırı — ileride)**: MVP'de tüm saldırılar tek hedeftir. AoE mekanikliği Hibrit Savaş Sistemi'nde tanımlanacak; bu durumda her hedef için pipeline bağımsız çalışır.
+- **If aynı anda birden fazla hedef varsa (AoE saldırı — ileride)**: MVP'de tüm saldırılar tek hedeftir. AoE mekanikliği Savaş Sistemi'nde tanımlanacak; bu durumda her hedef için pipeline bağımsız çalışır.
 
 - **If crit_chance 0 veya negatifse**: Kritik vuruş asla gerçekleşmez. Formül normal devam eder.
 
@@ -264,7 +264,7 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 | Sistem | Tip | Arayüz | Kritiklik |
 |--------|-----|--------|-----------|
 | **Sağlık / Can Sistemi** | Sert | `TakeDamage(targetId, amount)` — final hasar iletilir | Olmadan hasar uygulanamaz |
-| **Hibrit Savaş Sistemi** | Sert | `CalculateDamage(attackerId, targetId)` — savaş döngüsünde çağırılır | Olmadan savaş mekaniği çalışmaz |
+| **Savaş Sistemi** | Sert | `CalculateDamage(attackerId, targetId)` — savaş döngüsünde çağırılır | Olmadan savaş mekaniği çalışmaz |
 | **Düşman AI** | Yumuşak | `EstimateDamage(attackerId, targetId)` — hedef seçimi tahmini | AI daha akıllı hedef seçer; olmadan rastgele |
 | **Savaş UI** | Yumuşak | `OnDamageDealt` event → hasar gösterim verileri | Olmadan hasar sayıları gösterilemez |
 

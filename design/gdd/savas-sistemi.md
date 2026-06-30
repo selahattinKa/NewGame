@@ -857,7 +857,7 @@ Rare Tank Lv20 Form B (max_hp=92) → heal = floor(92×0.20) = **18 HP**
 
 Tüm interaktif elemanlar minimum 44×44 dp (technical-preferences.md). Yetenek butonları 64×64 dp.
 
-> **UX Flag — Hibrit Savaş Sistemi**: Bu sistem kapsamlı UI gereksinimleri içeriyor. Phase 4'te `/ux-design` çalıştırarak savaş ekranı, yetenek butonları, hedef seçimi, mod geçişi ve savaş sonu ekranı için UX spec oluşturulmalı — stories `design/ux/savas-ekrani.md`'yi referans almalı.
+> **UX Flag — Savaş Sistemi**: Bu sistem kapsamlı UI gereksinimleri içeriyor. Phase 4'te `/ux-design` çalıştırarak savaş ekranı, yetenek butonları, hedef seçimi, mod geçişi ve savaş sonu ekranı için UX spec oluşturulmalı — stories `design/ux/savas-ekrani.md`'yi referans almalı.
 
 ## Acceptance Criteria
 

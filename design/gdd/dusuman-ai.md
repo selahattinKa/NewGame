@@ -128,7 +128,7 @@ Patron faz geçişi: `Karar → Öfke Modu` — HP %50 altına düşünce bir ke
 | **Sağlık / Can Sistemi** | ← okur | Hedef HP oranı (hedef seçimi için) | `GetHPRatio(monsterId)` → float |
 | **Element Sistemi** | ← okur | Element çarpanı (Patron AI element bilinci için) | `GetElementMultiplier(attackerElement, defenderElement)` |
 | **Canavar Veritabanı** | ← okur | Düşman stat'ları, arketip, element | `GetMonsterIdentity()`, `GetBaseStats()` |
-| **Hibrit Savaş Sistemi** | ↔ çift yönlü | Savaş sırası alır, aksiyon sonucu bildirir | `GetTurnOrder()` ←, `ExecuteAction(action)` → |
+| **Savaş Sistemi** | ↔ çift yönlü | Savaş sırası alır, aksiyon sonucu bildirir | `GetTurnOrder()` ←, `ExecuteAction(action)` → |
 | **Zindan Keşif** | ← okur | Kat numarası, düşman listesi | `GetFloorEnemies(floorNumber)` → düşman tanımları |
 | **Savaş UI** | → sağlar | AI aksiyon bilgisi (animasyon tetiklemesi için) | `OnEnemyAction` event → {actionType, targetId, damage} |
 
@@ -306,7 +306,7 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 
 - **If difficulty_multiplier 0 veya negatifse (yapılandırma hatası)**: 1.0 olarak fallback. enemy_level hiçbir zaman 0 olamaz — minimum 1. Hata loglanır.
 
-- **If tüm oyuncu canavarları savaş dışıysa ve AI sırası gelirse**: Savaş zaten kaybedilmiştir — Hibrit Savaş Sistemi TPK (Total Party Kill) akışını tetikler. AI karar döngüsüne girmez.
+- **If tüm oyuncu canavarları savaş dışıysa ve AI sırası gelirse**: Savaş zaten kaybedilmiştir — Savaş Sistemi TPK (Total Party Kill) akışını tetikler. AI karar döngüsüne girmez.
 
 - **If düşman takımında 2+ aynı element canavar varsa (sinerji aktif)**: Düşmanlar da oyuncu canavarlarıyla aynı sinerji kurallarından yararlanır — Element Sistemi GDD'sindeki sinerji tablosu uygulanır. `enemy_synergy_frequency` (%15) bu durumun ne sıklıkta oluşacağını kontrol eder.
 
@@ -331,7 +331,7 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 
 | Sistem | Tip | Arayüz | Kritiklik |
 |--------|-----|--------|-----------|
-| **Hibrit Savaş Sistemi** | Sert | `GetEnemyAction(enemyId)` → {actionType, targetId, skillId} — savaş döngüsünde düşman aksiyonu; `OnEnemyAction` event → animasyon tetiklemesi | Olmadan düşmanlar savaşta hiçbir şey yapmaz |
+| **Savaş Sistemi** | Sert | `GetEnemyAction(enemyId)` → {actionType, targetId, skillId} — savaş döngüsünde düşman aksiyonu; `OnEnemyAction` event → animasyon tetiklemesi | Olmadan düşmanlar savaşta hiçbir şey yapmaz |
 | **Savaş UI** | Yumuşak | `OnEnemyAction` event → {actionType, targetId, damage} — AI aksiyon bilgisi görsel gösterim için | Olmadan düşman aksiyonları gösterilmez ama savaş çalışır |
 
 **Bağımlılık doğası**: 5 upstream'den veri alır (stat, HP, element, düşman listesi, hasar tahmin). Hibrit Savaş'a aksiyon kararı, UI'a görüntüleme bilgisi gönderir. Düşman AI'ın kendisi state tutmaz (boss öfke modu hariç) — her karar bağımsız hesaplanır.

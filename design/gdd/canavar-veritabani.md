@@ -102,7 +102,7 @@ Avantajlı: 1.5x hasar. Dezavantajlı: 0.75x. Nötr/Aynı: 1.0x.
 - **Slot 1 (Temel Yetenek)**: Doğuştan. Element temasıyla bağlantılı ama her canavara özgü — aynı elementteki iki canavar farklı Slot 1 yeteneğine sahiptir.
 - **Slot 2 (Evrim Yeteneği)**: Form B'de açılır. Arketip temasıyla bağlantılı ama her canavara özgü.
 
-Her canavar mekanik olarak benzersizdir: aynı element+arketip+nadirlikte iki canavar bile farklı yetenek setlerine sahiptir. Yetenek detayları (hasar, efekt, cooldown) Hibrit Savaş Sistemi GDD'sinde tanımlanacak.
+Her canavar mekanik olarak benzersizdir: aynı element+arketip+nadirlikte iki canavar bile farklı yetenek setlerine sahiptir. Yetenek detayları (hasar, efekt, cooldown) Savaş Sistemi GDD'sinde tanımlanacak.
 
 ### States and Transitions
 
@@ -279,6 +279,6 @@ Tüm bağımlılıklar tek yönlü — veritabanı runtime'da immutable.
 
 2. **Evrim malzeme gereksinimleri**: Evrim için gereken kaynaklar (altın, özel malzeme, aynı canavar kopyası?) → Canavar Güçlendirme GDD'sinde tanımlanacak.
 
-3. **Yetenek detayları**: Slot 1 ve Slot 2 yeteneklerinin spesifik etkileri → Hibrit Savaş Sistemi GDD'sinde tanımlanacak.
+3. **Yetenek detayları**: Slot 1 ve Slot 2 yeteneklerinin spesifik etkileri → Savaş Sistemi GDD'sinde tanımlanacak.
 
 4. **Canavar isimleri ve lore**: display_name ve description değerleri → Narrative/Writer aşamasında doldurulacak.

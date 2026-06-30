@@ -11,7 +11,7 @@
 
 Oyuncu açısından can sistemi savaşın nabzıdır — HP barlarının azalması gerilim, iyileşme rahatlama, savaş dışı kalma ise stratejik kayıp yaratır. "Güç Hisset" sütunu gereği HP büyümesi seviye ve evrimle belirgin şekilde artar; oyuncu eski düşmanları daha az HP kaybederek ezmeli. "Cömert Zindan" sütunu gereği tüm canavarlar savaş sonunda tam HP ile başlar — kalıcı HP cezası yoktur.
 
-MVP kapsamında temel HP havuzu (Canavar Veritabanı'ndan), hasar alma, savaş dışı kalma, savaş sonu tam iyileşme ve basit HP barı gösterimi yer alır. İyileşme yetenekleri Hibrit Savaş Sistemi'nde, kalkan/bariyer mekanikleri ise Tier 2+'da tanımlanacaktır.
+MVP kapsamında temel HP havuzu (Canavar Veritabanı'ndan), hasar alma, savaş dışı kalma, savaş sonu tam iyileşme ve basit HP barı gösterimi yer alır. İyileşme yetenekleri Savaş Sistemi'nde, kalkan/bariyer mekanikleri ise Tier 2+'da tanımlanacaktır.
 
 ## Player Fantasy
 
@@ -71,7 +71,7 @@ Hasar hesaplaması (ATK, DEF, element çarpanı, kritik vb.) bu sistemin sorumlu
 - Saldıramaz, hasar alamaz, yetenek kullanamaz
 - Savaş sırasında geri getirilemez — MVP'de diriltme yok
 - HP barı "0" gösterir, canavar savaş alanında soluk/gri gösterilir
-- Savaş dışı kalma olayı Hibrit Savaş Sistemi'ne bildirilir (takım boyutu kontrolü)
+- Savaş dışı kalma olayı Savaş Sistemi'ne bildirilir (takım boyutu kontrolü)
 
 **Kural 5 — İyileşme (Healing)**
 
@@ -134,8 +134,8 @@ Savaş Dışı ──(kat sonu)──→ Tam Can
 | **Canavar Veritabanı** | ← okur | max_hp (base stat) | `GetBaseStats(monsterId, level)` → {hp, atk, def, spd} — HP alanı kullanılır |
 | **Canavar Güçlendirme** | ← okur | Güncel max_hp (seviye/evrim sonrası) | Güçlendirme sonrası max_hp güncellenir |
 | **Hasar Hesaplama** | ← alır | Final hasar miktarı | `TakeDamage(targetId, amount)` — hasar bu sisteme uygulanır |
-| **Hibrit Savaş Sistemi** | → sağlar | Hayatta mı?, current_hp | `IsAlive(monsterId)` → bool, `GetCurrentHP(monsterId)` → int |
-| **Hibrit Savaş Sistemi** | ← alır | İyileşme miktarı | `Heal(targetId, amount)` — destekçi yeteneği iyileşmesi |
+| **Savaş Sistemi** | → sağlar | Hayatta mı?, current_hp | `IsAlive(monsterId)` → bool, `GetCurrentHP(monsterId)` → int |
+| **Savaş Sistemi** | ← alır | İyileşme miktarı | `Heal(targetId, amount)` — destekçi yeteneği iyileşmesi |
 | **Element Sistemi** | dolaylı | Sinerji DEF bonusu → Hasar Hesaplama → azaltılmış hasar | Doğrudan arayüz yok — etki Hasar Hesaplama üzerinden |
 | **Düşman AI** | → sağlar | HP oranı (hedef seçimi için) | `GetHPRatio(monsterId)` → float (0.0–1.0) |
 | **Savaş UI** | → sağlar | current_hp, max_hp, durum | `OnHPChanged` event → {monsterId, current_hp, max_hp, state} |
@@ -175,7 +175,7 @@ Savaş Dışı ──(kat sonu)──→ Tam Can
 
 **Çıktı Aralığı**: 2 (Büyücü Common Lv1, %15: floor(18 * 0.15) = 2, max(1,2) = 2) ile 33 (Tank Legendary Form C, %25: floor(132 * 0.25) = 33)
 
-**Not**: `healer_skill_rate` yetenek seviyesine göre ölçeklenir — detayları Hibrit Savaş Sistemi GDD'sinde tanımlanacak. Bu GDD sadece iyileşme uygulama mekaniklerini tanımlar.
+**Not**: `healer_skill_rate` yetenek seviyesine göre ölçeklenir — detayları Savaş Sistemi GDD'sinde tanımlanacak. Bu GDD sadece iyileşme uygulama mekaniklerini tanımlar.
 
 **Örnek**: Rare Tank (max_hp=45), %20 iyileşme → floor(45 * 0.20) = floor(9.0) = **9 HP**
 
@@ -216,7 +216,7 @@ Canavar Güçlendirme GDD'sinde tanımlanacak. Bu GDD, güncel max_hp değerini 
 
 - **If savaş dışı canavara iyileşme denenirse**: İyileşme reddedilir. MVP'de diriltme yok — savaş dışı canavar savaş sonuna kadar iyileştirilemez.
 
-- **If takımdaki tüm canavarlar savaş dışı kalırsa (TPK — Total Party Kill)**: Savaş kaybedilir. Hibrit Savaş Sistemi kaybetme akışını tetikler. "Cömert Zindan" gereği eşya kaybı yok — sadece o kattan loot kazanılamaz.
+- **If takımdaki tüm canavarlar savaş dışı kalırsa (TPK — Total Party Kill)**: Savaş kaybedilir. Savaş Sistemi kaybetme akışını tetikler. "Cömert Zindan" gereği eşya kaybı yok — sadece o kattan loot kazanılamaz.
 
 - **If `max_hp` savaş sırasında değişirse (buff/debuff)**: `current_hp`, yeni `max_hp`'den yüksekse yeni max'a clamp edilir. `max_hp` artarsa `current_hp` **artmaz** — sadece tavan yükselir. Bu kural ileride buff/debuff mekanikleri eklendiğinde geçerli olacaktır (MVP'de savaş içi max_hp değişimi yok).
 
@@ -224,7 +224,7 @@ Canavar Güçlendirme GDD'sinde tanımlanacak. Bu GDD, güncel max_hp değerini 
 
 - **If aynı anda birden fazla hasar kaynağı gelirse (eş zamanlı saldırı)**: Hasar sıralı uygulanır — ilk hasar `current_hp`'yi 0'a düşürürse sonraki hasarlar yok sayılır (çünkü canavar artık savaş dışı).
 
-- **If kritik eşiği (%25) ile savaş dışı kalma (0) arasında rejenerasyon loop'u oluşursa**: Oluşamaz — rejenerasyon ve hasar ayrı tur fazlarında uygulanır (Hibrit Savaş Sistemi tur sırasını belirler).
+- **If kritik eşiği (%25) ile savaş dışı kalma (0) arasında rejenerasyon loop'u oluşursa**: Oluşamaz — rejenerasyon ve hasar ayrı tur fazlarında uygulanır (Savaş Sistemi tur sırasını belirler).
 
 - **If `max_hp` 0 veya negatifse (veri hatası)**: `max_hp = 1` olarak clamp edilir. Canavar savaşa girer ama neredeyse anında savaş dışı kalır. Hata loglanır.
 
@@ -241,7 +241,7 @@ Canavar Güçlendirme GDD'sinde tanımlanacak. Bu GDD, güncel max_hp değerini 
 | Sistem | Tip | Arayüz | Kritiklik |
 |--------|-----|--------|-----------|
 | **Hasar Hesaplama** | Sert | `TakeDamage(targetId, amount)` → HP azalır | Olmadan hasar uygulanamaz |
-| **Hibrit Savaş Sistemi** | Sert | `IsAlive(monsterId)`, `GetCurrentHP(monsterId)`, `Heal(targetId, amount)` | Olmadan savaş döngüsü çalışamaz |
+| **Savaş Sistemi** | Sert | `IsAlive(monsterId)`, `GetCurrentHP(monsterId)`, `Heal(targetId, amount)` | Olmadan savaş döngüsü çalışamaz |
 | **Düşman AI** | Yumuşak | `GetHPRatio(monsterId)` → float | AI hedef seçimini geliştirir; olmadan rastgele seçer |
 | **Savaş UI** | Yumuşak | `OnHPChanged` event → {monsterId, current_hp, max_hp, state} | Olmadan HP barı gösterilemez |
 | **Zindan Keşif** | Yumuşak | `FullHeal(teamId)` — kat sonu tam iyileşme tetikleyicisi | Olmadan kat arası iyileşme yok |
@@ -352,7 +352,7 @@ Canavar Güçlendirme GDD'sinde tanımlanacak. Bu GDD, güncel max_hp değerini 
 
 1. **Kalkan/Bariyer mekanikliği (Tier 2+)**: İleride HP'nin üstüne geçici kalkan mekanizması eklenecek mi? Kalkan hasar alır, HP'den önce tükenir. → Hibrit Savaş veya ayrı bir GDD ile tanımlanacak.
 
-2. **HP tabanlı tetiklemeler**: Düşük HP'de aktifleşen pasif yetenekler olacak mı? (ör: "HP %20 altındayken +30% ATK — son çaba") → Hibrit Savaş Sistemi GDD'sinde tanımlanacak.
+2. **HP tabanlı tetiklemeler**: Düşük HP'de aktifleşen pasif yetenekler olacak mı? (ör: "HP %20 altındayken +30% ATK — son çaba") → Savaş Sistemi GDD'sinde tanımlanacak.
 
 3. **Seviye ile HP büyüme eğrisi**: max_hp seviye başına ne kadar artar? Lineer mi, logaritmik mi? → Canavar Güçlendirme GDD'sinde tanımlanacak.
 

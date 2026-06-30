@@ -7,7 +7,7 @@
 
 ## Overview
 
-**Takım Kurma**, oyuncunun koleksiyonundaki canavarlardan 4'ünü seçerek savaş takımı oluşturduğu stratejik hazırlık sistemidir. Veri katmanı olarak, seçili canavarların kimlik bilgilerini (element, arketip, stat'lar) Canavar Veritabanı'ndan alır ve Element Sistemi'nin sinerji hesaplamalarını tetikleyerek takımın efektif güç profilini belirler — Hibrit Savaş Sistemi bu profili girdi olarak kullanır. Oyuncu perspektifinden ise her içerik öncesinde "hangi canavarlarla gideyim?" sorusu oyunun en stratejik karar noktasıdır: ateş zindanına su ağırlıklı takım, buz zindanına ateş takımı, arenaya özel savunma kompozisyonu. Oyuncu farklı içerikler için birden fazla takım preset'i kaydeder ve tek dokunuşla aktif takımını değiştirir; arenaya girerken kayıtlı takım otomatik yüklenir. Bu sistem olmadan element sinerjileri ve arketip çeşitliliği dekoratif kalır, koleksiyon "en güçlü 4'ü seç" düz bir güç yarışına dönüşür ve oyuncunun stratejik ifade alanı tamamen kaybolur.
+**Takım Kurma**, oyuncunun koleksiyonundaki canavarlardan 4'ünü seçerek savaş takımı oluşturduğu stratejik hazırlık sistemidir. Veri katmanı olarak, seçili canavarların kimlik bilgilerini (element, arketip, stat'lar) Canavar Veritabanı'ndan alır ve Element Sistemi'nin sinerji hesaplamalarını tetikleyerek takımın efektif güç profilini belirler — Savaş Sistemi bu profili girdi olarak kullanır. Oyuncu perspektifinden ise her içerik öncesinde "hangi canavarlarla gideyim?" sorusu oyunun en stratejik karar noktasıdır: ateş zindanına su ağırlıklı takım, buz zindanına ateş takımı, arenaya özel savunma kompozisyonu. Oyuncu farklı içerikler için birden fazla takım preset'i kaydeder ve tek dokunuşla aktif takımını değiştirir; arenaya girerken kayıtlı takım otomatik yüklenir. Bu sistem olmadan element sinerjileri ve arketip çeşitliliği dekoratif kalır, koleksiyon "en güçlü 4'ü seç" düz bir güç yarışına dönüşür ve oyuncunun stratejik ifade alanı tamamen kaybolur.
 
 ## Player Fantasy
 
@@ -142,7 +142,7 @@ Preset yükleme: Boş, Kısmi, Tam veya Düzenlenebilir durumlarında preset tek
 | **Canavar Güçlendirme** | ← okur | Effective stats (seviye + evrim + yıldız) | `GetEffectiveStats(monsterId)` → {hp, atk, def, spd} |
 | **Element Sistemi** | ← okur | Sinerji bonusu hesaplama | `CalculateSynergy(teamElements[])` → {atk_bonus, def_bonus, spd_bonus} |
 | **Ekonomi** | ← okur | Elmas bakiyesi (preset slot açma) | `CanAfford(cost)`, `SpendDiamonds(amount)` |
-| **Hibrit Savaş Sistemi** | → sağlar | Savaş takımı | `GetActiveTeam()` → [{monsterId, slot, effective_stats, element}] |
+| **Savaş Sistemi** | → sağlar | Savaş takımı | `GetActiveTeam()` → [{monsterId, slot, effective_stats, element}] |
 | **Zindan Keşif** | ↔ çift yönlü | Düşman elementleri (okur), aktif takım (sağlar) | `GetFloorEnemyElements()` ← / `GetActiveTeam()` → |
 | **Arena** | → sağlar | Kayıtlı arena takımı | `GetArenaTeam()` → preset |
 | **Canavar Toplama ve Evrim** | ← okur | Sahip olunan canavarlar listesi | `GetOwnedMonsters()` → list |
@@ -293,7 +293,7 @@ effective_HP  = pipeline_HP  (sinerji HP'ye uygulanmaz)
 
 | Sistem | Tip | Arayüz | Kritiklik |
 |--------|-----|--------|-----------|
-| **Hibrit Savaş Sistemi** | Sert | `GetActiveTeam()` → [{monsterId, slot, effective_stats, element}] | Savaş takımsız başlatılamaz |
+| **Savaş Sistemi** | Sert | `GetActiveTeam()` → [{monsterId, slot, effective_stats, element}] | Savaş takımsız başlatılamaz |
 | **Zindan Keşif** | Sert | `GetActiveTeam()` → takım / ← `GetFloorEnemyElements()` | Zindan girişi takım gerektirir; kat önizleme çift yönlü |
 | **Arena (Asenkron PvP)** | Sert | `GetArenaTeam()` → preset | Arena takımsız çalışmaz (Tier 2) |
 | **Savaş UI** | Yumuşak | Takım bilgisi (canavar isimleri, stat'lar, element) | Görüntüleme |

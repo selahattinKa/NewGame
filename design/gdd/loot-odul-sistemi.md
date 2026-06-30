@@ -484,7 +484,7 @@ Senaryo: Kat 1-10, difficulty_multiplier=1.0, sıfır pity, **tekrar oturumu** (
 |--------|-----|--------|-----------|
 | **Canavar Veritabanı** | Sert | `GetRarityWeight(rarity)` — nadirlik düşme çarpanları. `GetRegionMonsterPool(regionId)` — bölge canavar havuzu. | Olmadan canavar loot'u hesaplanamaz |
 | **Ekonomi** | Sert | `GetFloorReward(floorNumber, difficulty)` — altın formülü. `GrantReward(rewards)` — kaynak ekleme. | Olmadan altın ödül miktarı tanımsız |
-| **Hibrit Savaş Sistemi** | Sert | `DistributeLoot(battleResult, floorNumber)` — savaş sonucu tetikler, loot dağıtımı başlatır | Olmadan savaş kazanma loot üretmez |
+| **Savaş Sistemi** | Sert | `DistributeLoot(battleResult, floorNumber)` — savaş sonucu tetikler, loot dağıtımı başlatır | Olmadan savaş kazanma loot üretmez |
 
 ### Downstream (Bu sisteme bağlı)
 
@@ -503,7 +503,7 @@ Senaryo: Kat 1-10, difficulty_multiplier=1.0, sıfır pity, **tekrar oturumu** (
 
 - Canavar Veritabanı bu sistemi downstream olarak listeliyor ✅
 - Ekonomi bu sistemi downstream olarak listeliyor ✅
-- Hibrit Savaş Sistemi bu sistemi downstream olarak listeliyor ✅
+- Savaş Sistemi bu sistemi downstream olarak listeliyor ✅
 - Canavar Güçlendirme: "Loot / Ödül — Yumuşak — Evrim taşı loot tanımı" ✅. **Güncelleme gerekli**: Güçlendirme GDD'de evrim malzemesi oranı "%5-10" yazıyor → bu GDD'deki kesin değer **%8** ile güncellenmeli.
 - Zindan Keşif GDD: ✅ Yazıldı — bu sistem loot tablosunu sağlar, Zindan Keşif kat bilgisini sağlar. İlk temizleme elması tutarlılığı doğrulandı: normal kat=5, boss=50, son boss=100 (toplam 190 elmas/bölge).
 - Otofarm GDD: ✅ Yazıldı (Approved) — idle loot oranları bu sistemde tanımlı. **Güncelleme gerekli**: Otofarm GDD'deki aktif nadirlik referans tablosu hâlâ tutarsız (Legendary %0.3 → doğru: %0.6, Common %60.0 → doğru: %59.0). Otofarm GDD'nin bir sonraki revizyonunda bu GDD'deki Kural 5 değerleriyle güncellenmeli.
