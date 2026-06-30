@@ -51,6 +51,8 @@ namespace CanavarZindanlari.Economy
 
         // ── Başlatma ───────────────────────────────────────────────────────────
 
+        // TODO: IAP v5 yeni API'sine geç (MVP öncesi) — şimdilik v4 compat API kullanılıyor
+#pragma warning disable CS0618
         private void InitStore()
         {
             var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
@@ -59,6 +61,7 @@ namespace CanavarZindanlari.Economy
             builder.AddProduct(STARTER_PACK, ProductType.NonConsumable);
             UnityPurchasing.Initialize(this, builder);
         }
+#pragma warning restore CS0618
 
         // ── Satın alma ─────────────────────────────────────────────────────────
 
