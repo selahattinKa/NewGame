@@ -120,9 +120,8 @@ namespace CanavarZindanlari.UI
         {
             if (_gameOver) return;
             if (_combat.State != CombatState.PlayerTurn) return;
-            if (_combat.AutoBattle) return;
 
-            int   count  = _combat.SkillCount;
+            int count = _combat.SkillCount;
             if (count == 0) return;
 
             float totalW = sw - pad * 2f;
@@ -131,19 +130,25 @@ namespace CanavarZindanlari.UI
             float btnH   = sh * 0.10f;
             float by     = sh * 0.85f;
 
+            bool auto = _combat.AutoBattle;
+
             for (int i = 0; i < count; i++)
             {
                 var skill = _combat.GetPlayerSkill(i);
                 if (skill == null) continue;
 
                 bool ready = _combat.Player != null && _combat.Player.SkillReady(i);
+                // Oto-savaştayken buton görünür ama soluk; basınca oto kapanır ve yetenek kullanılır
                 GUI.enabled = ready;
                 float bx = pad + i * (btnW + gap);
 
                 string cdText = ready ? "" : $"\n(CD:{_combat.Player.SkillCooldowns[i]})";
                 string label  = (skill.SkillName ?? $"Slot {i}") + cdText;
                 if (GUI.Button(new Rect(bx, by, btnW, btnH), label))
+                {
+                    if (auto) _combat.SetAutoBattle(false);
                     _combat.PlayerUseSkill(i);
+                }
             }
             GUI.enabled = true;
         }
