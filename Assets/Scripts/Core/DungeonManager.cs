@@ -68,9 +68,10 @@ namespace CanavarZindanlari.Core
         private bool              _keepAutoBattle; // kat/dalga geçişlerinde oto durumu korunur
 
         // Son kat sonuçları (HUD için)
-        public CapturedMonster LastCaptured  { get; private set; }
-        public int             LastGoldEarned { get; private set; }
-        public int             LastGemsEarned { get; private set; }
+        public CapturedMonster LastCaptured        { get; private set; }
+        public OwnedEquipment  LastEquipmentDropped { get; private set; }
+        public int             LastGoldEarned       { get; private set; }
+        public int             LastGemsEarned       { get; private set; }
 
         // ── Lifecycle ─────────────────────────────────────────────────────────
 
@@ -237,6 +238,11 @@ namespace CanavarZindanlari.Core
             // Canavar düşme — GDD canavar-toplama-evrim.md Kural 1
             LastCaptured = _collection != null ? _collection.TryCapture(CurrentFloor) : null;
 
+            // Ekipman düşme — pet oranının 1/3'ü
+            LastEquipmentDropped = TryDropEquipment(CurrentFloor);
+            if (LastEquipmentDropped != null)
+                EquipmentManager.Instance.AddEquipment(LastEquipmentDropped);
+
             State = DungeonState.FloorCleared;
             OnStateChanged?.Invoke();
         }
@@ -253,6 +259,29 @@ namespace CanavarZindanlari.Core
             _combat.ResetToIdle();
             State = DungeonState.MapView;
             OnStateChanged?.Invoke();
+        }
+
+        // ── Ekipman düşme ─────────────────────────────────────────────────────
+
+        private static OwnedEquipment TryDropEquipment(int floor)
+        {
+            float chance = MonsterCollection.CaptureChance(floor) / 3f;
+            if (UnityEngine.Random.value > chance) return null;
+
+            float r = UnityEngine.Random.value;
+            Rarity tier = floor switch
+            {
+                >= 16 => r < 0.70f ? Rarity.S  : Rarity.SS,
+                >= 11 => r < 0.60f ? Rarity.A  : Rarity.S,
+                >=  6 => r < 0.65f ? Rarity.B  : Rarity.A,
+                _     => r < 0.70f ? Rarity.C  : Rarity.B,
+            };
+
+            var slot = UnityEngine.Random.value < 0.5f
+                ? EquipmentManager.RandomArmorSlot()
+                : EquipmentManager.RandomAccessorySlot();
+
+            return EquipmentManager.CreateEquipment(slot, tier);
         }
 
         // ── Yardımcılar ───────────────────────────────────────────────────────

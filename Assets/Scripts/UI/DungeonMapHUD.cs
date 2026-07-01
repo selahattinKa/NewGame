@@ -1,6 +1,7 @@
 using UnityEngine;
 using CanavarZindanlari.Core;
 using CanavarZindanlari.Data;
+using CanavarZindanlari.Equipment;
 
 namespace CanavarZindanlari.UI
 {
@@ -363,6 +364,19 @@ namespace CanavarZindanlari.UI
             }
             py += 36;
 
+            // Düşen ekipman
+            var dropped = _dungeon.LastEquipmentDropped;
+            if (dropped != null)
+            {
+                Color eqCol = TierColor(dropped.Tier);
+                GUI.color = eqCol;
+                GUI.Label(new Rect(px, py, pw, 30),
+                    $"⚔ Ekipman Düştü!  [{dropped.Tier}]  {dropped.DisplayName}",
+                    new GUIStyle(_styleLabel) { fontSize = 14, fontStyle = FontStyle.Bold });
+                GUI.color = Color.white;
+                py += 30;
+            }
+
             float btnW = pw * 0.44f;
             float btnH = 48;
             float btnY = py + 4;
@@ -508,10 +522,13 @@ namespace CanavarZindanlari.UI
 
         private static Color TierColor(Rarity tier) => tier switch
         {
-            Rarity.B => new Color(0.40f, 0.75f, 1.00f),
-            Rarity.C => new Color(0.55f, 0.90f, 0.40f),
-            Rarity.D => new Color(0.95f, 0.80f, 0.30f),
-            _        => new Color(0.80f, 0.78f, 0.80f),
+            Rarity.SS => new Color(1.00f, 0.55f, 0.10f),
+            Rarity.S  => new Color(0.80f, 0.30f, 1.00f),
+            Rarity.A  => new Color(0.40f, 0.75f, 1.00f),
+            Rarity.B  => new Color(0.30f, 0.90f, 0.50f),
+            Rarity.C  => new Color(0.55f, 0.90f, 0.40f),
+            Rarity.D  => new Color(0.95f, 0.80f, 0.30f),
+            _         => new Color(0.80f, 0.78f, 0.80f),
         };
 
         private static void DrawBg(Rect r)
