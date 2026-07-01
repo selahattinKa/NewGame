@@ -10,6 +10,7 @@ using CanavarZindanlari.Data;
 using CanavarZindanlari.Economy;
 using CanavarZindanlari.Gameplay;
 using CanavarZindanlari.UI;
+using CanavarZindanlari.Arena;
 using UnityEngine.SceneManagement;
 
 namespace CanavarZindanlari.Editor
