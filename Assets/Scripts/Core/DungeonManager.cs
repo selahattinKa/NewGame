@@ -265,7 +265,7 @@ namespace CanavarZindanlari.Core
 
         private static OwnedEquipment TryDropEquipment(int floor)
         {
-            float chance = MonsterCollection.CaptureChance(floor) / 3f;
+            float chance = MonsterCollection.CaptureChance(floor) * 3f;
             if (UnityEngine.Random.value > chance) return null;
 
             float r = UnityEngine.Random.value;
