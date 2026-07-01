@@ -298,6 +298,32 @@ namespace CanavarZindanlari.Editor
                 "Sahneyi kaydet (Ctrl+S) ve Play modunda test et.", "Tamam");
         }
 
+        [MenuItem("CanavarZindanlari/Kurulum/5 — Arena Sistemini Ekle")]
+        public static void AddArenaToScene()
+        {
+            var existing = Object.FindFirstObjectByType<ArenaManager>();
+            if (existing != null)
+            {
+                EditorUtility.DisplayDialog("Zaten Mevcut",
+                    "Sahnede zaten bir ArenaManager var.", "Tamam");
+                return;
+            }
+
+            var go = new GameObject("ArenaSystem");
+            go.AddComponent<CanavarZindanlari.Backend.FirebaseAuthManager>();
+            go.AddComponent<ArenaManager>();
+            go.AddComponent<ArenaHUD>();
+
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene());
+
+            Debug.Log("[Setup] ArenaSystem GameObject eklendi.");
+            EditorUtility.DisplayDialog("Arena Sistemi Eklendi",
+                "ArenaSystem eklendi:\n• FirebaseAuthManager\n• ArenaManager\n• ArenaHUD\n\n" +
+                "FirebaseAuthManager Inspector'dan Web Client ID'yi gir.\n" +
+                "Sahneyi kaydet (Ctrl+S).", "Tamam");
+        }
+
         [MenuItem("CanavarZindanlari/Kurulum/Tümünü Çalıştır (1+2+3)")]
         public static void RunAll()
         {
