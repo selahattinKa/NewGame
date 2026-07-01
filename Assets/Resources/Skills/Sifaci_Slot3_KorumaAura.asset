@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e438fd844e73984b9ab0cad3e6c785b, type: 3}
+  m_Name: Sifaci_Slot3_KorumaAura
+  m_EditorClassIdentifier: CanavarZindanlari.Runtime::CanavarZindanlari.Data.SkillData
+  SkillName: Koruma Aura
+  Type: 0
+  TargetType: 1
+  CooldownTurns: 8
+  Description: 
+  DamageMultiplier: 0
+  CritChance: 0
+  CritMultiplier: 2
+  MultiHitCount: 1
+  MultiHitCritChance: 0
+  HealPercent: 0.4
+  HealSelfPercent: 0.4
+  OnHitEffects: []
+  OnSelfEffects:
+  - Type: 7
+    Value: 0.75
+    Duration: 2

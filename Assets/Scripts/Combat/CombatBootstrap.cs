@@ -4,12 +4,15 @@ using CanavarZindanlari.Data;
 namespace CanavarZindanlari.Combat
 {
     /// <summary>
-    /// Prototype: savaşı otomatik başlatır. Play'e basınca savaş anında hazır.
-    /// Gerçek oyunda bu, seçilen düşman + oyuncu canavara göre dışarıdan kurulacak.
+    /// Prototype: Play'e basınca savaşı otomatik başlatır.
+    /// Gerçek oyunda sınıf seçim ekranı + zindan sistemi bu görevi üstlenir.
     /// </summary>
     public class CombatBootstrap : MonoBehaviour
     {
-        [Header("Manuel Override (boş bırakırsan test değerleri kullanılır)")]
+        [Header("Sınıf Seçimi (boşsa Savaşçı yüklenir)")]
+        [SerializeField] private ClassData _playerClass;
+
+        [Header("Düşman (boşsa varsayılan test düşmanı)")]
         [SerializeField] private MonsterData _enemyData;
 
         private CombatManager _combat;
@@ -23,20 +26,38 @@ namespace CanavarZindanlari.Combat
                 return;
             }
 
-            _combat.StartCombat(BuildPlayer(), BuildEnemy());
+            // ClassData yoksa Resources'tan yüklemeyi dene
+            if (_playerClass == null)
+                _playerClass = Resources.Load<ClassData>("Classes/Savasco");
+
+            var player = BuildPlayer();
+            var enemy  = BuildEnemy();
+            _combat.StartCombat(player, enemy, _playerClass);
         }
 
         private CombatUnit BuildPlayer()
         {
+            if (_playerClass != null)
+            {
+                return new CombatUnit
+                {
+                    DisplayName = _playerClass.ClassName,
+                    Archetype   = Archetype.Saldirgan,
+                    MaxHP       = _playerClass.StatAtLevel(_playerClass.BaseHP,  1),
+                    CurrentHP   = _playerClass.StatAtLevel(_playerClass.BaseHP,  1),
+                    BaseATK     = _playerClass.StatAtLevel(_playerClass.BaseATK, 1),
+                    BaseDEF     = _playerClass.StatAtLevel(_playerClass.BaseDEF, 1),
+                    SPD         = _playerClass.StatAtLevel(_playerClass.BaseSPD, 1),
+                };
+            }
+
+            // Fallback — ClassData henüz atanmamış
             return new CombatUnit
             {
                 DisplayName = "Oyuncu",
                 Archetype   = Archetype.Saldirgan,
-                MaxHP       = 80,
-                CurrentHP   = 80,
-                ATK         = 18,
-                DEF         = 22,
-                SPD         = 40,
+                MaxHP       = 55, CurrentHP = 55,
+                BaseATK     = 18, BaseDEF   = 40, SPD = 20,
             };
         }
 
@@ -44,32 +65,25 @@ namespace CanavarZindanlari.Combat
         {
             if (_enemyData != null)
             {
-                // Test için Lv5 kullan — daha uzun savaş
-                const int testLevel = 5;
+                const int lv = 5;
+                int hp = _enemyData.StatAtLevel(_enemyData.BaseHP, lv);
                 return new CombatUnit
                 {
                     DisplayName = _enemyData.DisplayName,
-                    Element     = _enemyData.Element,
                     Archetype   = _enemyData.Archetype,
-                    MaxHP       = _enemyData.StatAtLevel(_enemyData.BaseHP,  testLevel),
-                    CurrentHP   = _enemyData.StatAtLevel(_enemyData.BaseHP,  testLevel),
-                    ATK         = _enemyData.StatAtLevel(_enemyData.BaseATK, testLevel),
-                    DEF         = _enemyData.StatAtLevel(_enemyData.BaseDEF, testLevel),
-                    SPD         = _enemyData.StatAtLevel(_enemyData.BaseSPD, testLevel),
+                    MaxHP       = hp, CurrentHP = hp,
+                    BaseATK     = _enemyData.StatAtLevel(_enemyData.BaseATK, lv),
+                    BaseDEF     = _enemyData.StatAtLevel(_enemyData.BaseDEF, lv),
+                    SPD         = _enemyData.StatAtLevel(_enemyData.BaseSPD, lv),
                 };
             }
 
-            // Player hasar: 18 - 9 = ~9/tur → 50 HP ~6 tur
-            // Enemy hasar: 20 - 11 = ~9/tur → 80 HP ~9 tur
             return new CombatUnit
             {
                 DisplayName = "Ateş Goblin",
                 Archetype   = Archetype.Saldirgan,
-                MaxHP       = 50,
-                CurrentHP   = 50,
-                ATK         = 20,
-                DEF         = 18,
-                SPD         = 25,
+                MaxHP       = 50, CurrentHP = 50,
+                BaseATK     = 20, BaseDEF   = 18, SPD = 25,
             };
         }
     }

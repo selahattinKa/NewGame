@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e438fd844e73984b9ab0cad3e6c785b, type: 3}
+  m_Name: Hirsiz_Slot1_ZehirHanceri
+  m_EditorClassIdentifier: CanavarZindanlari.Runtime::CanavarZindanlari.Data.SkillData
+  SkillName: "Zehir Han\xE7eri"
+  Type: 0
+  TargetType: 0
+  CooldownTurns: 3
+  Description: 
+  DamageMultiplier: 1.5
+  CritChance: 0
+  CritMultiplier: 2
+  MultiHitCount: 1
+  MultiHitCritChance: 0
+  HealPercent: 0
+  HealSelfPercent: 0
+  OnHitEffects:
+  - Type: 1
+    Value: 0.04
+    Duration: 4
+  - Type: 4
+    Value: 0.8
+    Duration: 2
+  OnSelfEffects: []

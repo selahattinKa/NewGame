@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e07ca8407ac2d44cbedacb342a34012, type: 3}
+  m_Name: Buyucu
+  m_EditorClassIdentifier: CanavarZindanlari.Runtime::CanavarZindanlari.Data.ClassData
+  ClassName: "B\xFCy\xFCc\xFC"
+  DamageType: 1
+  BaseHP: 25
+  BaseATK: 45
+  BaseDEF: 10
+  BaseSPD: 28
+  Skills:
+  - {fileID: 11400000, guid: 00297a52dfe73fb42873eb06ae4500ab, type: 2}
+  - {fileID: 11400000, guid: df97d06a4f0b7bd4a8af8219b1442476, type: 2}
+  - {fileID: 11400000, guid: 6d81e60c9738044468beddc172a89fbb, type: 2}
+  - {fileID: 11400000, guid: f9feaabf739d41f4ca3de36d65715716, type: 2}

@@ -18,6 +18,8 @@ namespace CanavarZindanlari.Editor
     {
         private const string ScenePath   = "Assets/Scenes/BattleScene.unity";
         private const string MonsterPath = "Assets/Scripts/Monsters";
+        private const string ClassPath   = "Assets/Resources/Classes";
+        private const string SkillPath   = "Assets/Resources/Skills";
 
         // ── Ana menü ──────────────────────────────────────────────────────────
 
@@ -190,11 +192,77 @@ namespace CanavarZindanlari.Editor
                 "Tamam");
         }
 
-        [MenuItem("CanavarZindanlari/Kurulum/Tümünü Çalıştır (1+2)")]
+        [MenuItem("CanavarZindanlari/Kurulum/3 — Sınıf ve Yetenek Assetleri Oluştur")]
+        public static void CreateClassAssets()
+        {
+            EnsureFolder("Assets/Resources");
+            EnsureFolder(ClassPath);
+            EnsureFolder(SkillPath);
+
+            // ── Savaşçı ───────────────────────────────────────────────────────
+            var w0 = MakeSkill("Savasco_Slot0_KilicDarbesi",   "Kılıç Darbesi",    TargetType.SingleEnemy, cd: 0, mult: 1.0f);
+            var w1 = MakeSkill("Savasco_Slot1_KalkanEzme",     "Kalkan Ezme",      TargetType.SingleEnemy, cd: 3, mult: 2.0f,
+                hitFx: new[] { MakeFx(StatusEffectType.Stun,   0f, 1) });
+            var w2 = MakeSkill("Savasco_Slot2_DemirZirh",      "Demir Zırh",       TargetType.Self,        cd: 5, mult: 0f,
+                selfFx: new[] { MakeFx(StatusEffectType.DefMod, 1.5f, 3) });
+            var w3 = MakeSkill("Savasco_Slot3_YikimDarbesi",   "Yıkım Darbesi",    TargetType.SingleEnemy, cd: 8, mult: 4.0f,
+                hitFx: new[] { MakeFx(StatusEffectType.DefMod, 0.70f, 2) });
+
+            var savasco = MakeClass("Savasco", "Savaşçı", DamageType.Physical,
+                hp: 55, atk: 18, def: 40, spd: 20, w0, w1, w2, w3);
+
+            // ── Büyücü ────────────────────────────────────────────────────────
+            var m0 = MakeSkill("Buyucu_Slot0_BuyuOku",         "Büyü Oku",         TargetType.SingleEnemy, cd: 0, mult: 1.0f);
+            var m1 = MakeSkill("Buyucu_Slot1_ElementPatlamas", "Element Patlaması", TargetType.SingleEnemy, cd: 3, mult: 2.0f,
+                hitFx: new[] { MakeFx(StatusEffectType.BurnDoT, 0.05f, 3) });
+            var m2 = MakeSkill("Buyucu_Slot2_BuyuZirhi",       "Büyü Zırhı",       TargetType.Self,        cd: 5, mult: 0f,
+                selfFx: new[] { MakeFx(StatusEffectType.Shield, 0.25f, 3) });
+            var m3 = MakeSkill("Buyucu_Slot3_ElementFirtinas", "Element Fırtınası", TargetType.AllEnemies,  cd: 8, mult: 1.5f,
+                hitFx: new[] { MakeFx(StatusEffectType.BurnDoT, 0.05f, 3) });
+
+            var buyucu = MakeClass("Buyucu", "Büyücü", DamageType.Magic,
+                hp: 25, atk: 45, def: 10, spd: 28, m0, m1, m2, m3);
+
+            // ── Hırsız ────────────────────────────────────────────────────────
+            var t0 = MakeSkill("Hirsiz_Slot0_HizliBicak",      "Hızlı Bıçak",      TargetType.SingleEnemy, cd: 0, mult: 1.0f, crit: 0.35f);
+            var t1 = MakeSkill("Hirsiz_Slot1_ZehirHanceri",    "Zehir Hançeri",    TargetType.SingleEnemy, cd: 3, mult: 1.5f,
+                hitFx: new[] { MakeFx(StatusEffectType.PoisonDoT, 0.04f, 4), MakeFx(StatusEffectType.AtkMod, 0.80f, 2) });
+            var t2 = MakeSkill("Hirsiz_Slot2_GolgeAdimi",      "Gölge Adımı",      TargetType.Self,        cd: 5, mult: 0f,
+                selfFx: new[] { MakeFx(StatusEffectType.DefMod, 1.5f, 2), MakeFx(StatusEffectType.GuaranteedCrit, 0f, -1) });
+            var t3 = MakeSkill("Hirsiz_Slot3_SuikastFirtinas", "Suikast Fırtınası", TargetType.SingleEnemy, cd: 8, mult: 0.8f,
+                multiHit: 5, multiCrit: 0.40f);
+
+            var hirsiz = MakeClass("Hirsiz", "Hırsız", DamageType.Physical,
+                hp: 35, atk: 32, def: 15, spd: 45, t0, t1, t2, t3);
+
+            // ── Şifacı ────────────────────────────────────────────────────────
+            var h0 = MakeSkill("Sifaci_Slot0_KutsalIsik",      "Kutsal Işın",      TargetType.SingleEnemy, cd: 0, mult: 1.0f);
+            var h1 = MakeSkill("Sifaci_Slot1_KutsalDarbe",     "Kutsal Darbe",     TargetType.SingleEnemy, cd: 3, mult: 2.0f,
+                healSelf: 0.10f);
+            var h2 = MakeSkill("Sifaci_Slot2_BuyukIyilestirm", "Büyük İyileştirme", TargetType.Self,       cd: 5, mult: 0f,
+                healSelf: 0.20f);
+            var h3 = MakeSkill("Sifaci_Slot3_KorumaAura",      "Koruma Aura",      TargetType.Self,        cd: 8, mult: 0f,
+                healSelf: 0.40f,
+                selfFx: new[] { MakeFx(StatusEffectType.DamageReduction, 0.75f, 2) });
+
+            var sifaci = MakeClass("Sifaci", "Şifacı", DamageType.Magic,
+                hp: 48, atk: 20, def: 28, spd: 25, h0, h1, h2, h3);
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("[Setup] 4 sınıf + 16 yetenek asset'i oluşturuldu.");
+            EditorUtility.DisplayDialog("Sınıf Assetleri Hazır",
+                "4 sınıf oluşturuldu:\n• Savaşçı\n• Büyücü\n• Hırsız\n• Şifacı\n\n" +
+                "BattleScene'deki CombatBootstrap > Player Class alanına istediğin sınıfı sürükle.",
+                "Tamam");
+        }
+
+        [MenuItem("CanavarZindanlari/Kurulum/Tümünü Çalıştır (1+2+3)")]
         public static void RunAll()
         {
             CreateTestMonsters();
             CreateBattleScene();
+            CreateClassAssets();
         }
 
         // ── Yardımcılar ───────────────────────────────────────────────────────
@@ -231,6 +299,72 @@ namespace CanavarZindanlari.Editor
             AssetDatabase.CreateAsset(data, path);
             Debug.Log($"[Setup] Oluşturuldu: {displayName} ({rarity} {arch})");
             return data;
+        }
+
+        // ── Sınıf / Yetenek fabrika metodları ────────────────────────────────
+
+        private static ClassData MakeClass(string id, string displayName, DamageType dmgType,
+            int hp, int atk, int def, int spd,
+            SkillData s0, SkillData s1, SkillData s2, SkillData s3)
+        {
+            string path = $"{ClassPath}/{id}.asset";
+            var existing = AssetDatabase.LoadAssetAtPath<ClassData>(path);
+            if (existing != null) return existing;
+
+            var c = ScriptableObject.CreateInstance<ClassData>();
+            c.ClassName  = displayName;
+            c.DamageType = dmgType;
+            c.BaseHP     = hp;
+            c.BaseATK    = atk;
+            c.BaseDEF    = def;
+            c.BaseSPD    = spd;
+            c.Skills     = new[] { s0, s1, s2, s3 };
+
+            AssetDatabase.CreateAsset(c, path);
+            return c;
+        }
+
+        private static SkillData MakeSkill(
+            string id, string skillName, TargetType target, int cd, float mult,
+            float crit = 0f, int multiHit = 1, float multiCrit = 0f,
+            float healSelf = 0f,
+            SkillEffect[] hitFx = null, SkillEffect[] selfFx = null)
+        {
+            string path = $"{SkillPath}/{id}.asset";
+            var existing = AssetDatabase.LoadAssetAtPath<SkillData>(path);
+            if (existing != null) return existing;
+
+            var s = ScriptableObject.CreateInstance<SkillData>();
+            s.SkillName         = skillName;
+            s.TargetType        = target;
+            s.CooldownTurns     = cd;
+            s.DamageMultiplier  = mult;
+            s.CritChance        = crit;
+            s.CritMultiplier    = 2f;
+            s.MultiHitCount     = multiHit;
+            s.MultiHitCritChance = multiCrit;
+            s.HealSelfPercent   = healSelf;
+            s.OnHitEffects      = hitFx  ?? System.Array.Empty<SkillEffect>();
+            s.OnSelfEffects     = selfFx ?? System.Array.Empty<SkillEffect>();
+
+            // HealPercent — saf iyileştirme slotları için HealSelfPercent'i kopyala
+            if (target == TargetType.Self && mult == 0f && healSelf > 0f)
+                s.HealPercent = healSelf;
+
+            AssetDatabase.CreateAsset(s, path);
+            return s;
+        }
+
+        private static SkillEffect MakeFx(StatusEffectType type, float value, int duration)
+            => new SkillEffect { Type = type, Value = value, Duration = duration };
+
+        private static void EnsureFolder(string path)
+        {
+            if (!AssetDatabase.IsValidFolder(path))
+            {
+                int last = path.LastIndexOf('/');
+                AssetDatabase.CreateFolder(path.Substring(0, last), path.Substring(last + 1));
+            }
         }
 
         private static void AddSceneToBuildSettings(string scenePath)

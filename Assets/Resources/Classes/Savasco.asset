@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e07ca8407ac2d44cbedacb342a34012, type: 3}
+  m_Name: Savasco
+  m_EditorClassIdentifier: CanavarZindanlari.Runtime::CanavarZindanlari.Data.ClassData
+  ClassName: "Sava\u015F\xE7\u0131"
+  DamageType: 0
+  BaseHP: 55
+  BaseATK: 18
+  BaseDEF: 40
+  BaseSPD: 20
+  Skills:
+  - {fileID: 11400000, guid: c8d76d9117030b745a12812be83ae681, type: 2}
+  - {fileID: 11400000, guid: b2e96038b0db12d43bc002e9185675d2, type: 2}
+  - {fileID: 11400000, guid: 1e30da236b3bd02419658ecf678460ef, type: 2}
+  - {fileID: 11400000, guid: b2854f26bd0d6b34383e544b95457eb5, type: 2}
