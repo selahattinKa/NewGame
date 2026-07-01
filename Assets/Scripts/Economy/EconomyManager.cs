@@ -16,14 +16,17 @@ namespace CanavarZindanlari.Economy
 
         private const int GoldCap    = 999_999;
         private const int DiamondCap =  99_999;
+        private const int PotCap     =       5;
 
         private const string KeyGold    = "eco_gold";
+        private const string KeyPot     = "eco_pot";
         private const string KeyDiamond = "eco_diamond";
 
         // ── Kaynaklar ────────────────────────────────────────────────────────
 
-        public int Gold    { get; private set; }
-        public int Diamond { get; private set; }
+        public int Gold     { get; private set; }
+        public int Diamond  { get; private set; }
+        public int PotCount { get; private set; }
 
         public event Action OnResourceChanged;
 
@@ -73,6 +76,24 @@ namespace CanavarZindanlari.Economy
             return true;
         }
 
+        // ── İksir ────────────────────────────────────────────────────────────
+
+        public void AddPots(int n)
+        {
+            PotCount = Mathf.Min(PotCap, PotCount + n);
+            Save();
+            OnResourceChanged?.Invoke();
+        }
+
+        public bool SpendPot()
+        {
+            if (PotCount <= 0) return false;
+            PotCount--;
+            Save();
+            OnResourceChanged?.Invoke();
+            return true;
+        }
+
         // ── Ödül formülleri ──────────────────────────────────────────────────
 
         /// <summary>Kat temizleme altın ödülü.</summary>
@@ -97,13 +118,15 @@ namespace CanavarZindanlari.Economy
         {
             PlayerPrefs.SetInt(KeyGold,    Gold);
             PlayerPrefs.SetInt(KeyDiamond, Diamond);
+            PlayerPrefs.SetInt(KeyPot,     PotCount);
             PlayerPrefs.Save();
         }
 
         private void Load()
         {
-            Gold    = PlayerPrefs.GetInt(KeyGold,    0);
-            Diamond = PlayerPrefs.GetInt(KeyDiamond, 0);
+            Gold     = PlayerPrefs.GetInt(KeyGold,    0);
+            Diamond  = PlayerPrefs.GetInt(KeyDiamond, 0);
+            PotCount = PlayerPrefs.GetInt(KeyPot,     0);
         }
 
         public void ResetForTest()

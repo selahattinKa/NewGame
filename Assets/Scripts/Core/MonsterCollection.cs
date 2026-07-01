@@ -199,6 +199,32 @@ namespace CanavarZindanlari.Core
             };
         }
 
+        // ── Gacha çekimi ──────────────────────────────────────────────────────
+
+        public CapturedMonster PullFromGacha(Rarity tier)
+        {
+            var monster = new CapturedMonster
+            {
+                InstanceId       = Guid.NewGuid().ToString("N").Substring(0, 8),
+                DisplayName      = GenerateGachaName(tier),
+                Tier             = tier,
+                MaxEvolutionTier = RollMaxTier(tier),
+                FloorCaptured    = 0,
+                CaptureDate      = DateTime.Now.ToString("yyyy-MM-dd"),
+            };
+            _monsters.Add(monster);
+            Save();
+            OnMonsterAdded?.Invoke(monster);
+            return monster;
+        }
+
+        private static string GenerateGachaName(Rarity tier)
+        {
+            int idx = tier switch { Rarity.D => 1, Rarity.C => 2, Rarity.B => 3, Rarity.A => 4, Rarity.S => 5, Rarity.SS => 6, _ => 0 };
+            var names = NamesPerTier[idx];
+            return names[UnityEngine.Random.Range(0, names.Length)];
+        }
+
         // ── Koleksiyona ekleme ────────────────────────────────────────────────
 
         public CapturedMonster TryCapture(int floor)

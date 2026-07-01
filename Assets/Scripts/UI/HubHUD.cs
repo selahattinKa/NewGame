@@ -99,7 +99,7 @@ namespace CanavarZindanlari.UI
             y += btnH + gap;
             DrawNavBtn(new Rect(pad, y, w, btnH), "🐾  Petimi Seç",     ColGreen, GameScreen.PetSelect);
             y += btnH + gap;
-            DrawNavBtnDisabled(new Rect(pad, y, w, btnH), "🛒  Mağaza  (Yakında)");
+            DrawNavBtn(new Rect(pad, y, w, btnH), "🛒  Mağaza", ColGold, GameScreen.Shop);
             y += btnH + gap;
             DrawNavBtnDisabled(new Rect(pad, y, w, btnH), "📖  Hikaye  (Yakında)");
         }

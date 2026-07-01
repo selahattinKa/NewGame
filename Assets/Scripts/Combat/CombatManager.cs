@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using CanavarZindanlari.Data;
+using CanavarZindanlari.Economy;
 
 namespace CanavarZindanlari.Combat
 {
@@ -46,9 +47,13 @@ namespace CanavarZindanlari.Combat
         public event Action<CombatActionResult>        OnEnemyAction;
         public event Action<CombatState>               OnStateChanged;
         public event Action<BattleReward>              OnBattleEnded;
+        public event Action<int>                       OnPotUsed;    // healAmount
 
         private bool _waitingForInput;
-        private int  _defReductionFactor; // sınıfın hasar türüne göre: 2=Fiziksel, 4=Büyü
+        private int  _defReductionFactor;
+        private int  _potCooldownTurns;
+
+        public int PotCooldown => _potCooldownTurns; // sınıfın hasar türüne göre: 2=Fiziksel, 4=Büyü
 
         // ── Kurulum ───────────────────────────────────────────────────────────
 
@@ -59,9 +64,10 @@ namespace CanavarZindanlari.Combat
             _playerClass = classData;
             _defReductionFactor = (classData?.DamageType == DamageType.Magic) ? 4 : 2;
 
-            State            = CombatState.PlayerTurn;
-            AutoBattle       = false;
-            _waitingForInput = true;
+            State              = CombatState.PlayerTurn;
+            AutoBattle         = false;
+            _waitingForInput   = true;
+            _potCooldownTurns  = 0;
             OnStateChanged?.Invoke(State);
         }
 
@@ -279,10 +285,32 @@ namespace CanavarZindanlari.Combat
 
         private void BeginPlayerTurn()
         {
+            if (_potCooldownTurns > 0) _potCooldownTurns--;
+            TryAutoPot();
+
             State            = CombatState.PlayerTurn;
             _waitingForInput = true;
             OnStateChanged?.Invoke(State);
             if (AutoBattle) StartCoroutine(AutoPlayerTurn());
+        }
+
+        private void TryAutoPot()
+        {
+            if (Player == null || !Player.IsAlive) return;
+            if (Player.HPPercent >= 0.30f) return;
+            if (_potCooldownTurns > 0) return;
+            UsePot();
+        }
+
+        public bool UsePot()
+        {
+            if (_potCooldownTurns > 0) return false;
+            if (!(EconomyManager.Instance?.SpendPot() ?? false)) return false;
+            int healAmt = Mathf.FloorToInt(Player.MaxHP * 0.40f);
+            Player.Heal(healAmt);
+            _potCooldownTurns = 3;
+            OnPotUsed?.Invoke(healAmt);
+            return true;
         }
 
         // ── Oto-savaş ─────────────────────────────────────────────────────────
@@ -292,8 +320,9 @@ namespace CanavarZindanlari.Combat
             yield return new WaitForSeconds(0.85f);
             if (State != CombatState.PlayerTurn || !_waitingForInput) yield break;
 
-            // Önce iyileştirmeyi değerlendir (HP<%40 ise)
-            if (Player.HPPercent < 0.4f)
+            // İyileştirme — sadece HP %30 altındaysa
+            bool lowHp = Player.HPPercent < 0.30f;
+            if (lowHp)
             {
                 for (int i = 0; i < SkillCount; i++)
                 {
@@ -304,13 +333,24 @@ namespace CanavarZindanlari.Combat
                 }
             }
 
-            // En yüksek cooldown'lu hazır beceriyi kullan
+            // En yüksek cooldown'lu hazır saldırı becerisini kullan
+            // HP yeterliyken iyileştirme becerilerini atla
             int best = -1;
             for (int i = SkillCount - 1; i >= 0; i--)
             {
-                if (Player.SkillReady(i)) { best = i; break; }
+                if (!Player.SkillReady(i)) continue;
+                var s = GetPlayerSkill(i);
+                if (s == null) continue;
+                bool isHeal = s.TargetType == TargetType.Self && s.HealPercent > 0f;
+                if (isHeal && !lowHp) continue;
+                best = i;
+                break;
             }
-            if (best < 0) best = 0; // fallback: slot 0 her zaman hazır
+            // Sadece iyileştirme kaldıysa yine de kullan
+            if (best < 0)
+                for (int i = 0; i < SkillCount; i++)
+                    if (Player.SkillReady(i)) { best = i; break; }
+            if (best < 0) best = 0;
             PlayerUseSkill(best);
         }
 

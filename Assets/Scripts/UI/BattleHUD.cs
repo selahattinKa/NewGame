@@ -2,6 +2,7 @@ using System.Text;
 using UnityEngine;
 using CanavarZindanlari.Combat;
 using CanavarZindanlari.Data;
+using CanavarZindanlari.Economy;
 
 namespace CanavarZindanlari.UI
 {
@@ -27,6 +28,7 @@ namespace CanavarZindanlari.UI
                 if (s == CombatState.Victory || s == CombatState.Defeat)
                     _gameOver = true;
             };
+            _combat.OnPotUsed += healAmt => _lastLog = $"🧪 İksir kullanıldı! +{healAmt} HP";
         }
 
         private void LogAction(string actor, CombatActionResult r)
@@ -109,9 +111,24 @@ namespace CanavarZindanlari.UI
 
             float toggleH = barH * 1.6f;
             float toggleY = y + barH * 5f;
+            float halfW   = (w - sw * 0.02f) * 0.5f;
+
             string autoLabel = _combat.AutoBattle ? "Oto: AÇIK" : "Oto: KAPALI";
-            if (GUI.Button(new Rect(pad, toggleY, w, toggleH), autoLabel))
+            if (GUI.Button(new Rect(pad, toggleY, halfW, toggleH), autoLabel))
                 _combat.SetAutoBattle(!_combat.AutoBattle);
+
+            // İksir butonu
+            var eco = EconomyManager.Instance;
+            int potCount = eco?.PotCount ?? 0;
+            int potCd    = _combat.PotCooldown;
+            bool potReady = potCount > 0 && potCd == 0;
+            string potLabel = potCd > 0 ? $"🧪 {potCount}  (CD:{potCd})" : $"🧪 İksir x{potCount}";
+            GUI.enabled = potReady && !_gameOver;
+            GUI.color   = potReady ? new Color(0.3f, 0.8f, 0.5f) : new Color(0.4f, 0.4f, 0.4f);
+            if (GUI.Button(new Rect(pad + halfW + sw * 0.02f, toggleY, halfW, toggleH), potLabel))
+                _combat.UsePot();
+            GUI.enabled = true;
+            GUI.color   = Color.white;
         }
 
         // ── Beceri butonları ──────────────────────────────────────────────────

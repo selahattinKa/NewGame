@@ -339,12 +339,18 @@ namespace CanavarZindanlari.Editor
         [MenuItem("CanavarZindanlari/Kurulum/5 — Arena + Hub Sistemini Ekle")]
         public static void AddArenaToScene()
         {
-            // Hub + Pet Seçim
+            // Hub + Pet Seçim + Mağaza
             if (Object.FindFirstObjectByType<HubHUD>() == null)
             {
                 var hub = new GameObject("HubSystem");
                 hub.AddComponent<HubHUD>();
                 hub.AddComponent<PetSelectHUD>();
+                hub.AddComponent<CanavarZindanlari.UI.ShopHUD>();
+            }
+            else if (Object.FindFirstObjectByType<CanavarZindanlari.UI.ShopHUD>() == null)
+            {
+                var hubGo = Object.FindFirstObjectByType<HubHUD>().gameObject;
+                hubGo.AddComponent<CanavarZindanlari.UI.ShopHUD>();
             }
 
             // Arena
