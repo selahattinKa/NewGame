@@ -177,10 +177,14 @@ public class ArenaHUD : MonoBehaviour
         DrawProfileCard(pad, cy, btnW, _arena.LastOpponent);
         cy += btnH * 3.2f;
 
-        // Puan değişimi
+        // Puan + altın
         _styleLabel.normal.textColor = won ? ColWin : ColLose;
         string delta = won ? "+25 puan" : "-15 puan";
-        GUI.Label(new Rect(pad, cy, btnW, btnH), $"{delta}  →  {_arena.MyProfile.ArenaPoints} puan  ({_arena.MyProfile.LeagueTier})", _styleLabel);
+        GUI.Label(new Rect(pad, cy, btnW, btnH),
+            $"{delta}  →  {_arena.MyProfile.ArenaPoints} puan  ({_arena.MyProfile.LeagueTier})", _styleLabel);
+        cy += btnH * 0.9f;
+        _styleLabel.normal.textColor = new Color(0.95f, 0.85f, 0.30f);
+        GUI.Label(new Rect(pad, cy, btnW, btnH), $"🪙 +{_arena.LastGoldEarned} Altın", _styleLabel);
         cy += btnH * 1.4f;
 
         // Devam

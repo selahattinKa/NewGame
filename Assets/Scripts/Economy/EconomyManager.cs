@@ -1,154 +1,116 @@
 using System;
 using UnityEngine;
-using CanavarZindanlari.Gameplay;
+using CanavarZindanlari.Core;
 
 namespace CanavarZindanlari.Economy
 {
     /// <summary>
-    /// Manages Gold, Energy, and Diamonds.
-    /// Caps and formulas from design/gdd/ekonomi.md.
+    /// Altın ve elmas yönetimi. PlayerPrefs ile kalıcı.
+    /// Formüller: design/gdd/ekonomi.md
     /// </summary>
     public class EconomyManager : MonoBehaviour
     {
-        private const int GoldCap    = 999_999;
-        private const int EnergyCap  = 100;
-        private const int DiamondCap = 99_999;
+        public static EconomyManager Instance { get; private set; }
 
-        private const float EnergyRegenMinutes = 5f;   // 1 energy per 5 min
-        private const int   EnergyPerFloor     = 2;
+        // ── Limitler ─────────────────────────────────────────────────────────
+
+        private const int GoldCap    = 999_999;
+        private const int DiamondCap =  99_999;
+
+        private const string KeyGold    = "eco_gold";
+        private const string KeyDiamond = "eco_diamond";
+
+        // ── Kaynaklar ────────────────────────────────────────────────────────
 
         public int Gold    { get; private set; }
-        public int Energy  { get; private set; }
         public int Diamond { get; private set; }
 
         public event Action OnResourceChanged;
 
-        private DateTime _lastEnergyRegen;
+        // ── Lifecycle ────────────────────────────────────────────────────────
 
-        // ── Bağlantı ───────────────────────────────────────────────────────────
-
-        [SerializeField] private RevengeManager _revenge;
-        [SerializeField] private WantedBoard    _wantedBoard;
-
-        private void Start()
+        private void Awake()
         {
-            if (IAPManager.Instance != null)
-                IAPManager.Instance.GemsGranted += OnGemsGranted;
-
-            if (AdManager.Instance != null)
-                AdManager.Instance.RewardGranted += OnAdReward;
-
-            if (_revenge != null)
-                _revenge.OnRevengeCompleted += OnRevengeCompleted;
-
-            if (_wantedBoard != null)
-                _wantedBoard.OnWantedCompleted += OnWantedCompleted;
+            if (Instance != null) { Destroy(gameObject); return; }
+            Instance = this;
+            Load();
         }
 
-        private void OnDestroy()
+        // ── Altın ────────────────────────────────────────────────────────────
+
+        public void AddGold(int amount)
         {
-            if (IAPManager.Instance != null)
-                IAPManager.Instance.GemsGranted -= OnGemsGranted;
-
-            if (AdManager.Instance != null)
-                AdManager.Instance.RewardGranted -= OnAdReward;
-
-            if (_revenge != null)
-                _revenge.OnRevengeCompleted -= OnRevengeCompleted;
-
-            if (_wantedBoard != null)
-                _wantedBoard.OnWantedCompleted -= OnWantedCompleted;
+            Gold = Mathf.Min(GoldCap, Gold + amount);
+            Save();
+            OnResourceChanged?.Invoke();
         }
-
-        private void OnGemsGranted(string productId, int gems)
-        {
-            Debug.Log($"[EconomyManager] IAP ödülü: {gems} elmas ({productId})");
-            AddDiamonds(gems);
-        }
-
-        private void OnAdReward(int gems)
-        {
-            Debug.Log($"[EconomyManager] Reklam ödülü: {gems} elmas");
-            AddDiamonds(gems);
-        }
-
-        private void OnRevengeCompleted(int gems)
-        {
-            Debug.Log($"[EconomyManager] İntikam bonusu: {gems} elmas");
-            AddDiamonds(gems);
-        }
-
-        private void OnWantedCompleted(WantedBoard.WantedEntry entry, int gold)
-        {
-            Debug.Log($"[EconomyManager] Aranıyor bonusu: +{gold} altın ({entry.DisplayName})");
-            AddGold(gold);
-        }
-
-        // ── Gold ───────────────────────────────────────────────────────────────
 
         public bool SpendGold(int amount)
         {
             if (Gold < amount) return false;
             Gold = Mathf.Max(0, Gold - amount);
+            Save();
             OnResourceChanged?.Invoke();
             return true;
         }
 
-        public void AddGold(int amount)
+        // ── Elmas ────────────────────────────────────────────────────────────
+
+        public void AddDiamonds(int amount)
         {
-            Gold = Mathf.Min(GoldCap, Gold + amount);
+            Diamond = Mathf.Min(DiamondCap, Diamond + amount);
+            Save();
             OnResourceChanged?.Invoke();
         }
-
-        // ── Energy ─────────────────────────────────────────────────────────────
-
-        public bool SpendEnergy(int amount)
-        {
-            if (Energy < amount) return false;
-            Energy -= amount;
-            OnResourceChanged?.Invoke();
-            return true;
-        }
-
-        public bool CanEnterDungeon() => Energy >= EnergyPerFloor;
-
-        public void TickEnergyRegen()
-        {
-            if (Energy >= EnergyCap) return;
-            var elapsed = (float)(DateTime.UtcNow - _lastEnergyRegen).TotalMinutes;
-            int gained = Mathf.FloorToInt(elapsed / EnergyRegenMinutes);
-            if (gained <= 0) return;
-            Energy = Mathf.Min(EnergyCap, Energy + gained);
-            _lastEnergyRegen = DateTime.UtcNow;
-            OnResourceChanged?.Invoke();
-        }
-
-        // ── Diamonds ───────────────────────────────────────────────────────────
 
         public bool SpendDiamonds(int amount)
         {
             if (Diamond < amount) return false;
             Diamond -= amount;
+            Save();
             OnResourceChanged?.Invoke();
             return true;
         }
 
-        public void AddDiamonds(int amount)
+        // ── Ödül formülleri ──────────────────────────────────────────────────
+
+        /// <summary>Kat temizleme altın ödülü.</summary>
+        public static int FloorGoldReward(int floor)
         {
-            Diamond = Mathf.Min(DiamondCap, Diamond + amount);
-            OnResourceChanged?.Invoke();
+            float mult = DungeonManager.GetFloorType(floor) switch
+            {
+                FloorType.MainBoss => 5.0f,
+                FloorType.Boss     => 2.5f,
+                FloorType.Champion => 1.5f,
+                _                  => 1.0f,
+            };
+            return Mathf.FloorToInt(100 * floor * mult);
         }
 
-        // ── Floor gold reward ──────────────────────────────────────────────────
+        /// <summary>Arena maç ödülü.</summary>
+        public static int ArenaGoldReward(bool won) => won ? 50 : 10;
 
-        /// <summary>
-        /// Formula from ekonomi.md:
-        /// floor(base_gold * floor_number * difficulty_multiplier)
-        /// </summary>
-        public static int FloorGoldReward(int floorNumber, float difficultyMultiplier = 1f)
+        // ── Kaydet / Yükle ───────────────────────────────────────────────────
+
+        private void Save()
         {
-            const int BaseGold = 100;
-            return Mathf.FloorToInt(BaseGold * floorNumber * difficultyMultiplier);
+            PlayerPrefs.SetInt(KeyGold,    Gold);
+            PlayerPrefs.SetInt(KeyDiamond, Diamond);
+            PlayerPrefs.Save();
+        }
+
+        private void Load()
+        {
+            Gold    = PlayerPrefs.GetInt(KeyGold,    0);
+            Diamond = PlayerPrefs.GetInt(KeyDiamond, 0);
+        }
+
+        public void ResetForTest()
+        {
+            Gold = Diamond = 0;
+            Save();
+            OnResourceChanged?.Invoke();
         }
     }
 }
+

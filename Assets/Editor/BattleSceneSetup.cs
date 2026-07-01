@@ -299,6 +299,21 @@ namespace CanavarZindanlari.Editor
                 "Sahneyi kaydet (Ctrl+S) ve Play modunda test et.", "Tamam");
         }
 
+        [MenuItem("CanavarZindanlari/Kurulum/5a — Ekonomi Yöneticisi Ekle")]
+        public static void AddEconomyManager()
+        {
+            if (Object.FindFirstObjectByType<CanavarZindanlari.Economy.EconomyManager>() != null)
+            {
+                EditorUtility.DisplayDialog("Zaten Mevcut", "EconomyManager zaten sahnede var.", "Tamam");
+                return;
+            }
+            var go = new GameObject("EconomyManager");
+            go.AddComponent<CanavarZindanlari.Economy.EconomyManager>();
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene());
+            EditorUtility.DisplayDialog("Eklendi", "EconomyManager sahneye eklendi. Sahneyi kaydet.", "Tamam");
+        }
+
         [MenuItem("CanavarZindanlari/Kurulum/5 — Arena + Hub Sistemini Ekle")]
         public static void AddArenaToScene()
         {

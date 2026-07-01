@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using CanavarZindanlari.Combat;
 using CanavarZindanlari.Data;
+using CanavarZindanlari.Economy;
 using CanavarZindanlari.UI;
 
 namespace CanavarZindanlari.Core
@@ -65,8 +66,10 @@ namespace CanavarZindanlari.Core
         private MonsterCollection _collection;
         private bool              _keepAutoBattle; // kat/dalga geçişlerinde oto durumu korunur
 
-        // Son yakalanan canavar (HUD için)
-        public CapturedMonster LastCaptured { get; private set; }
+        // Son kat sonuçları (HUD için)
+        public CapturedMonster LastCaptured  { get; private set; }
+        public int             LastGoldEarned { get; private set; }
+        public int             LastGemsEarned { get; private set; }
 
         // ── Lifecycle ─────────────────────────────────────────────────────────
 
@@ -200,6 +203,12 @@ namespace CanavarZindanlari.Core
                 _persistedPlayer.CurrentHP = _persistedPlayer.MaxHP;
 
             SaveProgress();
+
+            // Altın ve elmas ödülü
+            LastGoldEarned = EconomyManager.FloorGoldReward(CurrentFloor);
+            LastGemsEarned = LastClearWasFirstTime ? GetFirstClearGems() : 0;
+            EconomyManager.Instance?.AddGold(LastGoldEarned);
+            if (LastGemsEarned > 0) EconomyManager.Instance?.AddDiamonds(LastGemsEarned);
 
             // Canavar düşme — GDD canavar-toplama-evrim.md Kural 1
             LastCaptured = _collection != null ? _collection.TryCapture(CurrentFloor) : null;

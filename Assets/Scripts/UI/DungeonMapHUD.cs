@@ -318,26 +318,26 @@ namespace CanavarZindanlari.UI
             GUI.Label(new Rect(px, py, pw, 40), header, _styleResult);
             py += 44;
 
-            // First-clear ödülü
-            if (firstClear)
+            // Altın ödülü
+            _styleLabel.normal.textColor = new Color(0.95f, 0.85f, 0.30f);
+            GUI.Label(new Rect(px, py, pw, 30),
+                $"🪙 +{_dungeon.LastGoldEarned} Altın", _styleLabel);
+            py += 32;
+
+            // First-clear elmas ödülü
+            if (firstClear && _dungeon.LastGemsEarned > 0)
             {
-                int gems = _dungeon.GetFirstClearGems(floor);
-                _styleLabel.normal.textColor = ColGold;
-                GUI.Label(new Rect(px, py, pw, 32),
-                    $"İLK TEMİZLEME! +{gems} 💎", _styleLabel);
-                _styleLabel.normal.textColor = Color.white;
-                py += 36;
+                _styleLabel.normal.textColor = new Color(0.50f, 0.85f, 1.00f);
+                GUI.Label(new Rect(px, py, pw, 30),
+                    $"💎 +{_dungeon.LastGemsEarned} Elmas  (İLK TEMİZLEME!)", _styleLabel);
+                py += 32;
             }
 
-            // Enerji bilgisi
-            GUI.Label(new Rect(px, py, pw, 28),
-                $"-2 Enerji (Kalan: {_dungeon.Energy})", _styleLabel);
-            py += 32;
-
-            // Full-heal bildirimi
-            GUI.Label(new Rect(px, py, pw, 28),
-                "HP tam yenilendi.", _styleLabel);
-            py += 32;
+            // Enerji + iyileşme
+            _styleLabel.normal.textColor = Color.gray;
+            GUI.Label(new Rect(px, py, pw, 26),
+                $"-2 Enerji (Kalan: {_dungeon.Energy})  •  HP tam yenilendi.", _styleLabel);
+            py += 30;
 
             // Yakalanan canavar
             var captured = _dungeon.LastCaptured;

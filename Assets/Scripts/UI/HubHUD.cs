@@ -1,5 +1,6 @@
 using UnityEngine;
 using CanavarZindanlari.Core;
+using CanavarZindanlari.Economy;
 
 namespace CanavarZindanlari.UI
 {
@@ -62,24 +63,30 @@ namespace CanavarZindanlari.UI
             y += sh * 0.10f;
 
             // ── Oyuncu bilgi kartı ────────────────────────────────────────────
-            float cardH = sh * 0.10f;
+            float cardH = sh * 0.13f;
             GUI.color = ColCard;
             GUI.DrawTexture(new Rect(pad, y, w, cardH), Texture2D.whiteTexture);
             GUI.color = Color.white;
 
-            float lh = cardH * 0.48f;
+            float lh = cardH * 0.32f;
             string classText = _dungeon?.PlayerClass != null
                 ? $"Sınıf: {_dungeon.PlayerClass.ClassName}"
                 : "Sınıf: Seçilmedi";
             var selPet = _collection?.SelectedPet;
             string petText = selPet != null
-                ? $"Pet: {selPet.DisplayName}  [{selPet.Tier}]"
-                : "Pet: Yok";
+                ? $"🐾 {selPet.DisplayName}  [{selPet.Tier}]"
+                : "🐾 Pet: Seçilmedi";
+
+            int gold    = EconomyManager.Instance?.Gold    ?? 0;
+            int diamond = EconomyManager.Instance?.Diamond ?? 0;
+            string ecoText = $"🪙 {gold:N0}   💎 {diamond:N0}";
 
             _styleLabel.normal.textColor = Color.white;
-            GUI.Label(new Rect(pad + 8, y + 4,         w - 8, lh), classText, _styleLabel);
+            GUI.Label(new Rect(pad + 8, y + 2,          w - 8, lh), classText, _styleLabel);
             _styleLabel.normal.textColor = selPet != null ? ColGold : Color.gray;
-            GUI.Label(new Rect(pad + 8, y + 4 + lh,   w - 8, lh), petText,   _styleLabel);
+            GUI.Label(new Rect(pad + 8, y + 2 + lh,     w - 8, lh), petText,   _styleLabel);
+            _styleLabel.normal.textColor = new Color(0.95f, 0.85f, 0.40f);
+            GUI.Label(new Rect(pad + 8, y + 2 + lh * 2, w - 8, lh), ecoText,   _styleLabel);
             y += cardH + sh * 0.04f;
 
             // ── Navigasyon butonları ──────────────────────────────────────────

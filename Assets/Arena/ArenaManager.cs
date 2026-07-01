@@ -4,6 +4,7 @@ using Firebase.Auth;
 using UnityEngine;
 using CanavarZindanlari.Backend;
 using CanavarZindanlari.Core;
+using CanavarZindanlari.Economy;
 
 namespace CanavarZindanlari.Arena
 {
@@ -22,10 +23,11 @@ namespace CanavarZindanlari.Arena
 
         // ── Veri ────────────────────────────────────────────────────────────
 
-        public ArenaProfile     MyProfile    { get; private set; }
-        public ArenaProfile     LastOpponent { get; private set; }
-        public bool             LastMatchWon { get; private set; }
-        public string           StatusMessage { get; private set; } = "";
+        public ArenaProfile     MyProfile     { get; private set; }
+        public ArenaProfile     LastOpponent  { get; private set; }
+        public bool             LastMatchWon  { get; private set; }
+        public int              LastGoldEarned { get; private set; }
+        public string           StatusMessage  { get; private set; } = "";
 
         public event Action OnStateChanged;
 
@@ -133,6 +135,9 @@ namespace CanavarZindanlari.Arena
             LastMatchWon    = UnityEngine.Random.value < winChance;
 
             MyProfile = await PlayerProfileService.ApplyMatchResult(MyProfile, LastMatchWon);
+
+            LastGoldEarned = EconomyManager.ArenaGoldReward(LastMatchWon);
+            EconomyManager.Instance?.AddGold(LastGoldEarned);
 
             StatusMessage = LastMatchWon
                 ? $"Zafer! +25 puan → {MyProfile.ArenaPoints}"
