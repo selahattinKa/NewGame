@@ -81,30 +81,6 @@ namespace CanavarZindanlari.Editor
             var combatGo = new GameObject("CombatManager");
             var combat   = combatGo.AddComponent<CombatManager>();
 
-            // SkillData atama — Resources/Skills klasöründen yükle
-            var normalSkill = AssetDatabase.LoadAssetAtPath<SkillData>(
-                "Assets/Resources/Skills/Skill_NormalAttack.asset");
-            var heavySkill = AssetDatabase.LoadAssetAtPath<SkillData>(
-                "Assets/Resources/Skills/Skill_HeavyAttack.asset");
-            var healSkill = AssetDatabase.LoadAssetAtPath<SkillData>(
-                "Assets/Resources/Skills/Skill_Heal.asset");
-
-            if (normalSkill != null && heavySkill != null && healSkill != null)
-            {
-                var so = new SerializedObject(combat);
-                var prop = so.FindProperty("_playerSkills");
-                prop.arraySize = 3;
-                prop.GetArrayElementAtIndex(0).objectReferenceValue = normalSkill;
-                prop.GetArrayElementAtIndex(1).objectReferenceValue = heavySkill;
-                prop.GetArrayElementAtIndex(2).objectReferenceValue = healSkill;
-                so.ApplyModifiedProperties();
-                Debug.Log("[Setup] SkillData'lar CombatManager'a atandı.");
-            }
-            else
-            {
-                Debug.LogWarning("[Setup] SkillData bulunamadı — CombatManager'a manuel atama yapın.");
-            }
-
             // ── Enemy Display ─────────────────────────────────────────────────
 
             var enemyDisplayGo  = new GameObject("EnemyDisplay");
