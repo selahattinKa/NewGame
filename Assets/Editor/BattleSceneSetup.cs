@@ -302,9 +302,17 @@ namespace CanavarZindanlari.Editor
         [MenuItem("CanavarZindanlari/Kurulum/5a — Ekonomi Yöneticisi Ekle")]
         public static void AddEconomyManager()
         {
-            if (Object.FindFirstObjectByType<CanavarZindanlari.Economy.EconomyManager>() != null)
+            var existing = Object.FindFirstObjectByType<CanavarZindanlari.Economy.EconomyManager>(
+                FindObjectsInactive.Include);
+            if (existing != null)
             {
-                EditorUtility.DisplayDialog("Zaten Mevcut", "EconomyManager zaten sahnede var.", "Tamam");
+                // Mevcut olanı seç ve logla
+                Selection.activeGameObject = existing.gameObject;
+                Debug.Log($"[Setup] EconomyManager bulundu: '{existing.gameObject.name}' " +
+                          $"(aktif={existing.gameObject.activeInHierarchy})", existing.gameObject);
+                EditorUtility.DisplayDialog("Zaten Mevcut",
+                    $"EconomyManager '{existing.gameObject.name}' objesinde var.\n" +
+                    "Hiyerarşide seçili hale getirildi — Inspector'dan kontrol et.", "Tamam");
                 return;
             }
             var go = new GameObject("EconomyManager");
