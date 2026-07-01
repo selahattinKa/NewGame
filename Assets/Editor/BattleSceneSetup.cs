@@ -122,13 +122,29 @@ namespace CanavarZindanlari.Editor
 
             // ── UI ────────────────────────────────────────────────────────────
 
-            var uiGo = new GameObject("BattleRewardUI");
-            var doc  = uiGo.AddComponent<UnityEngine.UIElements.UIDocument>();
-
             var panelSettings = AssetDatabase.LoadAssetAtPath<UnityEngine.UIElements.PanelSettings>(
                 "Assets/Settings/PanelSettings.asset");
-            if (panelSettings != null)
-                doc.panelSettings = panelSettings;
+
+            // ── Sınıf Seçim Ekranı ────────────────────────────────────────────
+            var selectorGo  = new GameObject("ClassSelectionUI");
+            var selectorDoc = selectorGo.AddComponent<UnityEngine.UIElements.UIDocument>();
+            if (panelSettings != null) selectorDoc.panelSettings = panelSettings;
+            selectorDoc.sortingOrder = 10;
+
+            var selectorUxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                "Assets/UI/ClassSelectionScreen.uxml");
+            if (selectorUxml != null)
+                selectorDoc.visualTreeAsset = selectorUxml;
+            else
+                Debug.LogWarning("[Setup] ClassSelectionScreen.uxml bulunamadı.");
+
+            selectorGo.AddComponent<ClassSelectionScreen>();
+
+            // ── Savaş Ödül Ekranı ─────────────────────────────────────────────
+            var uiGo = new GameObject("BattleRewardUI");
+            var doc  = uiGo.AddComponent<UnityEngine.UIElements.UIDocument>();
+            if (panelSettings != null) doc.panelSettings = panelSettings;
+            doc.sortingOrder = 5;
 
             var uxmlAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 "Assets/UI/BattleRewardScreen.uxml");

@@ -1,17 +1,14 @@
 using UnityEngine;
 using CanavarZindanlari.Data;
+using CanavarZindanlari.UI;
 
 namespace CanavarZindanlari.Combat
 {
     /// <summary>
-    /// Prototype: Play'e basınca savaşı otomatik başlatır.
-    /// Gerçek oyunda sınıf seçim ekranı + zindan sistemi bu görevi üstlenir.
+    /// Sınıf seçim ekranını bekler, seçim sonrası savaşı başlatır.
     /// </summary>
     public class CombatBootstrap : MonoBehaviour
     {
-        [Header("Sınıf Seçimi (boşsa Savaşçı yüklenir)")]
-        [SerializeField] private ClassData _playerClass;
-
         [Header("Düşman (boşsa varsayılan test düşmanı)")]
         [SerializeField] private MonsterData _enemyData;
 
@@ -26,32 +23,47 @@ namespace CanavarZindanlari.Combat
                 return;
             }
 
-            // ClassData yoksa Resources'tan yüklemeyi dene
-            if (_playerClass == null)
-                _playerClass = Resources.Load<ClassData>("Classes/Savasco");
-
-            var player = BuildPlayer();
-            var enemy  = BuildEnemy();
-            _combat.StartCombat(player, enemy, _playerClass);
+            var selector = FindObjectOfType<ClassSelectionScreen>();
+            if (selector != null)
+            {
+                selector.OnClassSelected += OnClassChosen;
+            }
+            else
+            {
+                // Sahnede seçim ekranı yoksa fallback olarak Savaşçı ile başlat
+                var fallback = Resources.Load<ClassData>("Classes/Savasco");
+                BeginCombat(fallback);
+            }
         }
 
-        private CombatUnit BuildPlayer()
+        private void OnClassChosen(ClassData classData)
         {
-            if (_playerClass != null)
+            BeginCombat(classData);
+        }
+
+        private void BeginCombat(ClassData classData)
+        {
+            var player = BuildPlayer(classData);
+            var enemy  = BuildEnemy();
+            _combat.StartCombat(player, enemy, classData);
+        }
+
+        private CombatUnit BuildPlayer(ClassData classData)
+        {
+            if (classData != null)
             {
                 return new CombatUnit
                 {
-                    DisplayName = _playerClass.ClassName,
+                    DisplayName = classData.ClassName,
                     Archetype   = Archetype.Saldirgan,
-                    MaxHP       = _playerClass.StatAtLevel(_playerClass.BaseHP,  1),
-                    CurrentHP   = _playerClass.StatAtLevel(_playerClass.BaseHP,  1),
-                    BaseATK     = _playerClass.StatAtLevel(_playerClass.BaseATK, 1),
-                    BaseDEF     = _playerClass.StatAtLevel(_playerClass.BaseDEF, 1),
-                    SPD         = _playerClass.StatAtLevel(_playerClass.BaseSPD, 1),
+                    MaxHP       = classData.StatAtLevel(classData.BaseHP,  1),
+                    CurrentHP   = classData.StatAtLevel(classData.BaseHP,  1),
+                    BaseATK     = classData.StatAtLevel(classData.BaseATK, 1),
+                    BaseDEF     = classData.StatAtLevel(classData.BaseDEF, 1),
+                    SPD         = classData.StatAtLevel(classData.BaseSPD, 1),
                 };
             }
 
-            // Fallback — ClassData henüz atanmamış
             return new CombatUnit
             {
                 DisplayName = "Oyuncu",

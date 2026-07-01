@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Template name="ClassSelectionScreen" src="ClassSelectionScreen.uxml" />
+    <Style src="ClassSelectionScreen.uss" />
+    <ui:VisualElement name="overlay" class="overlay">
+        <ui:Label class="title" text="Sınıf Seç" />
+        <ui:VisualElement name="grid" class="grid" />
+    </ui:VisualElement>
+</ui:UXML>
