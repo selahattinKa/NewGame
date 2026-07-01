@@ -271,10 +271,10 @@ namespace CanavarZindanlari.Core
             float r = UnityEngine.Random.value;
             Rarity tier = floor switch
             {
-                >= 16 => r < 0.70f ? Rarity.S  : Rarity.SS,
-                >= 11 => r < 0.60f ? Rarity.A  : Rarity.S,
-                >=  6 => r < 0.65f ? Rarity.B  : Rarity.A,
-                _     => r < 0.70f ? Rarity.C  : Rarity.B,
+                >= 16 => r < 0.55f ? Rarity.A  : r < 0.90f ? Rarity.S  : Rarity.SS,
+                >= 11 => r < 0.60f ? Rarity.B  : Rarity.A,
+                >=  6 => r < 0.65f ? Rarity.C  : Rarity.B,
+                _     => r < 0.70f ? Rarity.D  : Rarity.C,
             };
 
             var slot = UnityEngine.Random.value < 0.5f
