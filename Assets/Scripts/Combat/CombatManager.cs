@@ -86,7 +86,6 @@ namespace CanavarZindanlari.Combat
             {
                 result.Damage = DamageCalculator.Calculate(
                     Player.ATK, Enemy.DEF,
-                    Player.Element, Enemy.Element,
                     skill, out result.IsCrit);
                 Enemy.TakeDamage(result.Damage);
             }
@@ -120,7 +119,6 @@ namespace CanavarZindanlari.Combat
             var attackSkill = _playerSkills[0]; // reuse normal attack data for enemy
             int enemyDamage = DamageCalculator.Calculate(
                 Enemy.ATK, Player.DEF,
-                Enemy.Element, Player.Element,
                 attackSkill, out bool isCrit);
             var result = new CombatActionResult { Damage = enemyDamage, IsCrit = isCrit };
             Player.TakeDamage(result.Damage);

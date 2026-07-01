@@ -1,6 +1,8 @@
 # Element Sistemi (Elemental System)
 
-> **Status**: Designed
+> **Status**: Removed — element avantaj/dezavantaj sistemi kaldırıldı (2026-07-01).
+> Canavarlar hâlâ element alanı taşır (görsel/narrative amaçlı) ancak savaşta mekanik etkisi yoktur.
+> MVP sonrası yeniden değerlendirilebilir.
 > **Author**: user + game-designer, systems-designer
 > **Last Updated**: 2026-06-30
 > **Implements Pillar**: Topla Hepsini, Güç Hisset

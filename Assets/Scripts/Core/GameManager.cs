@@ -24,6 +24,7 @@ namespace CanavarZindanlari.Core
                 return;
             }
             Instance = this;
+            transform.SetParent(null);
             DontDestroyOnLoad(gameObject);
         }
 

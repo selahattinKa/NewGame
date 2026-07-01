@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47af5498fc2689145aafd9fa4b724977, type: 3}
+  m_Name: TasGolem_B
+  m_EditorClassIdentifier: CanavarZindanlari.Runtime::CanavarZindanlari.Data.MonsterData
+  MonsterId: TasGolem_B
+  DisplayName: "Ta\u015F Golem"
+  Element: 2
+  Archetype: 1
+  BaseRarity: 3
+  EvolutionStage: 1
+  EvolvesTo: {fileID: 0}
+  EvolvesFrom: {fileID: 0}
+  BaseHP: 55
+  BaseATK: 37
+  BaseDEF: 64
+  BaseSPD: 27
+  CardSprite: {fileID: 0}
+  AttackVideo: {fileID: 0}
+  Description: 

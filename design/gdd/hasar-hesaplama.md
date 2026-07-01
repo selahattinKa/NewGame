@@ -47,11 +47,11 @@ Oyuncu hasar hesaplamasını iki katmanda deneyimler. **Yüzeyde**, ekranda uçu
 Her saldırı aşağıdaki sırayla hesaplanır:
 
 ```
-1. Stat Çözümleme  →  effective_ATK, effective_DEF (sinerji dahil)
+1. Stat Çözümleme  →  effective_ATK, effective_DEF
 2. Temel Hasar      →  base_damage = max(1, effective_ATK - floor(effective_DEF / 2))
-3. Element Çarpanı  →  element_damage = floor(base_damage × element_multiplier)
-4. Kritik Vuruş     →  crit_roll → floor(element_damage × crit_multiplier) veya element_damage
-5. Final Clamp      →  final_damage = max(1, result)
+3. Kritik Vuruş     →  crit_roll → floor(base_damage × crit_multiplier) veya base_damage
+4. Varyans          →  varied_damage = floor(crit_damage × variance)
+5. Final Clamp      →  final_damage = max(1, varied_damage)
 6. Uygulama         →  TakeDamage(targetId, final_damage) → Sağlık/Can Sistemi
 ```
 
@@ -124,19 +124,7 @@ Ekipman bonusları Ekipman Sistemi GDD'sinde (Formül 1) tanımlıdır. Komutan 
 | Düşman → Oyuncu (B Zırh, DEF=90) | Fiziksel | 50 | 90 | floor(90/2)=45 | **5** |
 | Pet → Düşman | Fiziksel | 30 | 25 | floor(25/2)=12 | **18** |
 
-**Kural 4 — Element Çarpanı (Adım 3)**
-
-`element_damage = floor(base_damage × element_multiplier)`
-
-Element çarpanı Element Sistemi GDD'sinden alınır: `GetElementMultiplier(attackerElement, defenderElement)`.
-
-| Etkileşim | Çarpan | Örnek (base=18) |
-|-----------|--------|-----------------|
-| Avantajlı | 1.5x | floor(18 × 1.5) = 27 |
-| Nötr | 1.0x | 18 |
-| Dezavantajlı | 0.75x | floor(18 × 0.75) = 13 |
-
-**Kural 5 — Kritik Vuruş (Adım 4)**
+**Kural 4 — Kritik Vuruş (Adım 3)**
 
 Her saldırıda kritik vuruş şansı kontrol edilir:
 
@@ -147,14 +135,28 @@ Her saldırıda kritik vuruş şansı kontrol edilir:
 | `crit_chance` | 0.10 | %10 sabit şans (MVP'de stat'a bağlı değil) |
 | `crit_multiplier` | 2.0 | Kritik hasar = normal hasar × 2 |
 
-- Kritik vuruş element çarpanından **sonra** uygulanır
-- `crit_damage = floor(element_damage × crit_multiplier)`
-- Kritik vuruş olmazsa `crit_damage = element_damage`
+- `crit_damage = floor(base_damage × crit_multiplier)`
+- Kritik vuruş olmazsa `crit_damage = base_damage`
 - Kritik vuruş VFX ve ses efekti tetikler (Visual/Audio bölümünde)
+
+**Kural 5 — Varyans (Adım 4)**
+
+`variance = random(0.85, 1.15)`
+`varied_damage = floor(crit_damage × variance)`
+
+Her saldırıda ±%15 hasar spread'i uygulanır. Savaşı deterministik ve mekanik olmaktan çıkarır; aynı düşmana ard arda yapılan saldırılar farklı sayılar gösterir.
+
+| Parametre | Değer | Açıklama |
+|-----------|-------|----------|
+| `variance_min` | 0.85 | En düşük çarpan — base hasarın %85'i |
+| `variance_max` | 1.15 | En yüksek çarpan — base hasarın %115'i |
+
+Örnek (base_damage=9): varyans aralığı → 7 ile 10 arası
+Örnek (krit base=18): varyans aralığı → 15 ile 20 arası
 
 **Kural 6 — Final Hasar Clamp (Adım 5)**
 
-`final_damage = max(1, crit_damage)`
+`final_damage = max(1, varied_damage)`
 
 Her koşulda minimum 1 hasar garantisi. Bu kural "Güç Hisset" sütununun temel güvencesidir — hiçbir saldırı boşa gitmez.
 
@@ -167,8 +169,7 @@ Aynı anda Savaş UI'a hasar bilgisi gönderilir:
 OnDamageDealt → {
   attackerId, targetId,
   final_damage, base_damage,
-  element_multiplier, was_critical,
-  was_advantage, was_disadvantage
+  was_critical
 }
 ```
 

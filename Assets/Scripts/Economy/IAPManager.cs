@@ -46,10 +46,19 @@ namespace CanavarZindanlari.Economy
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
+            transform.SetParent(null);
             DontDestroyOnLoad(gameObject);
         }
 
-        private void Start() => InitStore();
+        private void Start()
+        {
+#if !UNITY_EDITOR
+            InitStore();
+#else
+            Debug.Log("[IAPManager] Editor modunda IAP atlandı.");
+            IsInitialized = false;
+#endif
+        }
 
         // ── Başlatma ───────────────────────────────────────────────────────────
 

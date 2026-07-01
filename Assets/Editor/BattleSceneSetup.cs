@@ -10,6 +10,7 @@ using CanavarZindanlari.Data;
 using CanavarZindanlari.Economy;
 using CanavarZindanlari.Gameplay;
 using CanavarZindanlari.UI;
+using UnityEngine.SceneManagement;
 
 namespace CanavarZindanlari.Editor
 {
@@ -133,6 +134,14 @@ namespace CanavarZindanlari.Editor
                 doc.visualTreeAsset = uxmlAsset;
             else
                 Debug.LogWarning("[Setup] BattleRewardScreen.uxml bulunamadı.");
+
+            // ── Combat Bootstrap + HUD ─────────────────────────────────────────
+
+            var bootstrapGo = new GameObject("CombatBootstrap");
+            bootstrapGo.AddComponent<CombatBootstrap>();
+
+            var hudGo = new GameObject("BattleHUD");
+            hudGo.AddComponent<BattleHUD>();
 
             var rewardScreen = uiGo.AddComponent<BattleRewardScreen>();
             var rsSo = new SerializedObject(rewardScreen);
