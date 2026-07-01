@@ -206,7 +206,7 @@ namespace CanavarZindanlari.Core
 
             // Altın ve elmas ödülü
             LastGoldEarned = EconomyManager.FloorGoldReward(CurrentFloor);
-            LastGemsEarned = LastClearWasFirstTime ? GetFirstClearGems() : 0;
+            LastGemsEarned = LastClearWasFirstTime ? GetFirstClearGems(CurrentFloor) : 0;
             EconomyManager.Instance?.AddGold(LastGoldEarned);
             if (LastGemsEarned > 0) EconomyManager.Instance?.AddDiamonds(LastGemsEarned);
 
