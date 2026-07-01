@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "227869446033",
+    "project_id": "canavarzindan",
+    "storage_bucket": "canavarzindan.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227869446033:android:2f6afa89b1059bd53dd430",
+        "android_client_info": {
+          "package_name": "com.canavarZindani.game"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "227869446033-4s6mlcbs0oidtru2rkbn4q5bireps4bu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.canavarZindani.game",
+            "certificate_hash": "3e661b56f221fd1d5d357d8a60db0fc05645f236"
+          }
+        },
+        {
+          "client_id": "227869446033-bv1mflhegd52splkr5asgr0qvssf44kp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjdZ9mz-mMsb-kQSWIgCuTN9ze2Vpa7XE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "227869446033-bv1mflhegd52splkr5asgr0qvssf44kp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
