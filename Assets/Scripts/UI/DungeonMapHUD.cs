@@ -442,9 +442,8 @@ namespace CanavarZindanlari.UI
                 _dungeon.ReturnToMap();
         }
 
-        // ── Koleksiyon paneli ─────────────────────────────────────────────────
+        // ── Koleksiyon ekranı ─────────────────────────────────────────────────
 
-        private Vector2 _collScroll;
 
         private void DrawCollectionScreen()
         {
