@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using CanavarZindanlari.Arena;
 using CanavarZindanlari.Backend;
@@ -31,9 +32,12 @@ public class ArenaHUD : MonoBehaviour
 
     // ── Durum ────────────────────────────────────────────────────────────────
 
-    private ArenaManager _arena;
-    private bool         _showLeaderboard;
-    private Vector2      _lbScroll;
+    private ArenaManager        _arena;
+    private bool                _showLeaderboard;
+    private Vector2             _lbScroll;
+    private List<ArenaProfile>  _lbCache;
+    private bool                _lbLoading;
+    private string              _lbError;
 
     private void Awake()  => _arena = GetComponent<ArenaManager>();
 
@@ -103,7 +107,11 @@ public class ArenaHUD : MonoBehaviour
         // Liderlik tablosu toggle
         string lbLabel = _showLeaderboard ? "▲ Sıralamayı Gizle" : "▼ Sıralamayı Göster";
         if (GUI.Button(new Rect(pad, startY, btnW, btnH * 0.8f), lbLabel, _styleBtnSmall))
+        {
             _showLeaderboard = !_showLeaderboard;
+            if (_showLeaderboard && _lbCache == null && !_lbLoading)
+                LoadLeaderboard();
+        }
         startY += btnH * 1.0f;
 
         if (_showLeaderboard)
@@ -211,17 +219,107 @@ public class ArenaHUD : MonoBehaviour
 
     // ── Liderlik tablosu ─────────────────────────────────────────────────────
 
+    private async void LoadLeaderboard()
+    {
+        _lbLoading = true;
+        _lbError   = null;
+        try
+        {
+            _lbCache = await PlayerProfileService.GetLeaderboard();
+        }
+        catch (System.Exception e)
+        {
+            _lbError = $"Yüklenemedi: {e.Message}";
+        }
+        _lbLoading = false;
+    }
+
     private void DrawLeaderboardSection(float x, float y, float w, float maxH)
     {
-        _styleLabel.normal.textColor = ColGold;
-        GUI.Label(new Rect(x, y, w, Screen.height * 0.05f), "🏆 Top 20", _styleLabel);
-        float startY = y + Screen.height * 0.06f;
-        float rowH   = Screen.height * 0.055f;
-        float viewH  = Mathf.Min(maxH - Screen.height * 0.06f, rowH * 5);
+        float rowH   = Screen.height * 0.058f;
+        float headerH = rowH * 0.9f;
 
-        // Statik liste (gerçek veri PlayerProfileService.GetLeaderboard() ile dolacak)
-        _styleLabel.normal.textColor = Color.gray;
-        GUI.Label(new Rect(x, startY, w, rowH), "Sıralama yüklenmedi — maç yap ve güncelle.", _styleLabel);
+        // Başlık + yenile butonu
+        _styleLabel.normal.textColor = ColGold;
+        GUI.Label(new Rect(x, y, w * 0.65f, headerH), "🏆 Top 20", _styleLabel);
+
+        GUI.color = new Color(0.6f, 0.6f, 1f);
+        if (GUI.Button(new Rect(x + w * 0.68f, y, w * 0.32f, headerH * 0.85f), "↻ Yenile", _styleBtnSmall))
+        {
+            _lbCache   = null;
+            LoadLeaderboard();
+        }
+        GUI.color = Color.white;
+        y += headerH + 4f;
+
+        float viewH = maxH - headerH - 8f;
+        var   viewR = new Rect(x, y, w, viewH);
+
+        if (_lbLoading)
+        {
+            _styleLabel.normal.textColor = Color.gray;
+            GUI.Label(viewR, "Yükleniyor...", _styleLabel);
+            return;
+        }
+
+        if (_lbError != null)
+        {
+            _styleLabel.normal.textColor = new Color(1f, 0.4f, 0.4f);
+            GUI.Label(viewR, _lbError, _styleLabel);
+            return;
+        }
+
+        if (_lbCache == null || _lbCache.Count == 0)
+        {
+            _styleLabel.normal.textColor = Color.gray;
+            GUI.Label(viewR, "Henüz sıralama yok.", _styleLabel);
+            return;
+        }
+
+        // Scroll view
+        float contH = _lbCache.Count * (rowH + 3f);
+        var   contR = new Rect(0, 0, w - 16f, contH);
+        _lbScroll = GUI.BeginScrollView(viewR, _lbScroll, contR, false, false);
+
+        for (int i = 0; i < _lbCache.Count; i++)
+        {
+            var    p       = _lbCache[i];
+            float  ry      = i * (rowH + 3f);
+            bool   isMe    = _arena.MyProfile != null && p.Uid == _arena.MyProfile.Uid;
+
+            // Satır arka planı
+            GUI.color = isMe
+                ? new Color(0.25f, 0.35f, 0.55f, 1f)
+                : new Color(0.13f, 0.13f, 0.22f, 1f);
+            GUI.DrawTexture(new Rect(0, ry, w - 16f, rowH), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
+            float pad = w * 0.025f;
+
+            // Sıra numarası
+            Color rankColor = i == 0 ? ColGold : i == 1 ? ColSilver : i == 2 ? ColBronze : Color.white;
+            _styleLabel.normal.textColor = rankColor;
+            GUI.Label(new Rect(pad, ry + 2f, rowH, rowH), $"{i + 1}.", _styleLabel);
+
+            // Amblem + isim
+            Color tierColor = p.LeagueTier switch
+            {
+                "Platin" => ColPlatin,
+                "Altın"  => ColGold,
+                "Gümüş"  => ColSilver,
+                _        => ColBronze,
+            };
+            _styleLabel.normal.textColor = tierColor;
+            string name = isMe ? $"{p.DisplayName} (Sen)" : p.DisplayName;
+            GUI.Label(new Rect(pad + rowH, ry + 2f, w * 0.45f, rowH), $"{p.LeagueIcon} {name}", _styleLabel);
+
+            // Puan + G/M
+            _styleLabel.normal.textColor = Color.white;
+            GUI.Label(new Rect(w * 0.62f, ry + 2f, w * 0.36f, rowH),
+                $"{p.ArenaPoints}p  {p.Wins}G/{p.Losses}M", _styleLabel);
+        }
+
+        GUI.EndScrollView();
     }
 
     // ── Stil oluşturma ────────────────────────────────────────────────────────
