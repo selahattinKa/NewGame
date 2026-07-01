@@ -16,14 +16,14 @@ namespace CanavarZindanlari.Combat
 
         private void Start()
         {
-            _combat = FindObjectOfType<CombatManager>();
+            _combat = Object.FindFirstObjectByType<CombatManager>();
             if (_combat == null)
             {
                 Debug.LogError("[Bootstrap] Sahnede CombatManager bulunamadı.");
                 return;
             }
 
-            var selector = FindObjectOfType<ClassSelectionScreen>();
+            var selector = Object.FindFirstObjectByType<ClassSelectionScreen>();
             if (selector != null)
             {
                 selector.OnClassSelected += OnClassChosen;

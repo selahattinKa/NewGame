@@ -2,6 +2,9 @@
     <Style src="ClassSelectionScreen.uss" />
     <ui:VisualElement name="overlay" class="overlay">
         <ui:Label class="title" text="Sınıf Seç" />
-        <ui:VisualElement name="grid" class="grid" />
+        <ui:ScrollView name="scroll-view" class="scroll-view"
+                       horizontal-scrolling-enabled="false">
+            <ui:VisualElement name="grid" class="grid" />
+        </ui:ScrollView>
     </ui:VisualElement>
 </ui:UXML>

@@ -31,7 +31,7 @@ namespace CanavarZindanlari.Gameplay
         public event Action<WantedEntry, int>  OnWantedCompleted; // (entry, bonusGold)
 
         private List<WantedEntry> _entries = new();
-        private string _lastGeneratedDate = "";
+        private string _lastGeneratedDate;
 
         private const int EntryCount     = 3;
         private const int BaseWantedGold = 300;

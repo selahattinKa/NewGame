@@ -17,7 +17,7 @@ namespace CanavarZindanlari.UI
 
         private void Start()
         {
-            _combat = FindObjectOfType<CombatManager>();
+            _combat = Object.FindFirstObjectByType<CombatManager>();
             if (_combat == null) return;
 
             _combat.OnPlayerAction += (r, _) => LogAction("Sen", r);
