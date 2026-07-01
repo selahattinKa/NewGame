@@ -7,7 +7,7 @@ using CanavarZindanlari.Economy;
 
 namespace CanavarZindanlari.Combat
 {
-    public enum CombatState { PlayerTurn, EnemyTurn, Victory, Defeat }
+    public enum CombatState { PlayerTurn, EnemyTurn, Victory, Defeat, Idle }
 
     public struct CombatActionResult
     {
@@ -38,8 +38,15 @@ namespace CanavarZindanlari.Combat
 
         public CombatUnit  Player     { get; private set; }
         public CombatUnit  Enemy      { get; private set; }
-        public CombatState State      { get; private set; }
+        public CombatState State      { get; private set; } = CombatState.Idle;
         public bool        AutoBattle { get; private set; }
+
+        public void ResetToIdle()
+        {
+            State  = CombatState.Idle;
+            Player = null;
+            Enemy  = null;
+        }
 
         // ── Olaylar ───────────────────────────────────────────────────────────
 

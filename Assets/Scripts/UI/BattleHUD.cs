@@ -57,6 +57,7 @@ namespace CanavarZindanlari.UI
         private void OnGUI()
         {
             if (_combat == null) return;
+            if (_combat.State == CombatState.Idle) return;
 
             float sw = Screen.width;
             float sh = Screen.height;

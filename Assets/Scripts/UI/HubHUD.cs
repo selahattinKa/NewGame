@@ -42,6 +42,10 @@ namespace CanavarZindanlari.UI
             // Eksik bileşenleri bu objeye otomatik ekle
             if (GetComponent<ShopHUD>()        == null) gameObject.AddComponent<ShopHUD>();
             if (GetComponent<ClassSelectHUD>() == null) gameObject.AddComponent<ClassSelectHUD>();
+
+            // Eski UIDocument tabanlı sınıf seçimini kapat (artık IMGUI versiyonu kullanılıyor)
+            var oldSelector = UnityEngine.Object.FindFirstObjectByType<ClassSelectionScreen>();
+            if (oldSelector != null) oldSelector.gameObject.SetActive(false);
         }
 
         private void Start()

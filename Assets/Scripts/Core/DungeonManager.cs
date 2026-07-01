@@ -225,6 +225,8 @@ namespace CanavarZindanlari.Core
 
             SaveProgress();
 
+            _combat.ResetToIdle();
+
             // Altın ve elmas ödülü
             LastGoldEarned = EconomyManager.FloorGoldReward(CurrentFloor);
             LastGemsEarned = LastClearWasFirstTime ? GetFirstClearGems(CurrentFloor) : 0;
@@ -240,12 +242,14 @@ namespace CanavarZindanlari.Core
 
         private void HandleFloorFailed()
         {
+            _combat.ResetToIdle();
             State = DungeonState.FloorFailed;
             OnStateChanged?.Invoke();
         }
 
         public void ReturnToMap()
         {
+            _combat.ResetToIdle();
             State = DungeonState.MapView;
             OnStateChanged?.Invoke();
         }
