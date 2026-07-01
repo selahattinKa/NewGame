@@ -33,6 +33,7 @@ namespace CanavarZindanlari.Economy
         {
             if (Instance != null) { Destroy(gameObject); return; }
             Instance = this;
+            Screen.orientation = ScreenOrientation.Portrait;
             Load();
         }
 
