@@ -87,22 +87,11 @@ namespace CanavarZindanlari.UI
             return card;
         }
 
-        private static VisualElement MakeStat(string key, string value)
+        private static Label MakeStat(string key, string value)
         {
-            var container = new VisualElement();
-            container.AddToClassList("stat");
-
-            var lbl = new Label($"{key}: ");
+            var lbl = new Label($"{key}: {value}");
             lbl.AddToClassList("stat");
-
-            var val = new Label(value);
-            val.AddToClassList("stat-val");
-
-            // Yan yana göster
-            container.style.flexDirection = FlexDirection.Row;
-            container.Add(lbl);
-            container.Add(val);
-            return container;
+            return lbl;
         }
 
         private void Select(ClassData data)
