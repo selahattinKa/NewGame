@@ -1,5 +1,6 @@
 using UnityEngine;
 using CanavarZindanlari.Core;
+using CanavarZindanlari.Data;
 
 namespace CanavarZindanlari.UI
 {
@@ -10,7 +11,10 @@ namespace CanavarZindanlari.UI
     [RequireComponent(typeof(DungeonManager))]
     public class DungeonMapHUD : MonoBehaviour
     {
-        private DungeonManager _dungeon;
+        private DungeonManager    _dungeon;
+        private MonsterCollection _collection;
+        private bool              _showCollection;
+        private Vector2           _mapScroll;
 
         // Renkler
         private static readonly Color ColLocked    = new Color(0.35f, 0.32f, 0.38f);
@@ -30,7 +34,11 @@ namespace CanavarZindanlari.UI
         private GUIStyle _styleWave;
         private bool     _stylesReady;
 
-        private void Awake() => _dungeon = GetComponent<DungeonManager>();
+        private void Awake()
+        {
+            _dungeon    = GetComponent<DungeonManager>();
+            _collection = UnityEngine.Object.FindFirstObjectByType<MonsterCollection>();
+        }
 
         private void BuildStyles()
         {
@@ -107,6 +115,9 @@ namespace CanavarZindanlari.UI
                     DrawFloorFailed();
                     break;
             }
+
+            if (_showCollection && _dungeon.State == DungeonState.MapView)
+                DrawCollectionPanel();
         }
 
         // ── Zindan Haritası ───────────────────────────────────────────────────
@@ -129,48 +140,67 @@ namespace CanavarZindanlari.UI
             DrawEnergyBar(pad, contentY, w, 28);
             contentY += 36;
 
-            // Kat ızgarası — 2 sütun × 5 satır
-            float cellW   = (w - 8) * 0.5f;
-            float cellH   = (h - contentY - 110) / 5f;
-            cellH = Mathf.Clamp(cellH, 44, 72);
+            // Kat ızgarası — 2 sütun × 10 satır, scroll edilebilir
+            float cellW    = (w - 8) * 0.5f;
+            float cellH    = 56f;
+            float cellGap  = 5f;
+            int   rows     = DungeonManager.TotalFloors / 2;
+            float gridH    = rows * (cellH + cellGap);
+            float viewH    = h - contentY - 80f;
 
-            for (int row = 0; row < 5; row++)
+            var viewRect = new Rect(pad, contentY, w, viewH);
+            var contRect = new Rect(0, 0, w - 16, gridH);
+            _mapScroll = GUI.BeginScrollView(viewRect, _mapScroll, contRect, false, false);
+
+            for (int row = 0; row < rows; row++)
             {
                 for (int col = 0; col < 2; col++)
                 {
                     int floor = row * 2 + col + 1;
                     if (floor > DungeonManager.TotalFloors) break;
 
-                    float x = pad + col * (cellW + 8);
-                    float y = contentY + row * (cellH + 6);
+                    float x = col * (cellW + 8);
+                    float y = row * (cellH + cellGap);
                     DrawFloorButton(new Rect(x, y, cellW, cellH), floor);
                 }
             }
 
-            contentY += 5 * (cellH + 6) + 8;
+            GUI.EndScrollView();
+            contentY += viewH + 8;
+
+            // Koleksiyon özeti
+            int count = _collection != null ? _collection.Monsters.Count : 0;
+            GUI.Label(new Rect(pad, contentY, w, 26),
+                $"Koleksiyon: {count} canavar",
+                new GUIStyle(_styleLabel) { fontSize = 13, normal = { textColor = ColWave } });
+            contentY += 28;
 
             // İlerleme sıfırla butonu (test kolaylığı)
-            if (GUI.Button(new Rect(pad, contentY, w, 36), "İlerlemeyi Sıfırla (Test)", _styleBtn))
+            if (GUI.Button(new Rect(pad, contentY, w * 0.48f, 36), "İlerlemeyi Sıfırla (Test)", _styleBtn))
                 _dungeon.ResetProgress();
+
+            if (GUI.Button(new Rect(pad + w * 0.52f, contentY, w * 0.48f, 36), "Koleksiyonu Göster (Test)", _styleBtn))
+                _showCollection = !_showCollection;
         }
 
         private void DrawFloorButton(Rect r, int floor)
         {
-            var status = _dungeon.Floors[floor];
-            bool isBoss = DungeonManager.IsBossFloor(floor);
+            var      status   = _dungeon.Floors[floor];
+            FloorType ft      = DungeonManager.GetFloorType(floor);
+            bool     special  = ft != FloorType.Normal;
 
             Color btnColor = status.State switch
             {
-                FloorState.Cleared  => isBoss ? ColBossClr : ColCleared,
-                FloorState.Unlocked => isBoss ? ColBoss    : ColUnlocked,
+                FloorState.Cleared  => special ? ColBossClr : ColCleared,
+                FloorState.Unlocked => special ? ColBoss    : ColUnlocked,
                 _                   => ColLocked,
             };
 
-            bool locked = status.State == FloorState.Locked;
+            bool locked   = status.State == FloorState.Locked;
             bool noEnergy = _dungeon.Energy < DungeonManager.EnergyPerFloor;
 
             GUI.color = btnColor;
-            string label = BuildFloorLabel(floor, status, isBoss, locked, noEnergy);
+            string label = BuildFloorLabel(floor, status, ft, locked, noEnergy);
 
             GUIStyle style = (locked || noEnergy || _dungeon.PlayerClass == null)
                 ? _styleBtnDisabled
@@ -182,17 +212,33 @@ namespace CanavarZindanlari.UI
             GUI.color = Color.white;
         }
 
-        private string BuildFloorLabel(int floor, FloorStatus status, bool isBoss, bool locked, bool noEnergy)
+        private static string FloorTypeLabel(FloorType ft) => ft switch
         {
-            string icon = locked ? "🔒" : isBoss ? "👑" : status.State == FloorState.Cleared ? "✓" : "▶";
-            string badge = status.FirstCleared ? "" : " ★";
-            string suffix = isBoss ? "\n[BOSS]" : "";
+            FloorType.MainBoss  => "👑 ANA BOSS",
+            FloorType.Boss      => "👑 BOSS",
+            FloorType.Champion  => "⚔ Şampiyon",
+            _                   => "",
+        };
 
-            if (locked) return $"{icon} Kat {floor}{suffix}";
-            if (noEnergy) return $"{icon} Kat {floor}{badge}{suffix}\n(Enerji yetersiz)";
+        private static string FloorTypeIcon(FloorType ft) => ft switch
+        {
+            FloorType.MainBoss  => "👑",
+            FloorType.Boss      => "👑",
+            FloorType.Champion  => "⚔",
+            _                   => "▶",
+        };
 
-            string stateText = status.State == FloorState.Cleared ? " Temizlendi" : " Gir";
-            return $"{icon} Kat {floor}{badge}{suffix}{stateText}";
+        private string BuildFloorLabel(int floor, FloorStatus status, FloorType ft, bool locked, bool noEnergy)
+        {
+            string icon  = locked ? "🔒" : status.State == FloorState.Cleared ? "✓" : FloorTypeIcon(ft);
+            string badge = (!status.FirstCleared && status.State != FloorState.Locked) ? " ★" : "";
+            string type  = ft != FloorType.Normal ? $"  {FloorTypeLabel(ft)}" : "";
+
+            if (locked)   return $"{icon} Kat {floor}{type}";
+            if (noEnergy) return $"{icon} Kat {floor}{badge}{type}\n(Enerji yetersiz)";
+
+            string action = status.State == FloorState.Cleared ? " Tekrar" : " Gir";
+            return $"{icon} Kat {floor}{badge}{type}{action}";
         }
 
         private void DrawEnergyBar(float x, float y, float w, float h)
@@ -219,8 +265,13 @@ namespace CanavarZindanlari.UI
             GUI.Box(new Rect(0, 0, Screen.width, barH), "");
             GUI.color = Color.white;
 
-            bool isBoss = DungeonManager.IsBossFloor(_dungeon.CurrentFloor);
-            string floorTag = isBoss ? "[BOSS] " : "";
+            string floorTag = DungeonManager.GetFloorType(_dungeon.CurrentFloor) switch
+            {
+                FloorType.MainBoss => "[ANA BOSS] ",
+                FloorType.Boss     => "[BOSS] ",
+                FloorType.Champion => "[ŞAMPİYON] ",
+                _                  => "",
+            };
             string waveTxt = _dungeon.State == DungeonState.WaveTransition
                 ? "Sonraki dalga yükleniyor..."
                 : $"Dalga {_dungeon.CurrentWave} / {_dungeon.TotalWaves}";
@@ -243,13 +294,20 @@ namespace CanavarZindanlari.UI
 
             DrawBg(new Rect(px - 8, py - 8, pw + 16, ph + 16));
 
-            bool  firstClear = _dungeon.LastClearWasFirstTime;
-            int   floor      = _dungeon.CurrentFloor;
-            bool  isBoss     = DungeonManager.IsBossFloor(floor);
+            bool      firstClear = _dungeon.LastClearWasFirstTime;
+            int       floor      = _dungeon.CurrentFloor;
+            FloorType ft         = DungeonManager.GetFloorType(floor);
+            bool      isSpecial  = ft != FloorType.Normal;
 
             // Başlık
-            _styleResult.normal.textColor = isBoss ? ColBoss : ColCleared;
-            string header = isBoss ? "BOSS YENİLDİ!" : "KAT TEMİZLENDİ!";
+            _styleResult.normal.textColor = isSpecial ? ColBoss : ColCleared;
+            string header = ft switch
+            {
+                FloorType.MainBoss => "ANA BOSS YENİLDİ!",
+                FloorType.Boss     => "BOSS YENİLDİ!",
+                FloorType.Champion => "ŞAMPİYON YENİLDİ!",
+                _                  => "KAT TEMİZLENDİ!",
+            };
             GUI.Label(new Rect(px, py, pw, 40), header, _styleResult);
             py += 44;
 
@@ -272,6 +330,25 @@ namespace CanavarZindanlari.UI
             // Full-heal bildirimi
             GUI.Label(new Rect(px, py, pw, 28),
                 "Takım tam HP'ye iyileşti.", _styleLabel);
+            py += 32;
+
+            // Yakalanan canavar
+            var captured = _dungeon.LastCaptured;
+            if (captured != null)
+            {
+                Color tierColor = TierColor(captured.Tier);
+                GUI.color = tierColor;
+                GUI.Label(new Rect(px, py, pw, 36),
+                    $"🎉 Canavar Yakalandı!  [{captured.Tier}]  {captured.DisplayName}",
+                    new GUIStyle(_styleLabel) { fontSize = 15, fontStyle = FontStyle.Bold });
+                GUI.color = Color.white;
+            }
+            else
+            {
+                _styleLabel.normal.textColor = new Color(0.6f, 0.6f, 0.6f);
+                GUI.Label(new Rect(px, py, pw, 28), "Canavar kaçtı...", _styleLabel);
+                _styleLabel.normal.textColor = Color.white;
+            }
             py += 36;
 
             float btnW = pw * 0.44f;
@@ -353,7 +430,64 @@ namespace CanavarZindanlari.UI
                 _dungeon.ReturnToMap();
         }
 
+        // ── Koleksiyon paneli ─────────────────────────────────────────────────
+
+        private Vector2 _collScroll;
+
+        private void DrawCollectionPanel()
+        {
+            if (_collection == null) return;
+
+            float pw = Screen.width  * 0.88f;
+            float ph = Screen.height * 0.72f;
+            float px = (Screen.width  - pw) * 0.5f;
+            float py = (Screen.height - ph) * 0.5f;
+
+            DrawBg(new Rect(px - 6, py - 6, pw + 12, ph + 12));
+
+            GUI.Label(new Rect(px, py, pw, 36), "Canavar Koleksiyonu", _styleTitle);
+            py += 40;
+
+            var monsters = _collection.Monsters;
+            if (monsters.Count == 0)
+            {
+                GUI.Label(new Rect(px, py, pw, 40), "Henüz canavar yok — zindanda savaş!", _styleLabel);
+            }
+            else
+            {
+                float rowH   = 30f;
+                float viewH  = ph - 80f;
+                var   viewRect  = new Rect(px, py, pw, viewH);
+                var   contRect  = new Rect(0, 0, pw - 20, monsters.Count * rowH);
+
+                _collScroll = GUI.BeginScrollView(viewRect, _collScroll, contRect);
+                for (int i = 0; i < monsters.Count; i++)
+                {
+                    var m = monsters[i];
+                    GUI.color = TierColor(m.Tier);
+                    GUI.Label(new Rect(4, i * rowH, pw - 24, rowH),
+                        $"[{m.Tier}]  {m.DisplayName}   Kat {m.FloorCaptured}   {m.CaptureDate}",
+                        _styleLabel);
+                }
+                GUI.color = Color.white;
+                GUI.EndScrollView();
+                py += viewH + 4;
+            }
+
+            if (GUI.Button(new Rect(px + pw * 0.25f, py + (monsters.Count == 0 ? 48 : 4), pw * 0.50f, 36),
+                "Kapat", _styleBtn))
+                _showCollection = false;
+        }
+
         // ── Yardımcı ──────────────────────────────────────────────────────────
+
+        private static Color TierColor(Rarity tier) => tier switch
+        {
+            Rarity.B => new Color(0.40f, 0.75f, 1.00f),
+            Rarity.C => new Color(0.55f, 0.90f, 0.40f),
+            Rarity.D => new Color(0.95f, 0.80f, 0.30f),
+            _        => new Color(0.80f, 0.78f, 0.80f),
+        };
 
         private static void DrawBg(Rect r)
         {

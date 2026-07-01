@@ -142,11 +142,12 @@ namespace CanavarZindanlari.Editor
             rsSo.FindProperty("_combat").objectReferenceValue = combat;
             rsSo.ApplyModifiedProperties();
 
-            // ── DungeonManager + DungeonMapHUD ────────────────────────────────
+            // ── DungeonManager + DungeonMapHUD + MonsterCollection ───────────
 
             var dungeonGo  = new GameObject("DungeonManager");
             var dungeonMgr = dungeonGo.AddComponent<DungeonManager>();
             dungeonGo.AddComponent<DungeonMapHUD>();
+            dungeonGo.AddComponent<MonsterCollection>();
 
             var dmSo = new SerializedObject(dungeonMgr);
             dmSo.FindProperty("_combat").objectReferenceValue = combat;
@@ -282,6 +283,7 @@ namespace CanavarZindanlari.Editor
             var go  = new GameObject("DungeonManager");
             var mgr = go.AddComponent<DungeonManager>();
             go.AddComponent<DungeonMapHUD>();
+            go.AddComponent<MonsterCollection>();
 
             var so = new SerializedObject(mgr);
             so.FindProperty("_combat").objectReferenceValue = combat;

@@ -19,6 +19,8 @@ namespace CanavarZindanlari.Core
 
     public enum FloorState { Locked, Unlocked, Cleared }
 
+    public enum FloorType { Normal, Champion, Boss, MainBoss }
+
     [Serializable]
     public struct FloorStatus
     {
@@ -37,7 +39,7 @@ namespace CanavarZindanlari.Core
 
         // ── Sabitler ─────────────────────────────────────────────────────────
 
-        public const int TotalFloors    = 10;
+        public const int TotalFloors    = 20;
         public const int EnergyMax      = 100;
         public const int EnergyPerFloor = 2;
 
@@ -58,8 +60,12 @@ namespace CanavarZindanlari.Core
 
         // ── Internal ──────────────────────────────────────────────────────────
 
-        private CombatUnit _persistedPlayer;
-        private BattleHUD  _hud;
+        private CombatUnit        _persistedPlayer;
+        private BattleHUD         _hud;
+        private MonsterCollection _collection;
+
+        // Son yakalanan canavar (HUD için)
+        public CapturedMonster LastCaptured { get; private set; }
 
         // ── Lifecycle ─────────────────────────────────────────────────────────
 
@@ -73,7 +79,8 @@ namespace CanavarZindanlari.Core
                     FirstCleared = false,
                 };
             LoadProgress();
-            _hud = UnityEngine.Object.FindFirstObjectByType<BattleHUD>();
+            _hud        = UnityEngine.Object.FindFirstObjectByType<BattleHUD>();
+            _collection = UnityEngine.Object.FindFirstObjectByType<MonsterCollection>();
         }
 
         private void OnEnable()
@@ -190,6 +197,9 @@ namespace CanavarZindanlari.Core
 
             SaveProgress();
 
+            // Canavar düşme — GDD canavar-toplama-evrim.md Kural 1
+            LastCaptured = _collection != null ? _collection.TryCapture(CurrentFloor) : null;
+
             State = DungeonState.FloorCleared;
             OnStateChanged?.Invoke();
         }
@@ -208,14 +218,25 @@ namespace CanavarZindanlari.Core
 
         // ── Yardımcılar ───────────────────────────────────────────────────────
 
+        // Dalga sayısı için: her 5. kat 3 dalga (şampiyon + boss + ana boss)
         public static bool IsBossFloor(int floor) => floor % 5 == 0;
 
-        public int GetFirstClearGems(int floor)
+        // Yakalama tier ve görsel etiket için kat türü
+        public static FloorType GetFloorType(int floor)
         {
-            if (floor == TotalFloors) return 100;
-            if (IsBossFloor(floor))   return 50;
-            return 5;
+            if (floor == TotalFloors)    return FloorType.MainBoss;
+            if (floor % 10 == 0)         return FloorType.Boss;
+            if (floor % 5  == 0)         return FloorType.Champion;
+            return FloorType.Normal;
         }
+
+        public int GetFirstClearGems(int floor) => GetFloorType(floor) switch
+        {
+            FloorType.MainBoss  => 200,
+            FloorType.Boss      => 100,
+            FloorType.Champion  => 50,
+            _                   => 5,
+        };
 
         // ── Oyuncu oluşturma ──────────────────────────────────────────────────
 
