@@ -39,27 +39,9 @@ namespace CanavarZindanlari.UI
             _lootContainer = root.Q<VisualElement>("loot-container");
             _continueBtn   = root.Q<Button>("continue-btn");
 
-            _continueBtn.clicked += Hide;
-            _continueBtn.clicked += () =>
-            {
-                OnContinueClicked?.Invoke();
-                UnityEngine.SceneManagement.SceneManager.LoadScene(
-                    UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
-            };
+            _continueBtn.clicked += () => { Hide(); OnContinueClicked?.Invoke(); };
 
             Hide();
-        }
-
-        private void OnEnable()
-        {
-            if (_combat != null)
-                _combat.OnBattleEnded += Show;
-        }
-
-        private void OnDisable()
-        {
-            if (_combat != null)
-                _combat.OnBattleEnded -= Show;
         }
 
         // ── Göster / gizle ─────────────────────────────────────────────────────

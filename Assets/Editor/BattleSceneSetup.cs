@@ -129,7 +129,7 @@ namespace CanavarZindanlari.Editor
             else
                 Debug.LogWarning("[Setup] BattleRewardScreen.uxml bulunamadı.");
 
-            // ── Combat Bootstrap + HUD ─────────────────────────────────────────
+            // ── Combat Bootstrap (fallback — DungeonManager olmayan sahneler için) ─
 
             var bootstrapGo = new GameObject("CombatBootstrap");
             bootstrapGo.AddComponent<CombatBootstrap>();
@@ -141,6 +141,16 @@ namespace CanavarZindanlari.Editor
             var rsSo = new SerializedObject(rewardScreen);
             rsSo.FindProperty("_combat").objectReferenceValue = combat;
             rsSo.ApplyModifiedProperties();
+
+            // ── DungeonManager + DungeonMapHUD ────────────────────────────────
+
+            var dungeonGo  = new GameObject("DungeonManager");
+            var dungeonMgr = dungeonGo.AddComponent<DungeonManager>();
+            dungeonGo.AddComponent<DungeonMapHUD>();
+
+            var dmSo = new SerializedObject(dungeonMgr);
+            dmSo.FindProperty("_combat").objectReferenceValue = combat;
+            dmSo.ApplyModifiedProperties();
 
             // RevengeManager → CombatManager bağlantısı
             var revengeComp = gameplayGo.GetComponent<RevengeManager>();
@@ -247,6 +257,43 @@ namespace CanavarZindanlari.Editor
                 "4 sınıf oluşturuldu:\n• Savaşçı\n• Büyücü\n• Hırsız\n• Şifacı\n\n" +
                 "BattleScene'deki CombatBootstrap > Player Class alanına istediğin sınıfı sürükle.",
                 "Tamam");
+        }
+
+        [MenuItem("CanavarZindanlari/Kurulum/4 — Zindan Yöneticisini Ekle")]
+        public static void AddDungeonManagerToScene()
+        {
+            // Mevcut sahnede zaten DungeonManager varsa atla
+            var existing = Object.FindFirstObjectByType<DungeonManager>();
+            if (existing != null)
+            {
+                EditorUtility.DisplayDialog("Zaten Mevcut",
+                    "Sahnede zaten bir DungeonManager var.", "Tamam");
+                return;
+            }
+
+            var combat = Object.FindFirstObjectByType<CombatManager>();
+            if (combat == null)
+            {
+                EditorUtility.DisplayDialog("Hata",
+                    "Sahnede CombatManager bulunamadı. Önce sahneyi oluştur.", "Tamam");
+                return;
+            }
+
+            var go  = new GameObject("DungeonManager");
+            var mgr = go.AddComponent<DungeonManager>();
+            go.AddComponent<DungeonMapHUD>();
+
+            var so = new SerializedObject(mgr);
+            so.FindProperty("_combat").objectReferenceValue = combat;
+            so.ApplyModifiedProperties();
+
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene());
+
+            Debug.Log("[Setup] DungeonManager + DungeonMapHUD eklendi.");
+            EditorUtility.DisplayDialog("Zindan Yöneticisi Eklendi",
+                "DungeonManager ve DungeonMapHUD sahneye eklendi.\n\n" +
+                "Sahneyi kaydet (Ctrl+S) ve Play modunda test et.", "Tamam");
         }
 
         [MenuItem("CanavarZindanlari/Kurulum/Tümünü Çalıştır (1+2+3)")]

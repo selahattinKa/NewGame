@@ -153,6 +153,14 @@ namespace CanavarZindanlari.UI
             GUI.enabled = true;
         }
 
+        // ── Yeni savaş başlarken çağrılır (DungeonManager dalga geçişi) ─────────
+
+        public void ResetForNewFight()
+        {
+            _gameOver = false;
+            _lastLog  = "";
+        }
+
         // ── Log ───────────────────────────────────────────────────────────────
 
         private void DrawLog(float sw, float sh)

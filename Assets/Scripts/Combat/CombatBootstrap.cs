@@ -1,4 +1,5 @@
 using UnityEngine;
+using CanavarZindanlari.Core;
 using CanavarZindanlari.Data;
 using CanavarZindanlari.UI;
 
@@ -16,6 +17,9 @@ namespace CanavarZindanlari.Combat
 
         private void Start()
         {
+            // DungeonManager sahnedeyse o orkestre eder — Bootstrap devre dışı
+            if (Object.FindFirstObjectByType<Core.DungeonManager>() != null) return;
+
             _combat = Object.FindFirstObjectByType<CombatManager>();
             if (_combat == null)
             {
