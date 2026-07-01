@@ -13,7 +13,6 @@ namespace CanavarZindanlari.UI
     {
         private CombatManager _combat;
         private string _lastLog = "";
-        private string _overlay = "";
         private bool   _gameOver;
 
         private void Start()
@@ -25,8 +24,8 @@ namespace CanavarZindanlari.UI
             _combat.OnEnemyAction  += r       => LogAction(_combat.Enemy?.DisplayName ?? "Düşman", r);
             _combat.OnStateChanged += s =>
             {
-                if (s == CombatState.Victory) { _overlay = "ZAFER!";    _gameOver = true; }
-                if (s == CombatState.Defeat)  { _overlay = "YENİLDİN!"; _gameOver = true; }
+                if (s == CombatState.Victory || s == CombatState.Defeat)
+                    _gameOver = true;
             };
         }
 
@@ -69,9 +68,8 @@ namespace CanavarZindanlari.UI
 
             DrawEnemyPanel(sw, sh, pad, barH);
             DrawLog(sw, sh);
-            DrawPlayerPanel(sw, sh, pad, barH);
+            if (!_gameOver) DrawPlayerPanel(sw, sh, pad, barH);
             DrawSkillButtons(sw, sh, pad);
-            if (_gameOver) DrawOverlay(sw, sh);
         }
 
         // ── Düşman paneli ─────────────────────────────────────────────────────
@@ -158,27 +156,6 @@ namespace CanavarZindanlari.UI
             float lw = sw * 0.80f;
             float lh = sh * 0.055f;
             GUI.Box(new Rect((sw - lw) * 0.5f, sh * 0.44f, lw, lh), _lastLog);
-        }
-
-        // ── Overlay ───────────────────────────────────────────────────────────
-
-        private void DrawOverlay(float sw, float sh)
-        {
-            GUI.color = new Color(0f, 0f, 0f, 0.55f);
-            GUI.DrawTexture(new Rect(0f, 0f, sw, sh), Texture2D.blackTexture);
-            GUI.color = Color.white;
-
-            var prev = GUI.skin.label.fontSize;
-            GUI.skin.label.fontSize = Mathf.RoundToInt(sh * 0.075f);
-            float ow = sw * 0.8f;
-            GUI.Label(new Rect((sw - ow) * 0.5f, sh * 0.36f, ow, sh * 0.14f), _overlay);
-            GUI.skin.label.fontSize = prev;
-
-            float rw = sw * 0.50f;
-            float rh = sh * 0.08f;
-            if (GUI.Button(new Rect((sw - rw) * 0.5f, sh * 0.54f, rw, rh), "Yeniden Oyna"))
-                UnityEngine.SceneManagement.SceneManager.LoadScene(
-                    UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
         }
 
         // ── Aktif efektler ────────────────────────────────────────────────────

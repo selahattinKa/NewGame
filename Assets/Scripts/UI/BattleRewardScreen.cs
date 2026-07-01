@@ -40,7 +40,12 @@ namespace CanavarZindanlari.UI
             _continueBtn   = root.Q<Button>("continue-btn");
 
             _continueBtn.clicked += Hide;
-            _continueBtn.clicked += () => OnContinueClicked?.Invoke();
+            _continueBtn.clicked += () =>
+            {
+                OnContinueClicked?.Invoke();
+                UnityEngine.SceneManagement.SceneManager.LoadScene(
+                    UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+            };
 
             Hide();
         }
