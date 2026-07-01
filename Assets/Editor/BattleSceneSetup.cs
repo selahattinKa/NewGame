@@ -299,29 +299,33 @@ namespace CanavarZindanlari.Editor
                 "Sahneyi kaydet (Ctrl+S) ve Play modunda test et.", "Tamam");
         }
 
-        [MenuItem("CanavarZindanlari/Kurulum/5 — Arena Sistemini Ekle")]
+        [MenuItem("CanavarZindanlari/Kurulum/5 — Arena + Hub Sistemini Ekle")]
         public static void AddArenaToScene()
         {
-            var existing = Object.FindFirstObjectByType<ArenaManager>();
-            if (existing != null)
+            // Hub + Pet Seçim
+            if (Object.FindFirstObjectByType<HubHUD>() == null)
             {
-                EditorUtility.DisplayDialog("Zaten Mevcut",
-                    "Sahnede zaten bir ArenaManager var.", "Tamam");
-                return;
+                var hub = new GameObject("HubSystem");
+                hub.AddComponent<HubHUD>();
+                hub.AddComponent<PetSelectHUD>();
             }
 
-            var go = new GameObject("ArenaSystem");
-            go.AddComponent<CanavarZindanlari.Backend.FirebaseAuthManager>();
-            go.AddComponent<ArenaManager>();
-            go.AddComponent<ArenaHUD>();
+            // Arena
+            if (Object.FindFirstObjectByType<ArenaManager>() == null)
+            {
+                var arena = new GameObject("ArenaSystem");
+                arena.AddComponent<CanavarZindanlari.Backend.FirebaseAuthManager>();
+                arena.AddComponent<ArenaManager>();
+                arena.AddComponent<ArenaHUD>();
+            }
 
             UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene());
 
-            Debug.Log("[Setup] ArenaSystem GameObject eklendi.");
-            EditorUtility.DisplayDialog("Arena Sistemi Eklendi",
-                "ArenaSystem eklendi:\n• FirebaseAuthManager\n• ArenaManager\n• ArenaHUD\n\n" +
-                "FirebaseAuthManager Inspector'dan Web Client ID'yi gir.\n" +
+            Debug.Log("[Setup] HubSystem + ArenaSystem eklendi.");
+            EditorUtility.DisplayDialog("Sistemler Eklendi",
+                "Eklenenler:\n• HubSystem (HubHUD + PetSelectHUD)\n• ArenaSystem (FirebaseAuthManager + ArenaManager + ArenaHUD)\n\n" +
+                "FirebaseAuthManager'a Web Client ID'yi gir.\n" +
                 "Sahneyi kaydet (Ctrl+S).", "Tamam");
         }
 

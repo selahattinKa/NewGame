@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using CanavarZindanlari.Arena;
 using CanavarZindanlari.Backend;
+using CanavarZindanlari.Core;
 
 /// <summary>
 /// Arena IMGUI ekranı.
@@ -33,35 +34,18 @@ public class ArenaHUD : MonoBehaviour
     // ── Durum ────────────────────────────────────────────────────────────────
 
     private ArenaManager        _arena;
-    private bool                _isOpen;
     private bool                _showLeaderboard;
     private Vector2             _lbScroll;
     private List<ArenaProfile>  _lbCache;
     private bool                _lbLoading;
     private string              _lbError;
 
-    public bool IsOpen => _isOpen;
-
-    public void Open()  => _isOpen = true;
-    public void Close() => _isOpen = false;
-
     private void Awake()  => _arena = GetComponent<ArenaManager>();
 
     private void OnGUI()
     {
+        if (ScreenNavigator.Current != GameScreen.Arena) return;
         BuildStyles();
-
-        if (!_isOpen)
-        {
-            // Kapalıyken sağ üst köşede küçük Arena butonu
-            float bw = Screen.width  * 0.28f;
-            float bh = Screen.height * 0.055f;
-            GUI.color = new Color(0.90f, 0.75f, 0.20f);
-            if (GUI.Button(new Rect(Screen.width - bw - 8, 8, bw, bh), "⚔ Arena", _styleBtn))
-                _isOpen = true;
-            GUI.color = Color.white;
-            return;
-        }
 
         float w = Screen.width;
         float h = Screen.height;
@@ -139,7 +123,7 @@ public class ArenaHUD : MonoBehaviour
         float bottomY = h - pad - btnH * 0.7f;
         GUI.color = new Color(0.5f, 0.5f, 0.5f);
         if (GUI.Button(new Rect(pad, bottomY, btnW * 0.45f, btnH * 0.7f), "← Geri", _styleBtnSmall))
-            Close();
+            ScreenNavigator.GoToHub();
         if (auth.IsSignedIn)
         {
             if (GUI.Button(new Rect(pad + btnW * 0.55f, bottomY, btnW * 0.45f, btnH * 0.7f), "Çıkış Yap", _styleBtnSmall))

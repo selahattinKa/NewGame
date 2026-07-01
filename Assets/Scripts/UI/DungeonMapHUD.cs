@@ -14,9 +14,7 @@ namespace CanavarZindanlari.UI
         private DungeonManager    _dungeon;
         private MonsterCollection _collection;
         private bool              _showCollection;
-        private bool              _showPetSelect;
         private Vector2           _mapScroll;
-        private Vector2           _petScroll;
 
         // Renkler
         private static readonly Color ColLocked    = new Color(0.35f, 0.32f, 0.38f);
@@ -96,33 +94,35 @@ namespace CanavarZindanlari.UI
         private void OnGUI()
         {
             if (_dungeon == null) return;
+            if (ScreenNavigator.Current != GameScreen.Dungeon) return;
             BuildStyles();
 
             switch (_dungeon.State)
             {
-                case DungeonState.MapView:
-                    DrawMapView();
-                    break;
-
+                case DungeonState.MapView:      DrawMapView();       break;
                 case DungeonState.InWaveCombat:
-                case DungeonState.WaveTransition:
-                    DrawWaveIndicator();
-                    break;
-
-                case DungeonState.FloorCleared:
-                    DrawFloorCleared();
-                    break;
-
-                case DungeonState.FloorFailed:
-                    DrawFloorFailed();
-                    break;
+                case DungeonState.WaveTransition: DrawWaveIndicator(); break;
+                case DungeonState.FloorCleared: DrawFloorCleared();  break;
+                case DungeonState.FloorFailed:  DrawFloorFailed();   break;
             }
 
             if (_showCollection && _dungeon.State == DungeonState.MapView)
                 DrawCollectionPanel();
 
-            if (_showPetSelect && _dungeon.State == DungeonState.MapView)
-                DrawPetSelectPanel();
+            // X butonu — savaş dışındayken Hub'a dön
+            if (_dungeon.State == DungeonState.MapView)
+                DrawCloseBtn();
+        }
+
+        private void DrawCloseBtn()
+        {
+            float bw = Screen.width  * 0.12f;
+            float bh = Screen.height * 0.055f;
+            GUI.color = new Color(0.70f, 0.20f, 0.20f);
+            if (GUI.Button(new Rect(Screen.width - bw - 8f, 8f, bw, bh), "✕",
+                new GUIStyle(GUI.skin.button) { fontSize = Mathf.Max(14, Screen.width / 22) + 2, fontStyle = FontStyle.Bold, normal = { textColor = Color.white } }))
+                ScreenNavigator.GoToHub();
+            GUI.color = Color.white;
         }
 
         // ── Zindan Haritası ───────────────────────────────────────────────────
@@ -173,33 +173,21 @@ namespace CanavarZindanlari.UI
             GUI.EndScrollView();
             contentY += viewH + 8;
 
-            // Seçili pet bilgisi
+            // Seçili pet özeti
             var selPet = _collection?.SelectedPet;
             string petLabel = selPet != null
-                ? $"Pet: {selPet.DisplayName}  [{selPet.Tier}]"
-                : "Pet: Seçilmedi";
-            GUI.color = selPet != null ? TierColor(selPet.Tier) : Color.gray;
-            GUI.Label(new Rect(pad, contentY, w * 0.65f, 28), petLabel,
-                new GUIStyle(_styleLabel) { fontSize = 13, alignment = TextAnchor.MiddleLeft });
-            GUI.color = Color.white;
+                ? $"🐾 {selPet.DisplayName}  [{selPet.Tier}]"
+                : "🐾 Pet seçilmedi";
+            var petStyle = new GUIStyle(_styleLabel) { fontSize = 13, alignment = TextAnchor.MiddleLeft };
+            petStyle.normal.textColor = selPet != null ? TierColor(selPet.Tier) : Color.gray;
+            GUI.Label(new Rect(pad, contentY, w, 26), petLabel, petStyle);
+            contentY += 30;
 
-            // Pet seç butonu
-            string petBtnLabel = _showPetSelect ? "▲ Kapat" : "🐾 Pet Seç";
-            if (GUI.Button(new Rect(pad + w * 0.67f, contentY, w * 0.33f, 28), petBtnLabel, _styleBtn))
-            {
-                _showPetSelect  = !_showPetSelect;
-                _showCollection = false;
-            }
-            contentY += 32;
-
-            // İlerleme sıfırla + koleksiyon (test)
+            // Test butonları
             if (GUI.Button(new Rect(pad, contentY, w * 0.48f, 30), "Sıfırla (Test)", _styleBtn))
                 _dungeon.ResetProgress();
-            if (GUI.Button(new Rect(pad + w * 0.52f, contentY, w * 0.48f, 30), "Koleksiyon (Test)", _styleBtn))
-            {
+            if (GUI.Button(new Rect(pad + w * 0.52f, contentY, w * 0.48f, 30), "Koleksiyon", _styleBtn))
                 _showCollection = !_showCollection;
-                _showPetSelect  = false;
-            }
         }
 
         private void DrawFloorButton(Rect r, int floor)
@@ -496,98 +484,6 @@ namespace CanavarZindanlari.UI
             if (GUI.Button(new Rect(px + pw * 0.25f, py + (monsters.Count == 0 ? 48 : 4), pw * 0.50f, 36),
                 "Kapat", _styleBtn))
                 _showCollection = false;
-        }
-
-        // ── Pet Seçim Paneli ─────────────────────────────────────────────────
-
-        private void DrawPetSelectPanel()
-        {
-            if (_collection == null) return;
-
-            float pw = Screen.width  * 0.88f;
-            float ph = Screen.height * 0.80f;
-            float px = (Screen.width  - pw) * 0.5f;
-            float py = (Screen.height - ph) * 0.5f;
-            float pad = pw * 0.03f;
-
-            DrawBg(new Rect(px - 6, py - 6, pw + 12, ph + 12));
-
-            GUI.Label(new Rect(px, py, pw, 36), "🐾 Pet Seç", _styleTitle);
-            py += 40;
-
-            var monsters = _collection.Monsters;
-            string selId = _collection.SelectedPetId;
-
-            if (monsters.Count == 0)
-            {
-                GUI.Label(new Rect(px, py, pw, 40), "Koleksiyonunda henüz pet yok — zindanda canavar yakala!", _styleLabel);
-                py += 48;
-            }
-            else
-            {
-                float rowH  = 58f;
-                float viewH = ph - 100f;
-                var viewR = new Rect(px, py, pw, viewH);
-                var contR = new Rect(0, 0, pw - 16f, monsters.Count * rowH);
-                _petScroll = GUI.BeginScrollView(viewR, _petScroll, contR, false, false);
-
-                for (int i = 0; i < monsters.Count; i++)
-                {
-                    var   m      = monsters[i];
-                    float ry     = i * rowH;
-                    bool  isSelected = m.InstanceId == selId;
-
-                    // Satır arka planı
-                    GUI.color = isSelected
-                        ? new Color(0.20f, 0.35f, 0.55f, 1f)
-                        : new Color(0.12f, 0.12f, 0.20f, 1f);
-                    GUI.DrawTexture(new Rect(0, ry, pw - 16f, rowH - 3f), Texture2D.whiteTexture);
-                    GUI.color = Color.white;
-
-                    // Tier + isim
-                    GUI.color = TierColor(m.Tier);
-                    GUI.Label(new Rect(pad, ry + 4f, pw * 0.55f, 24f),
-                        $"[{m.Tier}]  {m.DisplayName}", _styleLabel);
-                    GUI.color = Color.white;
-
-                    // Bonus bilgisi
-                    var (hpM, atkM) = MonsterCollection.BonusForTier(m.Tier);
-                    string bonus = $"+{Mathf.RoundToInt((hpM - 1f) * 100)}% HP/ATK";
-                    var bonusStyle = new GUIStyle(_styleLabel) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
-                    bonusStyle.normal.textColor = Color.gray;
-                    GUI.Label(new Rect(pad, ry + 28f, pw * 0.55f, 22f), bonus, bonusStyle);
-
-                    // Seç / Seçili butonu
-                    float btnW = pw * 0.32f;
-                    float btnX = pw - 16f - btnW - pad;
-                    if (isSelected)
-                    {
-                        GUI.color = new Color(0.3f, 0.8f, 0.3f);
-                        GUI.Label(new Rect(btnX, ry + 14f, btnW, 28f), "✓ Aktif Pet", _styleBtn);
-                        GUI.color = Color.white;
-                    }
-                    else
-                    {
-                        if (GUI.Button(new Rect(btnX, ry + 14f, btnW, 28f), "Seç", _styleBtn))
-                            _collection.SelectPet(m.InstanceId);
-                    }
-                }
-
-                GUI.EndScrollView();
-                py += viewH + 6f;
-
-                // Pet kaldır butonu
-                if (!string.IsNullOrEmpty(selId))
-                {
-                    GUI.color = new Color(0.7f, 0.3f, 0.3f);
-                    if (GUI.Button(new Rect(px + pad, py, pw * 0.40f, 30f), "Petsiz Devam", _styleBtn))
-                        _collection.DeselectPet();
-                    GUI.color = Color.white;
-                }
-            }
-
-            if (GUI.Button(new Rect(px + pw * 0.62f, py, pw * 0.35f, 30f), "Kapat", _styleBtn))
-                _showPetSelect = false;
         }
 
         // ── Yardımcı ──────────────────────────────────────────────────────────
