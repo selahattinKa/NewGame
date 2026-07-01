@@ -266,7 +266,21 @@ namespace CanavarZindanlari.Core
             if (!string.IsNullOrEmpty(json))
             {
                 var data = JsonUtility.FromJson<SaveData>(json);
-                if (data?.Monsters != null) _monsters = data.Monsters;
+                if (data?.Monsters != null)
+                {
+                    _monsters = data.Monsters;
+                    bool dirty = false;
+                    foreach (var m in _monsters)
+                    {
+                        // MaxEvolutionTier == F (0) → eski kayıt, atama yapılmamış
+                        if (m.MaxEvolutionTier == Rarity.F)
+                        {
+                            m.MaxEvolutionTier = RollMaxTier(m.Tier);
+                            dirty = true;
+                        }
+                    }
+                    if (dirty) Save();
+                }
             }
             SelectedPetId = PlayerPrefs.GetString(PrefPetKey, "");
         }
