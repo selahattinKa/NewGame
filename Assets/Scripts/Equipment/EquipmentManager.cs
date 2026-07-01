@@ -140,30 +140,39 @@ namespace CanavarZindanlari.Equipment
 
             if (isWeapon) return tier switch
             {
+                Rarity.F  => (15,   0,   0,  0),
+                Rarity.D  => (35,   0,   0,  0),
+                Rarity.C  => (55,   0,   0,  0),
                 Rarity.B  => (80,   0,   0,  0),
                 Rarity.A  => (200,  0,   0,  0),
                 Rarity.S  => (450,  0,   0,  0),
                 Rarity.SS => (1000, 0,   0,  0),
-                _         => (20,   0,   0,  0),
+                _         => (15,   0,   0,  0),
             };
 
             if (isArmor) return tier switch
             {
-                Rarity.B  => (0, 200,  20,  0),
-                Rarity.A  => (0, 450,  45,  0),
-                Rarity.S  => (0, 900,  90,  0),
-                Rarity.SS => (0, 1800, 180, 0),
-                _         => (0, 60,   6,   0),
+                Rarity.F  => (0,  40,   4,  0),
+                Rarity.D  => (0,  90,   9,  0),
+                Rarity.C  => (0,  140,  14, 0),
+                Rarity.B  => (0,  200,  20, 0),
+                Rarity.A  => (0,  450,  45, 0),
+                Rarity.S  => (0,  900,  90, 0),
+                Rarity.SS => (0,  1800, 180, 0),
+                _         => (0,  40,   4,  0),
             };
 
             // takı
             return tier switch
             {
+                Rarity.F  => (10,  0, 0, 1),
+                Rarity.D  => (25,  0, 0, 2),
+                Rarity.C  => (40,  0, 0, 4),
                 Rarity.B  => (60,  0, 0, 6),
                 Rarity.A  => (140, 0, 0, 14),
                 Rarity.S  => (300, 0, 0, 30),
                 Rarity.SS => (620, 0, 0, 62),
-                _         => (20,  0, 0, 2),
+                _         => (10,  0, 0, 1),
             };
         }
 

@@ -7,8 +7,7 @@ using CanavarZindanlari.Equipment;
 namespace CanavarZindanlari.UI
 {
     /// <summary>
-    /// Mağaza ekranı — gacha kutuları ve iksir satışı.
-    /// Hub'dan açılır, X ile Hub'a döner.
+    /// Mağaza ekranı — ayrı pet ve ekipman gacha kutuları, iksir satışı.
     /// </summary>
     public class ShopHUD : MonoBehaviour
     {
@@ -17,6 +16,7 @@ namespace CanavarZindanlari.UI
         private static readonly Color ColDiamond = new Color(0.40f, 0.80f, 1.00f);
         private static readonly Color ColCard    = new Color(0.12f, 0.11f, 0.20f, 1.00f);
         private static readonly Color ColSection = new Color(0.18f, 0.16f, 0.28f, 1.00f);
+        private static readonly Color ColGreen   = new Color(0.25f, 0.72f, 0.40f);
 
         private GUIStyle _styleTitle;
         private GUIStyle _styleLabel;
@@ -27,23 +27,33 @@ namespace CanavarZindanlari.UI
 
         private MonsterCollection _collection;
 
-        // Pity sayaçları
-        private int _pityGold;
-        private int _pityDiamond;
+        // Pity sayaçları — pet ve ekipman ayrı
+        private int _pityPetGold;
+        private int _pityPetDiamond;
+        private int _pityEqGold;
+        private int _pityEqDiamond;
         private const int PityLimit = 10;
-        private const string KeyPityGold    = "gacha_pity_gold";
-        private const string KeyPityDiamond = "gacha_pity_diamond";
+
+        private const string KeyPityPetGold    = "gacha_pity_pet_gold";
+        private const string KeyPityPetDiamond = "gacha_pity_pet_diamond";
+        private const string KeyPityEqGold     = "gacha_pity_eq_gold";
+        private const string KeyPityEqDiamond  = "gacha_pity_eq_diamond";
 
         // Çekiş sonucu
         private string _pullResult;
         private float  _pullResultExpiry;
         private Color  _pullResultColor;
 
+        // Scroll
+        private Vector2 _scroll;
+
         private void Awake()
         {
-            _collection   = UnityEngine.Object.FindFirstObjectByType<MonsterCollection>();
-            _pityGold     = PlayerPrefs.GetInt(KeyPityGold,    0);
-            _pityDiamond  = PlayerPrefs.GetInt(KeyPityDiamond, 0);
+            _collection    = UnityEngine.Object.FindFirstObjectByType<MonsterCollection>();
+            _pityPetGold   = PlayerPrefs.GetInt(KeyPityPetGold,   0);
+            _pityPetDiamond= PlayerPrefs.GetInt(KeyPityPetDiamond,0);
+            _pityEqGold    = PlayerPrefs.GetInt(KeyPityEqGold,    0);
+            _pityEqDiamond = PlayerPrefs.GetInt(KeyPityEqDiamond, 0);
         }
 
         private void OnGUI()
@@ -62,86 +72,135 @@ namespace CanavarZindanlari.UI
 
             DrawCloseBtn(sw, sh);
 
-            float y = sh * 0.05f;
-
-            // Başlık
+            float y = sh * 0.04f;
             _styleTitle.normal.textColor = ColGold;
             GUI.Label(new Rect(pad, y, w * 0.80f, sh * 0.07f), "🛒 MAĞAZA", _styleTitle);
-            y += sh * 0.08f;
+            y += sh * 0.07f;
 
             // Kaynak satırı
             var eco = EconomyManager.Instance;
-            int gold    = eco?.Gold    ?? 0;
-            int diamond = eco?.Diamond ?? 0;
-            int pots    = eco?.PotCount ?? 0;
             _styleSmall.normal.textColor = Color.white;
-            GUI.Label(new Rect(pad, y, w, sh * 0.04f),
-                $"🪙 {gold:N0}   💎 {diamond:N0}   🧪 {pots}/5", _styleSmall);
-            y += sh * 0.05f;
+            GUI.Label(new Rect(pad, y, w, sh * 0.038f),
+                $"🪙 {(eco?.Gold ?? 0):N0}   💎 {(eco?.Diamond ?? 0):N0}   🧪 {(eco?.PotCount ?? 0)}/5",
+                _styleSmall);
+            y += sh * 0.048f;
 
-            // ── Gacha kutuları ────────────────────────────────────────────────
-            DrawSectionHeader(pad, y, w, "GACHA KUTULARI", sh);
-            y += sh * 0.05f;
-
-            float halfW = (w - sw * 0.03f) * 0.5f;
-            float cardH = sh * 0.22f;
-
-            // Altın Kutu
-            DrawGachaCard(pad, y, halfW, cardH, sh,
-                "🪙 ALTIN KUTU",
-                "F / D / C / B tier",
-                "10'da bir C+ garantili",
-                _pityGold, ColGold,
-                "1.000 🪙 Çek",
-                () => PullGold());
-
-            // Elmas Kutu
-            DrawGachaCard(pad + halfW + sw * 0.03f, y, halfW, cardH, sh,
-                "💎 ELMAS KUTU",
-                "D / C / B / A tier",
-                "10'da bir B+ garantili",
-                _pityDiamond, ColDiamond,
-                "50 💎 Çek",
-                () => PullDiamond());
-
-            y += cardH + sh * 0.03f;
-
-            // ── Çekiş sonucu ──────────────────────────────────────────────────
+            // Çekiş sonucu
             if (!string.IsNullOrEmpty(_pullResult) && Time.realtimeSinceStartup < _pullResultExpiry)
             {
                 GUI.color = new Color(0.12f, 0.10f, 0.20f, 1f);
-                GUI.DrawTexture(new Rect(pad, y, w, sh * 0.06f), Texture2D.whiteTexture);
+                GUI.DrawTexture(new Rect(pad, y, w, sh * 0.055f), Texture2D.whiteTexture);
                 GUI.color = Color.white;
-                _styleLabel.normal.textColor = _pullResultColor;
-                GUI.Label(new Rect(pad + 8f, y + 4f, w - 8f, sh * 0.055f), _pullResult, _styleLabel);
-                y += sh * 0.075f;
+                _styleSmall.normal.textColor = _pullResultColor;
+                GUI.Label(new Rect(pad + 8f, y + 4f, w - 8f, sh * 0.050f), _pullResult, _styleSmall);
+                y += sh * 0.065f;
             }
-            else
-            {
-                y += sh * 0.01f;
-            }
+            else y += sh * 0.005f;
+
+            // ── Scroll ────────────────────────────────────────────────────────
+            float cardH  = sh * 0.195f;
+            float halfW  = (w - sw * 0.025f) * 0.5f;
+            float secH   = sh * 0.042f;
+            float potH   = sh * 0.130f;
+            float totalH = (secH + cardH + sh * 0.020f) * 2 + secH + potH + sh * 0.010f;
+
+            float viewH = sh - y - sh * 0.02f;
+            _scroll = GUI.BeginScrollView(
+                new Rect(pad, y, w, viewH), _scroll,
+                new Rect(0, 0, w - 16f, totalH), false, false);
+
+            float ry = 0f;
+
+            // ── Pet Kutuları ─────────────────────────────────────────────────
+            DrawSectionHeader(0, ry, w - 16f, "🐾 PET KUTULARI", sh);
+            ry += secH;
+
+            DrawGachaCard(0, ry, halfW, cardH, sh,
+                "🪙 Altın Pet Kutusu", "F / D / C / B tier", "10'da bir C+ garantili",
+                _pityPetGold, ColGold, "1.000 🪙 Çek", PullPetGold);
+
+            DrawGachaCard(halfW + sw * 0.025f, ry, halfW, cardH, sh,
+                "💎 Elmas Pet Kutusu", "D / C / B / A tier", "10'da bir B+ garantili",
+                _pityPetDiamond, ColDiamond, "50 💎 Çek", PullPetDiamond);
+
+            ry += cardH + sh * 0.020f;
+
+            // ── Ekipman Kutuları ──────────────────────────────────────────────
+            DrawSectionHeader(0, ry, w - 16f, "⚔ EKİPMAN KUTULARI", sh);
+            ry += secH;
+
+            DrawGachaCard(0, ry, halfW, cardH, sh,
+                "🪙 Altın Ekipman Kutusu", "F / D / C / B tier", "10'da bir C+ garantili",
+                _pityEqGold, ColGold, "1.000 🪙 Çek", PullEqGold);
+
+            DrawGachaCard(halfW + sw * 0.025f, ry, halfW, cardH, sh,
+                "💎 Elmas Ekipman Kutusu", "D / C / B / A tier", "10'da bir B+ garantili",
+                _pityEqDiamond, ColDiamond, "50 💎 Çek", PullEqDiamond);
+
+            ry += cardH + sh * 0.020f;
 
             // ── İksir ─────────────────────────────────────────────────────────
-            DrawSectionHeader(pad, y, w, "İKSİR", sh);
-            y += sh * 0.05f;
+            DrawSectionHeader(0, ry, w - 16f, "🧪 İKSİR", sh);
+            ry += secH;
+            DrawPotSection(sw, sh, w, ry, eco);
 
+            GUI.EndScrollView();
+        }
+
+        // ── Kart çizimi ───────────────────────────────────────────────────────
+
+        private void DrawGachaCard(float x, float y, float w, float h, float sh,
+            string title, string tierLine, string pityLine,
+            int pityCount, Color titleColor, string btnLabel, System.Action onPull)
+        {
             GUI.color = ColCard;
-            GUI.DrawTexture(new Rect(pad, y, w, sh * 0.13f), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(x, y, w, h), Texture2D.whiteTexture);
             GUI.color = Color.white;
 
-            _styleSmall.normal.textColor = Color.gray;
-            GUI.Label(new Rect(pad + 8f, y + sh * 0.008f, w * 0.65f, sh * 0.04f),
-                "HP %30 altında otomatik kullanılır · +%40 HP · 3 tur bekleme", _styleSmall);
+            float ip = w * 0.05f;
+            float lh = sh * 0.034f;
 
+            _styleSmall.normal.textColor = titleColor;
+            GUI.Label(new Rect(x + ip, y + ip, w - ip * 2f, lh * 1.1f), title, _styleSmall);
+
+            _styleSmall.normal.textColor = Color.white;
+            GUI.Label(new Rect(x + ip, y + ip + lh * 1.2f, w - ip * 2f, lh), tierLine, _styleSmall);
+
+            _styleSmall.normal.textColor = Color.gray;
+            GUI.Label(new Rect(x + ip, y + ip + lh * 2.2f, w - ip * 2f, lh), pityLine, _styleSmall);
+
+            _styleSmall.normal.textColor = pityCount >= PityLimit - 1
+                ? new Color(1f, 0.5f, 0.2f) : new Color(0.6f, 0.6f, 0.8f);
+            GUI.Label(new Rect(x + ip, y + ip + lh * 3.2f, w - ip * 2f, lh),
+                $"Pity: {pityCount}/{PityLimit}", _styleSmall);
+
+            GUI.color = titleColor;
+            float bh = h * 0.28f;
+            if (GUI.Button(new Rect(x + ip, y + h - bh - ip, w - ip * 2f, bh), btnLabel, _styleBtn))
+                onPull?.Invoke();
+            GUI.color = Color.white;
+        }
+
+        private void DrawPotSection(float sw, float sh, float w, float ry, EconomyManager eco)
+        {
+            GUI.color = ColCard;
+            GUI.DrawTexture(new Rect(0, ry, w - 16f, sh * 0.120f), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+
+            int pots = eco?.PotCount ?? 0;
+            _styleSmall.normal.textColor = Color.gray;
+            GUI.Label(new Rect(8f, ry + sh * 0.008f, (w - 16f) * 0.62f, sh * 0.038f),
+                "HP %30 altında otomatik · +%40 HP · 3 tur bekleme", _styleSmall);
             _styleSmall.normal.textColor = pots >= 5 ? Color.gray : Color.white;
-            GUI.Label(new Rect(pad + 8f, y + sh * 0.05f, w * 0.50f, sh * 0.04f),
+            GUI.Label(new Rect(8f, ry + sh * 0.048f, (w - 16f) * 0.50f, sh * 0.038f),
                 pots >= 5 ? "Doldu (5/5)" : $"Mevcut: {pots}/5", _styleSmall);
 
-            bool canBuyPot = pots < 5 && (eco?.Gold ?? 0) >= 500;
-            GUI.enabled = canBuyPot;
-            GUI.color   = canBuyPot ? new Color(0.30f, 0.75f, 0.45f) : new Color(0.35f, 0.35f, 0.40f);
-            if (GUI.Button(new Rect(pad + w * 0.55f, y + sh * 0.018f, w * 0.42f, sh * 0.09f),
-                "500 🪙 — 1 İksir Al", _styleBtn))
+            bool canBuy = pots < 5 && (eco?.Gold ?? 0) >= 500;
+            GUI.enabled = canBuy;
+            GUI.color   = canBuy ? ColGreen : new Color(0.35f, 0.35f, 0.40f);
+            float bw = (w - 16f) * 0.36f;
+            float bx = (w - 16f) - bw - 8f;
+            if (GUI.Button(new Rect(bx, ry + sh * 0.018f, bw, sh * 0.085f), "500 🪙\n1 İksir", _styleBtn))
             {
                 if (eco != null && eco.SpendGold(500))
                 {
@@ -153,142 +212,130 @@ namespace CanavarZindanlari.UI
             GUI.color   = Color.white;
         }
 
-        // ── Gacha kart çizimi ─────────────────────────────────────────────────
-
-        private void DrawGachaCard(float x, float y, float w, float h, float sh,
-            string title, string tierLine, string pityLine, int pityCount,
-            Color titleColor, string btnLabel, System.Action onPull)
-        {
-            GUI.color = ColCard;
-            GUI.DrawTexture(new Rect(x, y, w, h), Texture2D.whiteTexture);
-            GUI.color = Color.white;
-
-            float ip = w * 0.05f;
-            float lh = sh * 0.038f;
-
-            _styleLabel.normal.textColor = titleColor;
-            GUI.Label(new Rect(x + ip, y + ip, w - ip * 2, lh), title, _styleLabel);
-
-            _styleSmall.normal.textColor = Color.white;
-            GUI.Label(new Rect(x + ip, y + ip + lh * 1.1f, w - ip * 2, lh), tierLine, _styleSmall);
-
-            _styleSmall.normal.textColor = Color.gray;
-            GUI.Label(new Rect(x + ip, y + ip + lh * 2.1f, w - ip * 2, lh), pityLine, _styleSmall);
-
-            // Pity göstergesi
-            _styleSmall.normal.textColor = pityCount >= PityLimit - 1
-                ? new Color(1f, 0.5f, 0.2f)
-                : new Color(0.6f, 0.6f, 0.8f);
-            GUI.Label(new Rect(x + ip, y + ip + lh * 3.1f, w - ip * 2, lh),
-                $"Pity: {pityCount}/{PityLimit}", _styleSmall);
-
-            GUI.color = titleColor;
-            if (GUI.Button(new Rect(x + ip, y + h - sh * 0.085f, w - ip * 2, sh * 0.075f),
-                btnLabel, _styleBtn))
-                onPull?.Invoke();
-            GUI.color = Color.white;
-        }
-
         private void DrawSectionHeader(float x, float y, float w, string text, float sh)
         {
             GUI.color = ColSection;
-            GUI.DrawTexture(new Rect(x, y, w, sh * 0.038f), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(x, y, w, sh * 0.036f), Texture2D.whiteTexture);
             GUI.color = Color.white;
             _styleSmall.normal.textColor = new Color(0.7f, 0.7f, 0.9f);
-            GUI.Label(new Rect(x + 8f, y + 2f, w - 8f, sh * 0.036f), text, _styleSmall);
+            GUI.Label(new Rect(x + 8f, y + 2f, w - 8f, sh * 0.034f), text, _styleSmall);
         }
 
-        // ── Gacha mantığı ─────────────────────────────────────────────────────
+        // ── Pet gacha mantığı ──────────────────────────────────────────────────
 
-        private void PullGold()
+        private void PullPetGold()
         {
             var eco = EconomyManager.Instance;
             if (eco == null || !eco.SpendGold(1000)) { ShowResult("✗ Yeterli altın yok!", Color.red); return; }
 
-            _pityGold++;
+            _pityPetGold++;
             Rarity tier;
-
-            if (_pityGold >= PityLimit)
+            if (_pityPetGold >= PityLimit)
             {
                 tier = UnityEngine.Random.value < 0.8f ? Rarity.C : Rarity.B;
-                _pityGold = 0;
+                _pityPetGold = 0;
             }
             else
             {
                 float r = UnityEngine.Random.value;
                 tier = r < 0.55f ? Rarity.F : r < 0.85f ? Rarity.D : r < 0.97f ? Rarity.C : Rarity.B;
-                if (tier >= Rarity.C) _pityGold = 0;
+                if (tier >= Rarity.C) _pityPetGold = 0;
             }
-
-            PlayerPrefs.SetInt(KeyPityGold, _pityGold);
+            PlayerPrefs.SetInt(KeyPityPetGold, _pityPetGold);
             PlayerPrefs.Save();
-            FinishPull(tier, goldBox: true);
+            FinishPetPull(tier);
         }
 
-        private void PullDiamond()
+        private void PullPetDiamond()
         {
             var eco = EconomyManager.Instance;
             if (eco == null || !eco.SpendDiamonds(50)) { ShowResult("✗ Yeterli elmas yok!", Color.red); return; }
 
-            _pityDiamond++;
+            _pityPetDiamond++;
             Rarity tier;
-
-            if (_pityDiamond >= PityLimit)
+            if (_pityPetDiamond >= PityLimit)
             {
                 tier = UnityEngine.Random.value < 0.8f ? Rarity.B : Rarity.A;
-                _pityDiamond = 0;
+                _pityPetDiamond = 0;
             }
             else
             {
                 float r = UnityEngine.Random.value;
                 tier = r < 0.40f ? Rarity.D : r < 0.75f ? Rarity.C : r < 0.95f ? Rarity.B : Rarity.A;
-                if (tier >= Rarity.B) _pityDiamond = 0;
+                if (tier >= Rarity.B) _pityPetDiamond = 0;
             }
-
-            PlayerPrefs.SetInt(KeyPityDiamond, _pityDiamond);
+            PlayerPrefs.SetInt(KeyPityPetDiamond, _pityPetDiamond);
             PlayerPrefs.Save();
-            FinishPull(tier, goldBox: false);
+            FinishPetPull(tier);
         }
 
-        private void FinishPull(Rarity tier, bool goldBox)
+        private void FinishPetPull(Rarity tier)
         {
-            Color col = tier switch
-            {
-                Rarity.SS => new Color(1.00f, 0.55f, 0.10f),
-                Rarity.S  => new Color(0.80f, 0.30f, 1.00f),
-                Rarity.A  => new Color(0.40f, 0.75f, 1.00f),
-                Rarity.B  => new Color(0.30f, 0.90f, 0.50f),
-                Rarity.C  => new Color(0.55f, 0.90f, 0.40f),
-                Rarity.D  => new Color(0.95f, 0.80f, 0.30f),
-                _         => new Color(0.80f, 0.78f, 0.80f),
-            };
-
-            // Ekipman şansı: altın kutu %35 zırh, elmas kutu %30 zırh + %20 takı
-            float eqRoll = UnityEngine.Random.value;
-            float armorChance     = goldBox ? 0.35f : 0.30f;
-            float accessoryChance = goldBox ? 0.00f : 0.20f;
-
-            if (eqRoll < armorChance)
-            {
-                var slot = EquipmentManager.RandomArmorSlot();
-                var eq   = EquipmentManager.CreateEquipment(slot, tier);
-                EquipmentManager.Instance.AddEquipment(eq);
-                ShowResult($"⚔ [{tier}] {eq.DisplayName}  ({StatsShort(eq)}) düştü!", col);
-                return;
-            }
-            if (eqRoll < armorChance + accessoryChance)
-            {
-                var slot = EquipmentManager.RandomAccessorySlot();
-                var eq   = EquipmentManager.CreateEquipment(slot, tier);
-                EquipmentManager.Instance.AddEquipment(eq);
-                ShowResult($"💍 [{tier}] {eq.DisplayName}  ({StatsShort(eq)}) düştü!", col);
-                return;
-            }
-
-            // Pet
             if (_collection == null) { ShowResult("✗ Koleksiyon bulunamadı!", Color.red); return; }
             var pet = _collection.PullFromGacha(tier);
-            ShowResult($"✓ [{tier}] {pet.DisplayName} yakalandı!  (Max: {pet.MaxEvolutionTier})", col);
+            ShowResult($"✓ [{tier}] {pet.DisplayName} yakalandı!  (Max: {pet.MaxEvolutionTier})", TierColor(tier));
+        }
+
+        // ── Ekipman gacha mantığı ──────────────────────────────────────────────
+
+        private void PullEqGold()
+        {
+            var eco = EconomyManager.Instance;
+            if (eco == null || !eco.SpendGold(1000)) { ShowResult("✗ Yeterli altın yok!", Color.red); return; }
+
+            _pityEqGold++;
+            Rarity tier;
+            if (_pityEqGold >= PityLimit)
+            {
+                tier = UnityEngine.Random.value < 0.8f ? Rarity.C : Rarity.B;
+                _pityEqGold = 0;
+            }
+            else
+            {
+                float r = UnityEngine.Random.value;
+                tier = r < 0.55f ? Rarity.F : r < 0.85f ? Rarity.D : r < 0.97f ? Rarity.C : Rarity.B;
+                if (tier >= Rarity.C) _pityEqGold = 0;
+            }
+            PlayerPrefs.SetInt(KeyPityEqGold, _pityEqGold);
+            PlayerPrefs.Save();
+            FinishEqPull(tier);
+        }
+
+        private void PullEqDiamond()
+        {
+            var eco = EconomyManager.Instance;
+            if (eco == null || !eco.SpendDiamonds(50)) { ShowResult("✗ Yeterli elmas yok!", Color.red); return; }
+
+            _pityEqDiamond++;
+            Rarity tier;
+            if (_pityEqDiamond >= PityLimit)
+            {
+                tier = UnityEngine.Random.value < 0.8f ? Rarity.B : Rarity.A;
+                _pityEqDiamond = 0;
+            }
+            else
+            {
+                float r = UnityEngine.Random.value;
+                tier = r < 0.40f ? Rarity.D : r < 0.75f ? Rarity.C : r < 0.95f ? Rarity.B : Rarity.A;
+                if (tier >= Rarity.B) _pityEqDiamond = 0;
+            }
+            PlayerPrefs.SetInt(KeyPityEqDiamond, _pityEqDiamond);
+            PlayerPrefs.Save();
+            FinishEqPull(tier);
+        }
+
+        private void FinishEqPull(Rarity tier)
+        {
+            bool isArmor = UnityEngine.Random.value < 0.5f;
+            var slot = isArmor
+                ? EquipmentManager.RandomArmorSlot()
+                : EquipmentManager.RandomAccessorySlot();
+            var eq = EquipmentManager.CreateEquipment(slot, tier);
+            EquipmentManager.Instance.AddEquipment(eq);
+
+            string stats = StatsShort(eq);
+            string icon  = isArmor ? "🛡" : "💍";
+            ShowResult($"{icon} [{tier}] {eq.DisplayName}  ({stats}) düştü!", TierColor(tier));
         }
 
         private static string StatsShort(OwnedEquipment eq)
@@ -303,17 +350,28 @@ namespace CanavarZindanlari.UI
 
         private void ShowResult(string msg, Color col)
         {
-            _pullResult       = msg;
-            _pullResultColor  = col;
+            _pullResult      = msg;
+            _pullResultColor = col;
             _pullResultExpiry = Time.realtimeSinceStartup + 4f;
         }
+
+        private static Color TierColor(Rarity t) => t switch
+        {
+            Rarity.SS => new Color(1.00f, 0.55f, 0.10f),
+            Rarity.S  => new Color(0.80f, 0.30f, 1.00f),
+            Rarity.A  => new Color(0.40f, 0.75f, 1.00f),
+            Rarity.B  => new Color(0.30f, 0.90f, 0.50f),
+            Rarity.C  => new Color(0.55f, 0.90f, 0.40f),
+            Rarity.D  => new Color(0.95f, 0.80f, 0.30f),
+            _         => new Color(0.80f, 0.78f, 0.80f),
+        };
 
         // ── Yardımcılar ───────────────────────────────────────────────────────
 
         private void DrawCloseBtn(float sw, float sh)
         {
             float bw = sw * 0.12f;
-            float bh = sh * 0.055f;
+            float bh = sh * 0.050f;
             GUI.color = new Color(0.70f, 0.20f, 0.20f);
             if (GUI.Button(new Rect(sw - bw - 8f, 8f, bw, bh), "✕", _styleBtnX))
                 ScreenNavigator.GoToHub();
@@ -325,7 +383,7 @@ namespace CanavarZindanlari.UI
             if (_stylesReady) return;
             _stylesReady = true;
 
-            int fs = Mathf.Max(14, Screen.width / 22);
+            int fs = Mathf.Max(13, Screen.width / 22);
 
             _styleTitle = new GUIStyle(GUI.skin.label)
             {
@@ -333,27 +391,23 @@ namespace CanavarZindanlari.UI
                 fontStyle = FontStyle.Bold,
                 alignment = TextAnchor.MiddleLeft,
             };
-
             _styleLabel = new GUIStyle(GUI.skin.label)
             {
                 fontSize  = fs,
-                alignment = TextAnchor.MiddleLeft,
                 fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleLeft,
             };
-
             _styleSmall = new GUIStyle(GUI.skin.label)
             {
                 fontSize  = fs - 2,
                 alignment = TextAnchor.MiddleLeft,
             };
-
             _styleBtn = new GUIStyle(GUI.skin.button)
             {
                 fontSize  = fs - 1,
                 fontStyle = FontStyle.Bold,
                 normal    = { textColor = Color.white },
             };
-
             _styleBtnX = new GUIStyle(GUI.skin.button)
             {
                 fontSize  = fs + 2,
