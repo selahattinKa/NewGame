@@ -157,7 +157,7 @@ public class ArenaHUD : MonoBehaviour
 
         // Ben
         _styleLabel.normal.textColor = Color.white;
-        GUI.Label(new Rect(pad, cy, btnW, btnH), "Senin takımın", _styleLabel);
+        GUI.Label(new Rect(pad, cy, btnW, btnH), "Sen", _styleLabel);
         cy += btnH * 0.7f;
         DrawProfileCard(pad, cy, btnW, _arena.MyProfile);
         cy += btnH * 3.0f;

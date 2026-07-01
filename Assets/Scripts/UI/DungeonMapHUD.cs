@@ -329,7 +329,7 @@ namespace CanavarZindanlari.UI
 
             // Full-heal bildirimi
             GUI.Label(new Rect(px, py, pw, 28),
-                "Takım tam HP'ye iyileşti.", _styleLabel);
+                "HP tam yenilendi.", _styleLabel);
             py += 32;
 
             // Yakalanan canavar
