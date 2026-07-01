@@ -24,20 +24,17 @@ namespace CanavarZindanlari.Backend
         /// </summary>
         public static int CalculateCombatPower(MonsterCollection collection)
         {
-            int cp = 100; // temel CP
+            int cp  = 100; // temel CP
+            var pet = collection?.SelectedPet;
+            if (pet == null) return cp;
 
-            if (collection == null) return cp;
-
-            foreach (var m in collection.Monsters)
+            cp += pet.Tier switch
             {
-                cp += m.Tier switch
-                {
-                    Rarity.B => 150,
-                    Rarity.C => 70,
-                    Rarity.D => 30,
-                    _        => 10,  // F
-                };
-            }
+                Rarity.B => 150,
+                Rarity.C => 70,
+                Rarity.D => 30,
+                _        => 10,  // F
+            };
             return cp;
         }
 

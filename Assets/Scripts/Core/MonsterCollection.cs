@@ -33,12 +33,17 @@ namespace CanavarZindanlari.Core
         [Serializable]
         private class SaveData { public List<CapturedMonster> Monsters = new List<CapturedMonster>(); }
 
-        private const string PrefKey = "monster_collection";
+        private const string PrefKey    = "monster_collection";
+        private const string PrefPetKey = "selected_pet";
 
         public IReadOnlyList<CapturedMonster> Monsters => _monsters;
         private List<CapturedMonster> _monsters = new List<CapturedMonster>();
 
+        public string          SelectedPetId { get; private set; }
+        public CapturedMonster SelectedPet   => _monsters.Find(m => m.InstanceId == SelectedPetId);
+
         public event Action<CapturedMonster> OnMonsterAdded;
+        public event Action<CapturedMonster> OnPetSelected;
 
         private void Awake() => Load();
 
@@ -67,6 +72,35 @@ namespace CanavarZindanlari.Core
                 _                  => Rarity.F,
             };
         }
+
+        // ── Pet seçimi ───────────────────────────────────────────────────────
+
+        public void SelectPet(string instanceId)
+        {
+            SelectedPetId = instanceId;
+            PlayerPrefs.SetString(PrefPetKey, instanceId);
+            PlayerPrefs.Save();
+            OnPetSelected?.Invoke(SelectedPet);
+        }
+
+        public void DeselectPet()
+        {
+            SelectedPetId = "";
+            PlayerPrefs.DeleteKey(PrefPetKey);
+            PlayerPrefs.Save();
+            OnPetSelected?.Invoke(null);
+        }
+
+        // ── Pet tier stat bonusu ─────────────────────────────────────────────
+
+        /// <summary>HP ve ATK için çarpan (1.0 = bonus yok).</summary>
+        public static (float hp, float atk) BonusForTier(Rarity tier) => tier switch
+        {
+            Rarity.B => (1.35f, 1.35f),
+            Rarity.C => (1.20f, 1.20f),
+            Rarity.D => (1.10f, 1.10f),
+            _        => (1.05f, 1.05f),  // F
+        };
 
         // ── Koleksiyona ekleme ────────────────────────────────────────────────
 
@@ -127,9 +161,12 @@ namespace CanavarZindanlari.Core
         private void Load()
         {
             string json = PlayerPrefs.GetString(PrefKey, "");
-            if (string.IsNullOrEmpty(json)) return;
-            var data = JsonUtility.FromJson<SaveData>(json);
-            if (data?.Monsters != null) _monsters = data.Monsters;
+            if (!string.IsNullOrEmpty(json))
+            {
+                var data = JsonUtility.FromJson<SaveData>(json);
+                if (data?.Monsters != null) _monsters = data.Monsters;
+            }
+            SelectedPetId = PlayerPrefs.GetString(PrefPetKey, "");
         }
 
         public void ResetCollection()

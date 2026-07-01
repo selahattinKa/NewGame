@@ -248,13 +248,25 @@ namespace CanavarZindanlari.Core
         {
             if (PlayerClass != null)
             {
+                int baseHP  = PlayerClass.StatAtLevel(PlayerClass.BaseHP,  1);
+                int baseATK = PlayerClass.StatAtLevel(PlayerClass.BaseATK, 1);
+
+                // Seçili pet stat bonusu
+                var pet = _collection?.SelectedPet;
+                if (pet != null)
+                {
+                    var (hpMult, atkMult) = MonsterCollection.BonusForTier(pet.Tier);
+                    baseHP  = Mathf.RoundToInt(baseHP  * hpMult);
+                    baseATK = Mathf.RoundToInt(baseATK * atkMult);
+                }
+
                 return new CombatUnit
                 {
                     DisplayName = PlayerClass.ClassName,
                     Archetype   = Archetype.Saldirgan,
-                    MaxHP       = PlayerClass.StatAtLevel(PlayerClass.BaseHP,  1),
-                    CurrentHP   = PlayerClass.StatAtLevel(PlayerClass.BaseHP,  1),
-                    BaseATK     = PlayerClass.StatAtLevel(PlayerClass.BaseATK, 1),
+                    MaxHP       = baseHP,
+                    CurrentHP   = baseHP,
+                    BaseATK     = baseATK,
                     BaseDEF     = PlayerClass.StatAtLevel(PlayerClass.BaseDEF, 1),
                     SPD         = PlayerClass.StatAtLevel(PlayerClass.BaseSPD, 1),
                 };
