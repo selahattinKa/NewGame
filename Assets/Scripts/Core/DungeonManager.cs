@@ -4,6 +4,7 @@ using UnityEngine;
 using CanavarZindanlari.Combat;
 using CanavarZindanlari.Data;
 using CanavarZindanlari.Economy;
+using CanavarZindanlari.Equipment;
 using CanavarZindanlari.UI;
 
 namespace CanavarZindanlari.Core
@@ -294,6 +295,16 @@ namespace CanavarZindanlari.Core
                     baseATK = Mathf.RoundToInt(baseATK * atkMult);
                 }
 
+                int baseDEF = PlayerClass.StatAtLevel(PlayerClass.BaseDEF, 1);
+                int baseSPD = PlayerClass.StatAtLevel(PlayerClass.BaseSPD, 1);
+
+                // Ekipman bonusu
+                var (eqATK, eqHP, eqDEF, eqSPD) = EquipmentManager.Instance.GetTotalBonuses();
+                baseHP  += eqHP;
+                baseATK += eqATK;
+                baseDEF += eqDEF;
+                baseSPD += eqSPD;
+
                 return new CombatUnit
                 {
                     DisplayName = PlayerClass.ClassName,
@@ -301,8 +312,8 @@ namespace CanavarZindanlari.Core
                     MaxHP       = baseHP,
                     CurrentHP   = baseHP,
                     BaseATK     = baseATK,
-                    BaseDEF     = PlayerClass.StatAtLevel(PlayerClass.BaseDEF, 1),
-                    SPD         = PlayerClass.StatAtLevel(PlayerClass.BaseSPD, 1),
+                    BaseDEF     = baseDEF,
+                    SPD         = baseSPD,
                 };
             }
 

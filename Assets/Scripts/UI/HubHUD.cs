@@ -42,6 +42,10 @@ namespace CanavarZindanlari.UI
             // Eksik bileşenleri bu objeye otomatik ekle
             if (GetComponent<ShopHUD>()        == null) gameObject.AddComponent<ShopHUD>();
             if (GetComponent<ClassSelectHUD>() == null) gameObject.AddComponent<ClassSelectHUD>();
+            if (GetComponent<EquipmentHUD>()   == null) gameObject.AddComponent<EquipmentHUD>();
+
+            // EquipmentManager singleton'ını garantile
+            var _ = CanavarZindanlari.Equipment.EquipmentManager.Instance;
 
             // Eski UIDocument tabanlı sınıf seçimini kapat (artık IMGUI versiyonu kullanılıyor)
             var oldSelector = UnityEngine.Object.FindFirstObjectByType<ClassSelectionScreen>();
@@ -114,7 +118,9 @@ namespace CanavarZindanlari.UI
             y += btnH + gap;
             DrawNavBtn(new Rect(pad, y, w, btnH), "🐾  Petimi Seç",     ColGreen, GameScreen.PetSelect);
             y += btnH + gap;
-            DrawNavBtn(new Rect(pad, y, w, btnH), "🛒  Mağaza", ColGold, GameScreen.Shop);
+            DrawNavBtn(new Rect(pad, y, w, btnH), "🛒  Mağaza",   ColGold,  GameScreen.Shop);
+            y += btnH + gap;
+            DrawNavBtn(new Rect(pad, y, w, btnH), "🎒  Ekipman",  ColGreen, GameScreen.Equipment);
             y += btnH + gap;
             DrawNavBtnDisabled(new Rect(pad, y, w, btnH), "📖  Hikaye  (Yakında)");
         }

@@ -2,7 +2,7 @@ using System;
 
 namespace CanavarZindanlari.Core
 {
-    public enum GameScreen { Hub, ClassSelect, Dungeon, DungeonCollection, Arena, PetSelect, Shop }
+    public enum GameScreen { Hub, ClassSelect, Dungeon, DungeonCollection, Arena, PetSelect, Shop, Equipment }
 
     /// <summary>
     /// Hangi ekranın aktif olduğunu yöneten merkezi durum makinesi.

@@ -2,6 +2,7 @@ using UnityEngine;
 using CanavarZindanlari.Core;
 using CanavarZindanlari.Data;
 using CanavarZindanlari.Economy;
+using CanavarZindanlari.Equipment;
 
 namespace CanavarZindanlari.UI
 {
@@ -221,7 +222,7 @@ namespace CanavarZindanlari.UI
 
             PlayerPrefs.SetInt(KeyPityGold, _pityGold);
             PlayerPrefs.Save();
-            FinishPull(tier);
+            FinishPull(tier, goldBox: true);
         }
 
         private void PullDiamond()
@@ -246,23 +247,58 @@ namespace CanavarZindanlari.UI
 
             PlayerPrefs.SetInt(KeyPityDiamond, _pityDiamond);
             PlayerPrefs.Save();
-            FinishPull(tier);
+            FinishPull(tier, goldBox: false);
         }
 
-        private void FinishPull(Rarity tier)
+        private void FinishPull(Rarity tier, bool goldBox)
         {
-            if (_collection == null) { ShowResult("✗ Koleksiyon bulunamadı!", Color.red); return; }
-            var pet = _collection.PullFromGacha(tier);
-
             Color col = tier switch
             {
-                Rarity.A => new Color(0.40f, 0.75f, 1.00f),
-                Rarity.B => new Color(0.30f, 0.90f, 0.50f),
-                Rarity.C => new Color(0.55f, 0.90f, 0.40f),
-                Rarity.D => new Color(0.95f, 0.80f, 0.30f),
-                _        => new Color(0.80f, 0.78f, 0.80f),
+                Rarity.SS => new Color(1.00f, 0.55f, 0.10f),
+                Rarity.S  => new Color(0.80f, 0.30f, 1.00f),
+                Rarity.A  => new Color(0.40f, 0.75f, 1.00f),
+                Rarity.B  => new Color(0.30f, 0.90f, 0.50f),
+                Rarity.C  => new Color(0.55f, 0.90f, 0.40f),
+                Rarity.D  => new Color(0.95f, 0.80f, 0.30f),
+                _         => new Color(0.80f, 0.78f, 0.80f),
             };
+
+            // Ekipman şansı: altın kutu %35 zırh, elmas kutu %30 zırh + %20 takı
+            float eqRoll = UnityEngine.Random.value;
+            float armorChance     = goldBox ? 0.35f : 0.30f;
+            float accessoryChance = goldBox ? 0.00f : 0.20f;
+
+            if (eqRoll < armorChance)
+            {
+                var slot = EquipmentManager.RandomArmorSlot();
+                var eq   = EquipmentManager.CreateEquipment(slot, tier);
+                EquipmentManager.Instance.AddEquipment(eq);
+                ShowResult($"⚔ [{tier}] {eq.DisplayName}  ({StatsShort(eq)}) düştü!", col);
+                return;
+            }
+            if (eqRoll < armorChance + accessoryChance)
+            {
+                var slot = EquipmentManager.RandomAccessorySlot();
+                var eq   = EquipmentManager.CreateEquipment(slot, tier);
+                EquipmentManager.Instance.AddEquipment(eq);
+                ShowResult($"💍 [{tier}] {eq.DisplayName}  ({StatsShort(eq)}) düştü!", col);
+                return;
+            }
+
+            // Pet
+            if (_collection == null) { ShowResult("✗ Koleksiyon bulunamadı!", Color.red); return; }
+            var pet = _collection.PullFromGacha(tier);
             ShowResult($"✓ [{tier}] {pet.DisplayName} yakalandı!  (Max: {pet.MaxEvolutionTier})", col);
+        }
+
+        private static string StatsShort(OwnedEquipment eq)
+        {
+            var sb = new System.Text.StringBuilder();
+            if (eq.BonusATK > 0) sb.Append($"+{eq.BonusATK}ATK ");
+            if (eq.BonusHP  > 0) sb.Append($"+{eq.BonusHP}HP ");
+            if (eq.BonusDEF > 0) sb.Append($"+{eq.BonusDEF}DEF ");
+            if (eq.BonusSPD > 0) sb.Append($"+{eq.BonusSPD}HIZ");
+            return sb.ToString().Trim();
         }
 
         private void ShowResult(string msg, Color col)
