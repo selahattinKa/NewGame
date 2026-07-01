@@ -4,10 +4,14 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.Video;
+using UnityEngine.SceneManagement;
 using CanavarZindanlari.Combat;
 using CanavarZindanlari.Core;
 using CanavarZindanlari.Data;
 using CanavarZindanlari.Economy;
+using CanavarZindanlari.Gameplay;
+using CanavarZindanlari.UI;
+using CanavarZindanlari.Arena;
 
 // Player Settings'i otomatik uygula — sadece bir kez çalışır
 [InitializeOnLoad]
@@ -22,10 +26,6 @@ public static class ProjectSettingsApplier
         PlayerSettings.allowedAutorotateToLandscapeRight     = false;
     }
 }
-using CanavarZindanlari.Gameplay;
-using CanavarZindanlari.UI;
-using CanavarZindanlari.Arena;
-using UnityEngine.SceneManagement;
 
 namespace CanavarZindanlari.Editor
 {
