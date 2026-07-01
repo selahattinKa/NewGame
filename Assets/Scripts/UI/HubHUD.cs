@@ -38,6 +38,17 @@ namespace CanavarZindanlari.UI
         {
             _dungeon    = FindFirstObjectOfType<DungeonManager>();
             _collection = FindFirstObjectOfType<MonsterCollection>();
+
+            // Eksik bileşenleri bu objeye otomatik ekle
+            if (GetComponent<ShopHUD>()        == null) gameObject.AddComponent<ShopHUD>();
+            if (GetComponent<ClassSelectHUD>() == null) gameObject.AddComponent<ClassSelectHUD>();
+        }
+
+        private void Start()
+        {
+            // Sınıf seçilmemişse oyun başında sınıf seçim ekranını aç
+            if (string.IsNullOrEmpty(PlayerPrefs.GetString("player_class_name", "")))
+                ScreenNavigator.GoTo(GameScreen.ClassSelect);
         }
 
         private void OnGUI()

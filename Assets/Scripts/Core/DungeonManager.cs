@@ -73,6 +73,8 @@ namespace CanavarZindanlari.Core
 
         // ── Lifecycle ─────────────────────────────────────────────────────────
 
+        private const string KeyClass = "player_class_name";
+
         private void Awake()
         {
             for (int i = 1; i <= TotalFloors; i++)
@@ -82,9 +84,28 @@ namespace CanavarZindanlari.Core
                     State        = i == 1 ? FloorState.Unlocked : FloorState.Locked,
                     FirstCleared = false,
                 };
+
+            // Kayıtlı sınıfı yükle
+            string saved = PlayerPrefs.GetString(KeyClass, "");
+            if (!string.IsNullOrEmpty(saved))
+            {
+                var data = Resources.Load<ClassData>("Classes/" + saved);
+                if (data != null) { PlayerClass = data; State = DungeonState.MapView; }
+            }
+
             LoadProgress();
             _hud        = UnityEngine.Object.FindFirstObjectByType<BattleHUD>();
             _collection = UnityEngine.Object.FindFirstObjectByType<MonsterCollection>();
+        }
+
+        /// <summary>Sınıf seçim ekranından çağrılır; sınıfı kaydeder ve haritayı açar.</summary>
+        public void SetClass(ClassData data)
+        {
+            PlayerClass = data;
+            PlayerPrefs.SetString(KeyClass, data.name);
+            PlayerPrefs.Save();
+            State = DungeonState.MapView;
+            OnStateChanged?.Invoke();
         }
 
         private void OnEnable()
