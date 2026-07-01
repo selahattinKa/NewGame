@@ -2,23 +2,27 @@ using System;
 
 namespace CanavarZindanlari.Core
 {
-    public enum GameScreen { Hub, Dungeon, Arena, PetSelect }
+    public enum GameScreen { Hub, Dungeon, DungeonCollection, Arena, PetSelect }
 
     /// <summary>
     /// Hangi ekranın aktif olduğunu yöneten merkezi durum makinesi.
-    /// Tüm IMGUI bileşenleri OnGUI başında Current'ı kontrol eder.
+    /// GoBack() ile bir önceki ekrana dönülür.
     /// </summary>
     public static class ScreenNavigator
     {
-        public static GameScreen Current { get; private set; } = GameScreen.Hub;
+        public static GameScreen Current  { get; private set; } = GameScreen.Hub;
+        public static GameScreen Previous { get; private set; } = GameScreen.Hub;
+
         public static event Action<GameScreen> OnScreenChanged;
 
         public static void GoTo(GameScreen screen)
         {
-            Current = screen;
-            OnScreenChanged?.Invoke(screen);
+            Previous = Current;
+            Current  = screen;
+            OnScreenChanged?.Invoke(Current);
         }
 
-        public static void GoToHub() => GoTo(GameScreen.Hub);
+        public static void GoBack()   => GoTo(Previous);
+        public static void GoToHub()  => GoTo(GameScreen.Hub);
     }
 }

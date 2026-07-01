@@ -13,8 +13,8 @@ namespace CanavarZindanlari.UI
     {
         private DungeonManager    _dungeon;
         private MonsterCollection _collection;
-        private bool              _showCollection;
         private Vector2           _mapScroll;
+        private Vector2           _collScroll;
 
         // Renkler
         private static readonly Color ColLocked    = new Color(0.35f, 0.32f, 0.38f);
@@ -94,29 +94,27 @@ namespace CanavarZindanlari.UI
         private void OnGUI()
         {
             if (_dungeon == null) return;
-            if (ScreenNavigator.Current != GameScreen.Dungeon) return;
             BuildStyles();
+
+            var screen = ScreenNavigator.Current;
+
+            if (screen == GameScreen.DungeonCollection)
+            {
+                DrawCollectionScreen();
+                return;
+            }
+
+            if (screen != GameScreen.Dungeon) return;
 
             switch (_dungeon.State)
             {
-                case DungeonState.MapView:      DrawMapView();       break;
+                case DungeonState.MapView:        DrawMapView();       break;
                 case DungeonState.InWaveCombat:
                 case DungeonState.WaveTransition: DrawWaveIndicator(); break;
-                case DungeonState.FloorCleared: DrawFloorCleared();  break;
-                case DungeonState.FloorFailed:  DrawFloorFailed();   break;
+                case DungeonState.FloorCleared:   DrawFloorCleared();  break;
+                case DungeonState.FloorFailed:    DrawFloorFailed();   break;
             }
 
-            if (_showCollection && _dungeon.State == DungeonState.MapView)
-            {
-                // Arkaplanı tıklamaya kapat
-                GUI.color = new Color(0, 0, 0, 0.5f);
-                GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
-                GUI.color = Color.white;
-                GUI.Button(new Rect(0, 0, Screen.width, Screen.height), GUIContent.none, GUIStyle.none);
-                DrawCollectionPanel();
-            }
-
-            // X butonu — savaş dışındayken Hub'a dön
             if (_dungeon.State == DungeonState.MapView)
                 DrawCloseBtn();
         }
@@ -194,7 +192,7 @@ namespace CanavarZindanlari.UI
             if (GUI.Button(new Rect(pad, contentY, w * 0.48f, 30), "Sıfırla (Test)", _styleBtn))
                 _dungeon.ResetProgress();
             if (GUI.Button(new Rect(pad + w * 0.52f, contentY, w * 0.48f, 30), "Koleksiyon", _styleBtn))
-                _showCollection = !_showCollection;
+                ScreenNavigator.GoTo(GameScreen.DungeonCollection);
         }
 
         private void DrawFloorButton(Rect r, int floor)
@@ -448,49 +446,63 @@ namespace CanavarZindanlari.UI
 
         private Vector2 _collScroll;
 
-        private void DrawCollectionPanel()
+        private void DrawCollectionScreen()
         {
-            if (_collection == null) return;
+            float sw  = Screen.width;
+            float sh  = Screen.height;
+            float pad = sw * 0.05f;
+            float w   = sw - pad * 2f;
 
-            float pw = Screen.width  * 0.88f;
-            float ph = Screen.height * 0.72f;
-            float px = (Screen.width  - pw) * 0.5f;
-            float py = (Screen.height - ph) * 0.5f;
+            DrawBg(new Rect(0, 0, sw, sh));
 
-            DrawBg(new Rect(px - 6, py - 6, pw + 12, ph + 12));
+            // X butonu
+            float bw = sw * 0.12f;
+            float bh = sh * 0.055f;
+            GUI.color = new Color(0.70f, 0.20f, 0.20f);
+            if (GUI.Button(new Rect(sw - bw - 8f, 8f, bw, bh), "✕",
+                new GUIStyle(GUI.skin.button) { fontSize = Mathf.Max(14, sw / 22) + 2, fontStyle = FontStyle.Bold, normal = { textColor = Color.white } }))
+                ScreenNavigator.GoBack();
+            GUI.color = Color.white;
 
-            GUI.Label(new Rect(px, py, pw, 36), "Canavar Koleksiyonu", _styleTitle);
-            py += 40;
+            float y = sh * 0.06f;
+            GUI.Label(new Rect(pad, y, w * 0.80f, sh * 0.07f), "Canavar Koleksiyonu", _styleTitle);
+            y += sh * 0.09f;
 
-            var monsters = _collection.Monsters;
-            if (monsters.Count == 0)
+            var monsters = _collection?.Monsters;
+            if (monsters == null || monsters.Count == 0)
             {
-                GUI.Label(new Rect(px, py, pw, 40), "Henüz canavar yok — zindanda savaş!", _styleLabel);
+                _styleLabel.normal.textColor = Color.gray;
+                GUI.Label(new Rect(pad, y, w, sh * 0.07f), "Henüz canavar yok — zindanda savaş!", _styleLabel);
+                return;
             }
-            else
-            {
-                float rowH   = 30f;
-                float viewH  = ph - 80f;
-                var   viewRect  = new Rect(px, py, pw, viewH);
-                var   contRect  = new Rect(0, 0, pw - 20, monsters.Count * rowH);
 
-                _collScroll = GUI.BeginScrollView(viewRect, _collScroll, contRect);
-                for (int i = 0; i < monsters.Count; i++)
-                {
-                    var m = monsters[i];
-                    GUI.color = TierColor(m.Tier);
-                    GUI.Label(new Rect(4, i * rowH, pw - 24, rowH),
-                        $"[{m.Tier}]  {m.DisplayName}   Kat {m.FloorCaptured}   {m.CaptureDate}",
-                        _styleLabel);
-                }
+            float rowH  = sh * 0.065f;
+            float viewH = sh - y - sh * 0.04f;
+            var   viewR = new Rect(pad, y, w, viewH);
+            var   contR = new Rect(0, 0, w - 16f, monsters.Count * rowH);
+            _collScroll = GUI.BeginScrollView(viewR, _collScroll, contR, false, false);
+
+            for (int i = 0; i < monsters.Count; i++)
+            {
+                var   m  = monsters[i];
+                float ry = i * rowH;
+
+                GUI.color = new Color(0.12f, 0.11f, 0.20f, 1f);
+                GUI.DrawTexture(new Rect(0, ry, w - 16f, rowH - 3f), Texture2D.whiteTexture);
+                GUI.color = TierColor(m.Tier);
+
+                _styleLabel.normal.textColor = TierColor(m.Tier);
+                GUI.Label(new Rect(8f, ry + 4f, w * 0.55f, rowH * 0.5f),
+                    $"[{m.Tier}]  {m.DisplayName}", _styleLabel);
+
+                var small = new GUIStyle(_styleLabel) { fontSize = Mathf.Max(11, Screen.width / 28) };
+                small.normal.textColor = Color.gray;
+                GUI.Label(new Rect(8f, ry + rowH * 0.52f, w * 0.70f, rowH * 0.42f),
+                    $"Kat {m.FloorCaptured}  •  {m.CaptureDate}", small);
+
                 GUI.color = Color.white;
-                GUI.EndScrollView();
-                py += viewH + 4;
             }
-
-            if (GUI.Button(new Rect(px + pw * 0.25f, py + (monsters.Count == 0 ? 48 : 4), pw * 0.50f, 36),
-                "Kapat", _styleBtn))
-                _showCollection = false;
+            GUI.EndScrollView();
         }
 
         // ── Yardımcı ──────────────────────────────────────────────────────────
