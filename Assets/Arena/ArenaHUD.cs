@@ -49,9 +49,19 @@ public class ArenaHUD : MonoBehaviour
 
     private void OnGUI()
     {
-        if (!_isOpen) return;
-
         BuildStyles();
+
+        if (!_isOpen)
+        {
+            // Kapalıyken sağ üst köşede küçük Arena butonu
+            float bw = Screen.width  * 0.28f;
+            float bh = Screen.height * 0.055f;
+            GUI.color = new Color(0.90f, 0.75f, 0.20f);
+            if (GUI.Button(new Rect(Screen.width - bw - 8, 8, bw, bh), "⚔ Arena", _styleBtn))
+                _isOpen = true;
+            GUI.color = Color.white;
+            return;
+        }
 
         float w = Screen.width;
         float h = Screen.height;

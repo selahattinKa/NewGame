@@ -17,7 +17,6 @@ namespace CanavarZindanlari.UI
         private bool              _showPetSelect;
         private Vector2           _mapScroll;
         private Vector2           _petScroll;
-        private ArenaHUD          _arenaHUD;
 
         // Renkler
         private static readonly Color ColLocked    = new Color(0.35f, 0.32f, 0.38f);
@@ -41,7 +40,6 @@ namespace CanavarZindanlari.UI
         {
             _dungeon    = GetComponent<DungeonManager>();
             _collection = UnityEngine.Object.FindFirstObjectByType<MonsterCollection>();
-            _arenaHUD   = UnityEngine.Object.FindFirstObjectByType<ArenaHUD>();
         }
 
         private void BuildStyles()
@@ -139,12 +137,8 @@ namespace CanavarZindanlari.UI
             float h       = Screen.height - pad * 2;
             float contentY = pad;
 
-            // Başlık + Arena butonu
-            GUI.Label(new Rect(pad, contentY, w * 0.65f, 36), "Karanlık Orman Zindanı", _styleTitle);
-            GUI.color = new Color(0.90f, 0.75f, 0.20f);
-            if (_arenaHUD != null && GUI.Button(new Rect(pad + w * 0.67f, contentY + 2, w * 0.33f, 30), "⚔ Arena", _styleBtn))
-                _arenaHUD.Open();
-            GUI.color = Color.white;
+            // Başlık
+            GUI.Label(new Rect(pad, contentY, w, 36), "Karanlık Orman Zindanı", _styleTitle);
             contentY += 42;
 
             // Enerji barı
