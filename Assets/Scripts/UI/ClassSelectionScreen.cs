@@ -27,10 +27,21 @@ namespace CanavarZindanlari.UI
             foreach (var cd in Resources.LoadAll<ClassData>("Classes"))
                 loaded[cd.name] = cd;
 
+            var cards = new System.Collections.Generic.List<VisualElement>();
             foreach (var id in ClassOrder)
             {
-                if (!loaded.TryGetValue(id, out var data)) continue;
-                grid.Add(BuildCard(data));
+                if (loaded.TryGetValue(id, out var data))
+                    cards.Add(BuildCard(data));
+            }
+
+            // 2×2 grid — satır bazlı
+            for (int i = 0; i < cards.Count; i += 2)
+            {
+                var row = new VisualElement();
+                row.AddToClassList("grid-row");
+                row.Add(cards[i]);
+                if (i + 1 < cards.Count) row.Add(cards[i + 1]);
+                grid.Add(row);
             }
         }
 
