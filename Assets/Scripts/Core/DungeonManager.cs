@@ -268,14 +268,7 @@ namespace CanavarZindanlari.Core
             float chance = MonsterCollection.CaptureChance(floor) * 3f;
             if (UnityEngine.Random.value > chance) return null;
 
-            float r = UnityEngine.Random.value;
-            Rarity tier = floor switch
-            {
-                >= 16 => r < 0.55f ? Rarity.A  : r < 0.90f ? Rarity.S  : Rarity.SS,
-                >= 11 => r < 0.60f ? Rarity.B  : Rarity.A,
-                >=  6 => r < 0.65f ? Rarity.C  : Rarity.B,
-                _     => r < 0.70f ? Rarity.D  : Rarity.C,
-            };
+            Rarity tier = MonsterCollection.TierForFloor(floor);
 
             var slot = UnityEngine.Random.value < 0.5f
                 ? EquipmentManager.RandomArmorSlot()
