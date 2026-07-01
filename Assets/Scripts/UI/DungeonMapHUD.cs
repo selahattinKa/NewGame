@@ -459,7 +459,7 @@ namespace CanavarZindanlari.UI
             float bh = sh * 0.055f;
             GUI.color = new Color(0.70f, 0.20f, 0.20f);
             if (GUI.Button(new Rect(sw - bw - 8f, 8f, bw, bh), "✕",
-                new GUIStyle(GUI.skin.button) { fontSize = Mathf.Max(14, sw / 22) + 2, fontStyle = FontStyle.Bold, normal = { textColor = Color.white } }))
+                new GUIStyle(GUI.skin.button) { fontSize = Mathf.Max(14, (int)(sw / 22)) + 2, fontStyle = FontStyle.Bold, normal = { textColor = Color.white } }))
                 ScreenNavigator.GoBack();
             GUI.color = Color.white;
 
