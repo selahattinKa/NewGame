@@ -107,7 +107,14 @@ namespace CanavarZindanlari.UI
             }
 
             if (_showCollection && _dungeon.State == DungeonState.MapView)
+            {
+                // Arkaplanı tıklamaya kapat
+                GUI.color = new Color(0, 0, 0, 0.5f);
+                GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
+                GUI.color = Color.white;
+                GUI.Button(new Rect(0, 0, Screen.width, Screen.height), GUIContent.none, GUIStyle.none);
                 DrawCollectionPanel();
+            }
 
             // X butonu — savaş dışındayken Hub'a dön
             if (_dungeon.State == DungeonState.MapView)
