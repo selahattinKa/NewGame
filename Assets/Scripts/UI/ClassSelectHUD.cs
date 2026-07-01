@@ -117,7 +117,7 @@ namespace CanavarZindanlari.UI
                 {
                     var sk = cls.Skills[s];
                     if (sk == null) continue;
-                    string cdText = s == 0 ? "Hazır" : $"CD:{s == 1 ? 3 : s == 2 ? 5 : 8}";
+                    string cdText = s == 0 ? "Hazır" : ("CD:" + (s == 1 ? 3 : s == 2 ? 5 : 8));
                     GUI.Label(new Rect(ip, skillY, w * 0.70f, lh),
                         $"• {sk.SkillName}  [{cdText}]", _styleSmall);
                     skillY += lh * 0.95f;
