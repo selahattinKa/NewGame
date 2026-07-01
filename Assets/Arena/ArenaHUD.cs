@@ -33,16 +33,24 @@ public class ArenaHUD : MonoBehaviour
     // ── Durum ────────────────────────────────────────────────────────────────
 
     private ArenaManager        _arena;
+    private bool                _isOpen;
     private bool                _showLeaderboard;
     private Vector2             _lbScroll;
     private List<ArenaProfile>  _lbCache;
     private bool                _lbLoading;
     private string              _lbError;
 
+    public bool IsOpen => _isOpen;
+
+    public void Open()  => _isOpen = true;
+    public void Close() => _isOpen = false;
+
     private void Awake()  => _arena = GetComponent<ArenaManager>();
 
     private void OnGUI()
     {
+        if (!_isOpen) return;
+
         BuildStyles();
 
         float w = Screen.width;
@@ -117,10 +125,16 @@ public class ArenaHUD : MonoBehaviour
         if (_showLeaderboard)
             DrawLeaderboardSection(pad, startY, btnW, h - startY - pad);
 
-        // Çıkış
-        GUI.color = new Color(0.6f, 0.6f, 0.6f);
-        if (GUI.Button(new Rect(pad, h - pad - btnH * 0.7f, btnW, btnH * 0.7f), "Çıkış Yap", _styleBtnSmall))
-            auth.SignOut();
+        // Geri + Çıkış
+        float bottomY = h - pad - btnH * 0.7f;
+        GUI.color = new Color(0.5f, 0.5f, 0.5f);
+        if (GUI.Button(new Rect(pad, bottomY, btnW * 0.45f, btnH * 0.7f), "← Geri", _styleBtnSmall))
+            Close();
+        if (auth.IsSignedIn)
+        {
+            if (GUI.Button(new Rect(pad + btnW * 0.55f, bottomY, btnW * 0.45f, btnH * 0.7f), "Çıkış Yap", _styleBtnSmall))
+                auth.SignOut();
+        }
         GUI.color = Color.white;
 
         // Durum mesajı
