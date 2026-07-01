@@ -63,6 +63,7 @@ namespace CanavarZindanlari.Core
         private CombatUnit        _persistedPlayer;
         private BattleHUD         _hud;
         private MonsterCollection _collection;
+        private bool              _keepAutoBattle; // kat/dalga geçişlerinde oto durumu korunur
 
         // Son yakalanan canavar (HUD için)
         public CapturedMonster LastCaptured { get; private set; }
@@ -136,6 +137,7 @@ namespace CanavarZindanlari.Core
             State = DungeonState.InWaveCombat;
             OnStateChanged?.Invoke();
             _combat.StartCombat(_persistedPlayer, enemy, PlayerClass);
+            if (_keepAutoBattle) _combat.SetAutoBattle(true);
         }
 
         // ── Savaş sonucu ──────────────────────────────────────────────────────
@@ -143,6 +145,8 @@ namespace CanavarZindanlari.Core
         private void HandleBattleEnded(BattleReward reward)
         {
             if (State != DungeonState.InWaveCombat) return;
+
+            _keepAutoBattle = _combat.AutoBattle; // oto durumunu bir sonraki dalga/kata taşı
 
             if (reward.IsVictory)
             {
