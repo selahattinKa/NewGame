@@ -86,6 +86,11 @@ Saved/
 # *.uasset
 # *.umap
 
+# === Firebase Editor-only native plugins (exceed GitHub 100MB limit) ===
+# macOS/Editor desktop testing bundle — not needed for iOS/Android builds.
+# Re-added locally by the Firebase Unity SDK import if Editor testing is needed.
+Assets/Firebase/Plugins/x86_64/FirebaseCppApp-*.bundle
+
 # === Compiled Shaders ===
 *.spv
 *.cso
