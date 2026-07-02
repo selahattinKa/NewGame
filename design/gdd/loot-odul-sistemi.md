@@ -37,7 +37,7 @@ Loot / Ödül Sistemi'nde oyuncu **"her zindan cömert, her sandık heyecanlı"*
 |-----|------|----------------|----------|
 | **Altın** | `gold` | Garanti | Her katta düşer. Miktarı Ekonomi formülünden. |
 | **Canavar** | `monster` | Random | Nadirlik çarpanlarıyla ağırlıklı. Koleksiyona eklenir. |
-| **Evrim Malzemesi** | `evolution_material` | Random | Element taşları (ateş/su/toprak/hava). |
+| **Evrim Taşı** | `evolution_material` | Random | Element'siz generic malzeme — B→A/A→S/S→SS tier evrimlerinde gerekir (bkz. `canavar-toplama-evrim.md` Kural 10). |
 | **XP İksiri** | `xp_potion` | Random | Sabit XP miktarlı, 5 boyut. |
 | **Elmas** | `gems` | Random (nadir) | Çoğunlukla tek seferlik ödüller + düşük tekrar oranı. |
 
@@ -53,7 +53,7 @@ Her zindan katı iki katmanlı loot tablosuna sahiptir:
 Loot tablosu seçimi üç parametreye bağlıdır:
 - **Kat tipi**: Normal / Boss (her 5. kat) / Evrim Zindanı
 - **Kat numarası**: İleri katlar daha cömert
-- **Bölge**: Hangi canavarlar ve element taşları düşebileceğini belirler
+- **Bölge**: Hangi canavarlar düşebileceğini belirler
 
 **Kural 3 — Normal Kat Loot Tablosu**
 
@@ -61,7 +61,7 @@ Loot tablosu seçimi üç parametreye bağlıdır:
 |-----------|----------|-----------|--------|-----|
 | Altın | ✅ Garanti | %100 | Ekonomi `floor_gold_formula` | Her katta |
 | Canavar | ❌ Random | %15 | 1 adet | Nadirlik ağırlıklı (Kural 5). **Kat 1-3: %100 garanti** (Kural 3a) |
-| Evrim Malzemesi | ❌ Random | %8 | 1 adet | Bölge elementine ağırlıklı |
+| Evrim Taşı | ❌ Random | %8 | 1 adet | Tier'e göre nadirleşir (bkz. Kural 8) |
 | XP İksiri | ❌ Random | %20 | 1 adet | Boyut ağırlıklı (Kural 7) |
 | Elmas | ❌ Random | %2 | 1-3 adet | Çok nadir |
 
@@ -84,7 +84,7 @@ Zindan katları 1, 2 ve 3'te (normal katlar) canavar düşmesi %100 garantidir. 
 | Altın | ✅ Garanti | %100 | `boss_gold = floor_gold × 3` | Boss bonusu |
 | Normal Canavar | ❌ Random | %35 | 1 adet | Nadirlik ağırlıklı |
 | Boss Canavar | ❌ Random | Boss nadirliğine göre (Kural 6) | 1 adet | Çok düşük |
-| Evrim Malzemesi | ✅ Garanti | %100 | 1 adet + %30 ek 1 adet | Garanti 1, şansla 2 |
+| Evrim Taşı | ✅ Garanti | %100 | 1 adet + %30 ek 1 adet | Garanti 1, şansla 2 |
 | XP İksiri | ❌ Random | %40 | 1 adet | Orta+ boyut garantili |
 | Elmas | ❌ Random | %15 | 5-15 adet | Boss cömertliği |
 
@@ -133,15 +133,17 @@ Boss canavarlar normal canavar havuzundan ayrı değerlendirilir — boss loot r
 
 XP İksiri düştüğünde boyut ağırlıklı rastgele seçilir. İksir envanterde depolanır, oyuncu istediği canavara uygular.
 
-**Kural 8 — Evrim Malzemesi Düşme**
+**Kural 8 — Evrim Taşı Düşme (REVİZE — 2026-07-02, element sistemi kaldırıldı)**
 
-| Zindan Tipi | Düşme Oranı | Element Eşleşmesi |
-|-------------|-------------|-------------------|
-| Normal Zindan | %8 per kat | Bölge elementine %70, diğer elementlere %10'ar |
-| Evrim Zindanı | %90 per kat | Seçilen element %100 |
-| Boss Katı | %100 garanti 1 + %30 ek | Bölge elementine ağırlıklı |
+Evrim Taşı element'siz, generic bir malzemedir — `canavar-toplama-evrim.md` Kural 10'daki B→A/A→S/S→SS evrim geçişlerinde tüketilir.
 
-Evrim zindanları hakkında: Zindan Keşif GDD'sinde detaylandırılacak. Bu GDD sadece düşme oranlarını tanımlar.
+| Zindan Tipi | Düşme Oranı | Not |
+|-------------|-------------|-----|
+| Normal Zindan | %8 per kat | Miktar 1 |
+| Evrim Zindanı | %90 per kat | Tier 2 özel etkinlik, bkz. `zindan-kesif.md` |
+| Boss Katı | %100 garanti 1 + %30 ek | Boss cömertliği |
+
+**⚠️ Dengelenmedi (2026-07-02)**: Yukarıdaki oranlar eski element bazlı modelden aynen taşındı — Evrim Taşı artık yalnızca üst tier (B→A/A→S/S→SS) geçişlerinde gerekli olduğundan, düşme oranının tier'e göre kademelenmesi (üst tier taş daha nadir) gerekiyor mu netleşmedi. Bir sonraki balance oturumunda `canavar-toplama-evrim.md` Kural 10 ile birlikte kalibre edilmeli (bkz. pending memory: evrim malzemesi sistemi).
 
 **Kural 9 — Elmas Düşme**
 
@@ -202,7 +204,7 @@ Ek olarak, Ekonomi GDD Kural 7'deki oturum bazlı garanti de geçerlidir: her zi
 Tüm katlardan toplanan loot tek bir rapor ekranında sunulur:
 
 1. **Toplam altın** — animasyonlu sayaç (garanti, beklenen ödül → düşük gerilim)
-2. **Evrim malzemeleri** — element ikonlarıyla (düşük-orta heyecan)
+2. **Evrim Taşları** — ikonla (düşük-orta heyecan)
 3. **XP İksirleri** — boyut ve adet (orta heyecan)
 4. **Elmas** — varsa vurgulanır (yüksek heyecan)
 5. **Kazanılan canavarlar** — kademe sırasına göre artan (F tier önce, en nadir son), her biri kartla gösterilir. S/SS tier canavar doruk anı. (en yüksek heyecan)
@@ -232,7 +234,7 @@ Sıralama prensibi: Artan heyecan deseni (ascending excitement). Garanti ödüll
 |--------|-----|-----------|--------|
 | **Canavar Veritabanı** | ← okur | Nadirlik düşme çarpanları, bölge canavar havuzu | `GetRarityWeight(rarity)`, `GetRegionMonsterPool(regionId)` |
 | **Ekonomi** | ← okur + → çağırır | Altın formülleri; ödül verme | `GetFloorReward(floorNumber, difficulty)` → {gold}, `GrantReward(rewards)` |
-| **Canavar Güçlendirme** | → sağlar | Evrim malzemesi loot tanımı | Loot tablosunda element taşı kayıtlı |
+| **Canavar Güçlendirme** | → sağlar | Evrim Taşı loot tanımı | Loot tablosunda Evrim Taşı kayıtlı |
 | **Canavar Toplama** | → çağırır | Yeni canavar instance oluşturma | `OnMonsterDropped(monsterId)` |
 | **Zindan Keşif** | ← okur | Kat numarası, kat tipi, bölge, boss bilgisi | `GetCurrentFloorInfo()` → {floor, type, region, boss_id} |
 | **Otofarm / Idle** | → sağlar | Idle loot hesaplama oranları | `GetIdleLootRate(teamPower, region)` → loot/minute |
@@ -466,7 +468,7 @@ Senaryo: Kat 1-10, difficulty_multiplier=1.0, sıfır pity, **tekrar oturumu** (
 
 - **If aynı katta birden fazla XP İksiri düşerse**: Mümkün değil — her katta tek rulo. Boss katında XP İksiri rulo oranı %40 olduğundan ve normal katla ayrı tablodan çalıştığından, çakışma oluşmaz.
 
-- **If evrim malzemesi düşer ve oyuncu o elementte canavar sahip değilse**: Malzeme envantere eklenir, kullanım ileride mümkün. Malzeme asla kaybolmaz.
+- **If Evrim Taşı düşer ve oyuncunun henüz B/A/S tier canavarı yoksa (taş kullanılamaz)**: Taş envantere eklenir, kullanım ileride mümkün. Taş asla kaybolmaz.
 
 - **If first_clear flag'ı kayıp/bozulursa**: İlk temizleme elmas ödülü tekrar verilir — oyuncu lehine hata. Exploit önleme: sunucu tarafında doğrulama (ileride).
 
@@ -497,7 +499,8 @@ Senaryo: Kat 1-10, difficulty_multiplier=1.0, sıfır pity, **tekrar oturumu** (
 | **Canavar Toplama ve Evrim** | Sert | `OnMonsterDropped(monsterId)` — loot'tan canavar instance oluşturma | Loot, canavar kazanımının ana kaynağı |
 | **Zindan Keşif** | Sert | `GetFloorLootTable(floorNumber, floorType, regionId)` — kat loot tablosu sorgulama | Zindan katlara loot atar bu sistem üzerinden |
 | **Otofarm / Idle** | Sert | `GetIdleLootRate(teamPower, region)` — idle loot hesaplama | Idle birikim bu sistemin oranlarını kullanır |
-| **Canavar Güçlendirme** | Yumuşak | Evrim taşı loot tanımı | Loot tablosunda element taşı kayıtlı |
+| **Canavar Güçlendirme** | Yumuşak | Evrim Taşı loot tanımı | Loot tablosunda Evrim Taşı kayıtlı |
+| **Level / Deneyim Sistemi** | Yumuşak | XP İksiri (Mini/Small/Medium/Large/Giant) item drop'ları — sadece aktif pete manuel uygulanır | ⚠️ `xp_potion_values` (25/100/500/2000/10000) yeni XP eğrisiyle orantısız, revize edilmeli (bkz. level-deneyim-sistemi.md Open Q#2) |
 | **Kaydetme/Yükleme** | Sert | `SaveLootState()` / `LoadLootState()` — pity counter + first_clear persist | Olmadan pity ve ilk temizleme kaybolur |
 | **Zindan Sonu UI** | Yumuşak | `GetSessionLootReport()` — rapor verisi | Olmadan rapor gösterilemez |
 
@@ -542,7 +545,7 @@ Senaryo: Kat 1-10, difficulty_multiplier=1.0, sıfır pity, **tekrar oturumu** (
 **Etkileşim Uyarıları**:
 - `base_monster_rate` × `monster_pity_increment` × `monster_pity_cap` birlikte ortalama canavar düşme sıklığını belirler. Üçünü aynı anda artırmak canavar enflasyonu yaratır.
 - `xp_potion_rate` × `xp_potion_giant` değerleri birlikte XP iksiri kanalının güçlendirmeye etkisini belirler. İkisini artırmak altın enjeksiyon yolunu devalüe eder.
-- `evolution_material_rate` (normal) × evrim zindanı giriş hakkı (günde 3) × `evolution_dungeon_rate` birlikte evrim malzemesi erişilebilirliğini belirler. Canavar Güçlendirme GDD'deki evrim gereksinimlerine (3 taş A→B, 5 taş B→C) göre dengelenmeli.
+- `evolution_material_rate` (normal) × evrim zindanı giriş hakkı (günde 3) × `evolution_dungeon_rate` birlikte Evrim Taşı erişilebilirliğini belirler. `canavar-toplama-evrim.md` Kural 10'daki B→A/A→S/S→SS geçiş gereksinimlerine göre dengelenmeli (henüz kesinleşmedi, bkz. o dosyanın Kural 10 notu).
 - `idle_loot_efficiency` × `base_monster_rate` birlikte idle canavar kazanım hızını belirler. Aktif 10 kat seansı ~1.9 canavar veriyorsa, idle 10 saatte ~4.5 canavar verir — aktif oyunun ~2.4x süresi için ~2.4x canavar, makul denge.
 
 ## Visual/Audio Requirements
@@ -553,7 +556,7 @@ Senaryo: Kat 1-10, difficulty_multiplier=1.0, sıfır pity, **tekrar oturumu** (
 |------|-----|---------|
 | Canavar düşmesi (savaşta) | Canavar silueti + nademe renginde aura (F=gri, D=yeşil, C=mavi, B=mor, A=turuncu, S=altın, SS=gökkuşağı) | MVP |
 | Altın düşmesi (savaşta) | Altın sikke parçacıkları uçuşur, sayı popup'ı | MVP |
-| Evrim malzemesi düşmesi | Element renginde taş ikonu + parlama | MVP |
+| Evrim Taşı düşmesi | Taş ikonu + parlama | MVP |
 | XP İksiri düşmesi | Yeşil iksir ikonu + boyuta göre parıltı (Dev = tam parlama) | MVP |
 | Elmas düşmesi | Mavi kristal parçacıkları + flash | MVP |
 | Zindan sonu rapor — altın sayacı | Animasyonlu sayılar yukarı kayar, "ka-ching" efekti | MVP |
@@ -581,7 +584,7 @@ Senaryo: Kat 1-10, difficulty_multiplier=1.0, sıfır pity, **tekrar oturumu** (
 - **Savaş içi loot göstergesi**: Düşen lootun ikonu savaş alanında belirir ve ekranın üstüne doğru kayarak birikir. Nadirlik renkli çerçeve. Metin yok — sadece ikon.
 - **Zindan sonu rapor ekranı**: Tam ekran overlay. Artan heyecan sıralamasıyla gösterim:
   1. Toplam altın (animasyonlu sayaç, büyük font) — garanti, düşük gerilim
-  2. Evrim malzemeleri (element ikonu + adet) — düşük-orta heyecan
+  2. Evrim Taşları (ikon + adet) — düşük-orta heyecan
   3. XP İksirleri (boyut ikonu + adet) — orta heyecan
   4. Elmas (elmas ikonu + adet, varsa vurgulanır) — yüksek heyecan
   5. Canavar kartları (F tier önce → en nadir son, kart döndürme animasyonu) — doruk an
@@ -652,7 +655,7 @@ Senaryo: Kat 1-10, difficulty_multiplier=1.0, sıfır pity, **tekrar oturumu** (
 
 23. **GIVEN** offline_duration < 30 dk, **WHEN** idle pity birikimi kontrol edilirse, **THEN** idle_pity_bonus artmaz (min_offline_for_pity koruması).
 
-24. **GIVEN** normal katta evrim malzemesi düşer ve bölge elementi "Ateş", **WHEN** element seçimi yapılırsa, **THEN** Ateş ağırlığı=%70, Su=%10, Toprak=%10, Hava=%10.
+24. **GIVEN** normal katta Evrim Taşı rulosu yapılırsa, **WHEN** düşme kontrolü çalışırsa, **THEN** %8 şansla 1 adet Evrim Taşı düşer (element eşleşmesi yok, generic malzeme).
 
 25. **GIVEN** normal katta elmas düşer, **WHEN** miktar belirlenir, **THEN** 1 ≤ gem_amount ≤ 3. Boss katında: 5 ≤ gem_amount ≤ 15.
 
@@ -670,7 +673,7 @@ Senaryo: Kat 1-10, difficulty_multiplier=1.0, sıfır pity, **tekrar oturumu** (
 
 32. **GIVEN** idle modda F tier canavar düşer, **WHEN** rare_pity_counter kontrol edilirse, **THEN** rare_pity_counter artmaz (idle'da düşen canavarlar rare_pity'yi etkilemez).
 
-33. **GIVEN** evrim zindanı katı tamamlanır, **WHEN** evrim malzemesi rulosu yapılırsa, **THEN** düşme oranı %90 VE element eşleşmesi seçilen element %100.
+33. **GIVEN** evrim zindanı katı tamamlanır, **WHEN** Evrim Taşı rulosu yapılırsa, **THEN** düşme oranı %90 (element eşleşmesi yok, generic malzeme).
 
 34. **GIVEN** 8 normal kat + 2 boss katı tamamlanmış, hiçbirinde canavar düşmemiş, **WHEN** hard_pity_counter kontrol edilirse, **THEN** hard_pity_counter = 8 (boss katları sayılmaz, sadece normal katlar).
 
@@ -682,7 +685,7 @@ Senaryo: Kat 1-10, difficulty_multiplier=1.0, sıfır pity, **tekrar oturumu** (
 
 2. **Bölge bazlı canavar havuzu**: MVP 1 bölge, 15-20 canavar. Tüm canavarlar her katta mı düşebilir, yoksa kat aralıklarına göre filtre mi uygulanır? → Zindan Keşif GDD'sinde netleşecek.
 
-3. **Evrim zindanı loot tablosu**: Evrim zindanında sadece element taşı mı düşer, yoksa normal loot da var mı? → Zindan Keşif GDD'sinde tanımlanacak.
+3. **Evrim zindanı loot tablosu**: Evrim zindanında sadece Evrim Taşı mı düşer, yoksa normal loot da var mı? → Zindan Keşif GDD'sinde tanımlanacak.
 
 4. **XP İksiri envanter limiti**: İksirler sınırsız mı depolanır yoksa envanter slotu mu gerektirir? → Canavar Toplama / Envanter GDD'sinde netleşecek.
 

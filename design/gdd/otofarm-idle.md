@@ -75,7 +75,7 @@ Pillar bağlantısı: "Senin Tempon" — aktif oyuncuya premium verimlilik, pasi
    - Adım 2: `idle_floors_cleared = max(1, floor(offline_duration / idle_minutes_per_floor))` hesapla (yalnızca `offline_duration > 0` ise).
    - Adım 3: `idle_gold` hesapla — azalan getiri kademeleriyle (bkz. Formüller). `team_power` save'deki snapshot değerini kullanır.
    - Adım 4: Her idle katı (1..idle_floors_cleared) için seeded-RNG ile stokastik canavar rulosu yap. İdle-pity uygula (oturumlar arası kalıcı). İdle kademe tablosu uygulanır (F/D dominant, C+ çok düşük).
-   - Adım 5: Her idle katı için seeded-RNG ile stokastik evrim malzemesi rulosu yap. Bölge elementine göre ağırlıklı (%70 bölge, %30 diğer).
+   - Adım 5: Her idle katı için seeded-RNG ile stokastik Evrim Taşı rulosu yap (element'siz, generic malzeme).
    - Adım 6: Sonuçları paketle → `ReturnReport` oluştur → `idle_state.pending_report`'a yaz ve save yap.
    - Adım 7: Geri dönüş ekranı göster (modal) → oyuncu "Topla" butonuna basar → ödülleri oyuncu kaynaklarına ekle → `idle_state.pending_report = null`, save yap.
 
@@ -85,7 +85,7 @@ Pillar bağlantısı: "Senin Tempon" — aktif oyuncuya premium verimlilik, pasi
    - Çevrimdışı süre ("8 saat 23 dakika boyunca ordun savaştı!")
    - Toplam kazanılan altın (animasyonlu sayaç)
    - Kazanılan canavarlar (varsa — nadirlik sırasıyla gösterilir)
-   - Kazanılan evrim malzemeleri (element renkleriyle)
+   - Kazanılan Evrim Taşları
    - Geçilen kat sayısı
    - "Topla" butonu ile tüm ödüller envantere aktarılır
    - "Animasyonu Atla" butonu: tüm animasyonları atlar, doğrudan "Topla"ya geçer
@@ -98,7 +98,7 @@ Pillar bağlantısı: "Senin Tempon" — aktif oyuncuya premium verimlilik, pasi
 
 11. **İdle Minimum Hasat Garantisi**: `offline_duration >= 60 dk` olan her idle oturumunda, stokastik rulolardan bağımsız olarak minimum garantili ödüller verilir:
     - **Garantili F tier canavar**: 1 adet (bölge havuzundan rastgele seçilir)
-    - **Garantili F tier malzeme**: 1 adet (bölge elementinde)
+    - **Garantili F tier malzeme**: 1 adet Evrim Taşı
     - Bu garantili ödüller stokastik rulo sonuçlarına **eklenir** (yerine geçmez)
     - `offline_duration < 60 dk` ise garanti uygulanmaz — yalnızca stokastik rulo sonuçları verilir
     - Garantili ödüller `ReturnReport`'ta normal loot gibi sunulur — oyuncu mekanizmayı görmez
@@ -147,7 +147,7 @@ ReturnReport {
     offlineDuration: TimeSpan
     goldEarned: int
     monstersEarned: List<MonsterDrop>  // {monsterId, rarity}
-    materialsEarned: List<MaterialDrop>  // {materialId, element, quantity}
+    materialsEarned: List<MaterialDrop>  // {materialId, quantity}
     floorsCleared: int
     inventoryFull: bool
     waitingAreaCount: int  // bekleme alanına alınan canavar sayısı
@@ -262,7 +262,7 @@ for each idle_floor in 1..idle_floors_cleared:
 **Seeded RNG Spesifikasyonu:**
 - **Algoritma:** `System.Random` (C# — aynı seed, aynı platform → deterministik)
 - **Seed formatı:** `idle_state.start_time` Unix timestamp saniye cinsinden (int32)
-- **Tüketim sırası:** Tek `Random` instance oluşturulur, her kat için sırayla: (1) canavar rulosu, (2) canavar nadirlik rulosu (düştüyse), (3) malzeme rulosu, (4) malzeme element rulosu (düştüyse)
+- **Tüketim sırası:** Tek `Random` instance oluşturulur, her kat için sırayla: (1) canavar rulosu, (2) canavar nadirlik rulosu (düştüyse), (3) malzeme rulosu
 - **Deterministik garanti:** Aynı `start_time` + aynı `idle_state` ile aynı sonuçlar üretilir
 - **pending_report zorunlu persist:** `pending_report` Adım 6'da her zaman save'e yazılır. Geri dönüşte `pending_report` varsa doğrudan okunur — re-simülasyon yapılmaz. Bu tasarım cross-platform determinizm sorunlarını (`System.Random` iOS vs Android) ortadan kaldırır
 
@@ -272,7 +272,7 @@ for each idle_floor in 1..idle_floors_cleared:
 - Kademe dağılımı: F dominant (%69.9), C+ sürpriz olarak mümkün
 - `offline_duration < 60 dk` ise garantili canavar yok, yalnızca stokastik
 
-### idle_material_drops (İdle Evrim Malzemesi Düşmesi — Stokastik Kat-Tabanlı)
+### idle_material_drops (İdle Evrim Taşı Düşmesi — Stokastik Kat-Tabanlı)
 
 Her idle katı için bağımsız stokastik rulo:
 
@@ -281,8 +281,7 @@ for each idle_floor in 1..idle_floors_cleared:
     material_chance = base_material_rate × idle_loot_efficiency
     roll = seeded_random(0.0, 1.0)
     if roll < material_chance:
-        element = weighted_random(region_element: 0.70, other_element_1: 0.10, other_element_2: 0.10, other_element_3: 0.10)
-        add material(element) to results
+        add material(evolution_stone) to results
 ```
 
 | Değişken | Sembol | Tip | Değer | Kaynak |
@@ -295,7 +294,6 @@ for each idle_floor in 1..idle_floors_cleared:
 **Beklenen Çıktı Aralığı:**
 - 8 saat (96 kat): ~2 malzeme
 - 24 saat (288 kat): ~6 malzeme
-- Element dağılımı: %70 bölge elementi, %30 diğer elementler
 
 ## Edge Cases
 
@@ -390,13 +388,13 @@ for each idle_floor in 1..idle_floors_cleared:
 
 3. **GIVEN** idle_gold_per_minute=25 ve oyuncu 960 dk (16 saat) çevrimdışı, **WHEN** idle altın hesaplanırsa, **THEN** `idle_gold = 25×480 + 25×0.75×480 = 12.000 + 9.000 = 21.000 altın` (Tier 1 + Tier 2 azalan getiri).
 
-4. **GIVEN** seeded RNG (seed=1719216000) ile 96 idle katı simülasyonu ve idle_pity_bonus=0.0, **WHEN** canavar ve malzeme ruloları yapılırsa, **THEN** sonuçlar `tests/fixtures/idle_golden_seed_1719216000.json` dosyasındaki beklenen çıktıyla birebir eşleşir (canavar sayısı, nadirlikler, malzeme sayısı, elementler). Golden-file referans implementasyondan üretilir ve CI'da deterministik assert edilir.
+4. **GIVEN** seeded RNG (seed=1719216000) ile 96 idle katı simülasyonu ve idle_pity_bonus=0.0, **WHEN** canavar ve malzeme ruloları yapılırsa, **THEN** sonuçlar `tests/fixtures/idle_golden_seed_1719216000.json` dosyasındaki beklenen çıktıyla birebir eşleşir (canavar sayısı, nadirlikler, malzeme sayısı). Golden-file referans implementasyondan üretilir ve CI'da deterministik assert edilir.
 
 5a. **GIVEN** idle kademe ağırlık tablosu (F: 0.700, D: 0.240, C: 0.050, B: 0.008, A: 0.002, S: 0.001; SS idle'da düşmez), **WHEN** ağırlıklar toplanırsa, **THEN** toplam = 1.001 (±0.002) ve her ağırlık spec değeriyle eşleşir. (Deterministik unit test — CI blocking.)
 
 5b. **GIVEN** 100.000 idle katı simülasyonu (offline istatistiksel doğrulama), **WHEN** canavar kademe dağılımı incelenirse, **THEN** gözlemlenen oranlar idle kademe tablosuna uyar: F ~%69.9, D ~%24.0, C ~%5.0, B ~%0.80, A ~%0.20, S ~%0.10 (chi-squared p > 0.001). (Offline advisory test — CI-blocking değil.)
 
-6. **GIVEN** seeded RNG ile 96 idle katı simülasyonu, **WHEN** malzeme ruloları yapılırsa, **THEN** sonuçlar deterministik olarak tekrarlanabilir ve bölge elementi malzemelerin ~%70'ini oluşturur, diğer 3 element ~%10'ar pay alır.
+6. **GIVEN** seeded RNG ile 96 idle katı simülasyonu, **WHEN** malzeme ruloları yapılırsa, **THEN** sonuçlar deterministik olarak tekrarlanabilir (aynı seed → aynı malzeme sayısı).
 
 6b. **GIVEN** herhangi bir geçerli idle oturumu (1-288 kat), **WHEN** tüm kat ruloları tamamlanırsa, **THEN** ReturnReport'ta XP İksiri veya Elmas tipinde hiçbir item bulunmaz — idle loot tablosunda bu tipler tanımlı değildir.
 
@@ -450,9 +448,9 @@ for each idle_floor in 1..idle_floors_cleared:
 
 25. **GIVEN** otofarm Idle durumda, oyuncu aktif oturumda son canavarını satarsa, **WHEN** uygulama kapanırsa, **THEN** idle başlamaz (Locked'a döner), idle_state.active = false.
 
-26. **GIVEN** idle farm katı boss katı (ör. kat 25, her 5. kat) ve idle aktif, **WHEN** idle loot ruloları yapılırsa, **THEN** (1) altın oranı 1.5x uygulanır (idle_boss_gold_multiplier), (2) 1 F tier malzeme garantili eklenir (bölge elementinde), (3) boss canavar düşüşü yapılmaz, (4) normal idle canavar loot tablosu uygulanır.
+26. **GIVEN** idle farm katı boss katı (ör. kat 25, her 5. kat) ve idle aktif, **WHEN** idle loot ruloları yapılırsa, **THEN** (1) altın oranı 1.5x uygulanır (idle_boss_gold_multiplier), (2) 1 Evrim Taşı garantili eklenir, (3) boss canavar düşüşü yapılmaz, (4) normal idle canavar loot tablosu uygulanır.
 
-27. **GIVEN** offline_duration = 90 dk (>= 60 dk eşiği), **WHEN** idle simülasyonu tamamlanırsa, **THEN** ReturnReport'ta stokastik rulo sonuçlarına ek olarak en az 1 F tier canavar ve 1 F tier malzeme (bölge elementinde) bulunur (idle minimum hasat garantisi).
+27. **GIVEN** offline_duration = 90 dk (>= 60 dk eşiği), **WHEN** idle simülasyonu tamamlanırsa, **THEN** ReturnReport'ta stokastik rulo sonuçlarına ek olarak en az 1 F tier canavar ve 1 Evrim Taşı bulunur (idle minimum hasat garantisi).
 
 28. **GIVEN** offline_duration = 45 dk (< 60 dk eşiği), **WHEN** idle simülasyonu tamamlanırsa, **THEN** yalnızca stokastik rulo sonuçları verilir — garantili minimum canavar veya malzeme eklenmez.
 

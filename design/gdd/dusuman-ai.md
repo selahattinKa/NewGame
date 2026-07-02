@@ -7,7 +7,7 @@
 
 ## Overview
 
-**Düşman AI**, zindan katlarındaki düşman canavarların savaş sırasında nasıl davrandığını belirleyen karar sistemidir. Teknik olarak, her düşman canavar ağırlıklı kurallarla hedef seçer, saldırı zamanlamasını yönetir ve (boss seviyesinde) özel saldırı paternleri uygular — Hasar Hesaplama'ya saldırı girdisi sağlar, Sağlık/Can Sistemi'nden hedef HP oranı okur, Element Sistemi'nden çarpan bilgisi alır. Oyuncu perspektifinden ise düşmanlar "canlı ve tehditkâr" hissetmeli ama asla "adaletsiz" değil. Sistem üç davranış katmanı sunar: **Basit AI** (normal düşmanlar — öngörülebilir ama çeşitli), **Taktik AI** (mini-boss'lar — zayıf hedefi fark eder), ve **Patron AI** (boss'lar — okunabilir saldırı paternleri, AoE yetenekleri). Bu kademelenme, oyuncunun çoğu savaşta rahat hissetmesini ama boss katlarında "dikkat etmeliyim" gerilimini yaşamasını sağlar. Düşman AI her iki savaş modunda (komutan ve otofarm) aynı şekilde çalışır — verimlilik farkı oyuncunun takımının karar kalitesinden gelir, düşmanın davranışından değil.
+**Düşman AI**, zindan katlarındaki düşman canavarların savaş sırasında nasıl davrandığını belirleyen karar sistemidir. Teknik olarak, her düşman canavar ağırlıklı kurallarla hedef seçer, saldırı zamanlamasını yönetir ve (boss seviyesinde) özel saldırı paternleri uygular — Hasar Hesaplama'ya saldırı girdisi sağlar, Sağlık/Can Sistemi'nden hedef HP oranı okur. Oyuncu perspektifinden ise düşmanlar "canlı ve tehditkâr" hissetmeli ama asla "adaletsiz" değil. Sistem üç davranış katmanı sunar: **Basit AI** (normal düşmanlar — öngörülebilir ama çeşitli), **Taktik AI** (mini-boss'lar — zayıf hedefi fark eder), ve **Patron AI** (boss'lar — okunabilir saldırı paternleri, AoE yetenekleri). Bu kademelenme, oyuncunun çoğu savaşta rahat hissetmesini ama boss katlarında "dikkat etmeliyim" gerilimini yaşamasını sağlar. Düşman AI her iki savaş modunda (komutan ve otofarm) aynı şekilde çalışır — verimlilik farkı oyuncunun takımının karar kalitesinden gelir, düşmanın davranışından değil.
 
 ## Player Fantasy
 
@@ -89,20 +89,13 @@ Boss'lar (her 10. katta) patern bazlı saldırı sistemi kullanır:
 
 Her zindan katının düşman takımı aşağıdaki kurallara göre oluşturulur:
 
-- Normal katlar: 2-4 düşman canavar, kattaki zindan elementine ağırlıklı
+- Normal katlar: 2-4 düşman canavar, kattaki zindan bölgesine göre seçilir
 - Mini-boss katları: 1 mini-boss + 1-2 normal düşman
 - Boss katları: 1 boss (tek başına)
-- Düşman sinerjisi: %15 olasılıkla düşman grubunda 2+ aynı element bulunur (Element Sistemi `enemy_synergy_frequency` tuning knob'u)
 - Düşman seviyesi: kat numarası × zorluk çarpanı ile ölçeklenir (formüller Section D'de)
 - Düşman güç skalası: normal düşmanlar kat seviyesine göre, mini-boss (orta güç), boss (alan doruk gücü)
 
-**Kural 6 — Element Bilinci**
-
-- **Basit AI**: Element-bilinçli değil. Hedef seçiminde element avantajı/dezavantajı dikkate alınmaz.
-- **Taktik AI**: Element-bilinçli değil. Güçlü ama kör.
-- **Patron AI**: Kısmi element bilinci — dezavantajlı hedefe saldırmaktan kaçınmaz, ama avantajlı hedefe %10 ek ağırlık verir.
-
-Bu tasarım bilinçlidir: oyuncunun element avantajı her zaman ödüllendirilir ama düşmanın element bilgisi asla cezalandırıcı hissettirmez.
+**Kural 6 — [Kaldırıldı, 2026-07-02]**: Eski "Element Bilinci" kuralı buradaydı (Patron AI'ın element avantajlı hedefe ek ağırlık vermesi) — element sistemi prototype kapsamından tamamen kaldırıldığı için silindi. Basit/Taktik/Patron AI artık hiçbir katmanda element bilgisine bakmaz; hedef seçimi yalnızca HP oranı, ATK ve rastgelelik ağırlıklarına dayanır (bkz. aşağıdaki Formulas bölümü).
 
 ### States and Transitions
 
@@ -126,8 +119,7 @@ Patron faz geçişi: `Karar → Öfke Modu` — HP %50 altına düşünce bir ke
 |--------|-----|-----------|--------|
 | **Hasar Hesaplama** | → sağlar / ← okur | Saldırı girdisi (ATK) sağlar; hasar pipeline'ını tetikler; Patron AI hedef seçimi için hasar tahmini okur | `Attack(attackerId, targetId)` → Hasar Hesaplama pipeline'ı; `EstimateDamage(attackerId, targetId)` → int (deterministik tahmin) |
 | **Sağlık / Can Sistemi** | ← okur | Hedef HP oranı (hedef seçimi için) | `GetHPRatio(monsterId)` → float |
-| **Element Sistemi** | ← okur | Element çarpanı (Patron AI element bilinci için) | `GetElementMultiplier(attackerElement, defenderElement)` |
-| **Canavar Veritabanı** | ← okur | Düşman stat'ları, arketip, element | `GetMonsterIdentity()`, `GetBaseStats()` |
+| **Canavar Veritabanı** | ← okur | Düşman stat'ları, arketip | `GetMonsterIdentity()`, `GetBaseStats()` |
 | **Savaş Sistemi** | ↔ çift yönlü | Savaş sırası alır, aksiyon sonucu bildirir | `GetTurnOrder()` ←, `ExecuteAction(action)` → |
 | **Zindan Keşif** | ← okur | Kat numarası, düşman listesi | `GetFloorEnemies(floorNumber)` → düşman tanımları |
 | **Savaş UI** | → sağlar | AI aksiyon bilgisi (animasyon tetiklemesi için) | `OnEnemyAction` event → {actionType, targetId, damage} |
@@ -188,11 +180,6 @@ probability_i = weight_i / Σ(all weight_j)
 
 **Çıktı Aralığı**: Her hedef için 0.0–1.0, toplam her zaman 1.0.
 
-**Patron AI element bilinci ek ağırlığı:**
-`adjusted_weight_i = base_weight_i + (has_advantage_i × element_weight_bonus)`
-
-`has_advantage_i` = 1 ise saldıran düşmanın hedef üzerinde element avantajı var, 0 değilse. `element_weight_bonus` = 10.
-
 **Örnek** (Taktik AI, 3 canavar hayatta, destekçi yok):
 - base_weights: lowest_HP=50, destekçi=30, random=20
 - condition: lowest_HP=1, destekçi=**0**, random=1
@@ -204,10 +191,10 @@ probability_i = weight_i / Σ(all weight_j)
 Mini-boss yeteneği, standart hasar formülüne arketip çarpanı uygular. `defense_reduction_factor` arketipe göre değişir:
 
 **Saldırgan mini-boss (1.5x tek hedef) — fiziksel hasar:**
-`skill_damage = floor(max(1, effective_ATK × 1.5 - floor(target_DEF / 2)) × element_multiplier)`
+`skill_damage = floor(max(1, effective_ATK × 1.5 - floor(target_DEF / 2)))`
 
 **Büyücü mini-boss (0.5x AoE, her hedefe ayrı) — büyü hasarı:**
-`aoe_damage = floor(max(1, effective_ATK × 0.5 - floor(target_DEF / 4)) × element_multiplier)`
+`aoe_damage = floor(max(1, effective_ATK × 0.5 - floor(target_DEF / 4)))`
 
 **Tank mini-boss (savunma duruşu, hasar yok):**
 `buffed_DEF = effective_DEF × 2` (2 tur sürer)
@@ -218,30 +205,29 @@ Mini-boss yeteneği, standart hasar formülüne arketip çarpanı uygular. `defe
 | Hedef DEF | target_DEF | int | 15–499 | Hedef canavarın DEF'i |
 | DEF faktörü (fiziksel) | defense_reduction_factor | int | 2 | Saldırgan mini-boss |
 | DEF faktörü (büyü) | magic_defense_factor | int | 4 | Büyücü mini-boss |
-| Element çarpanı | element_multiplier | float | {0.75, 1.0, 1.5} | Element avantaj/dezavantaj |
 | Yetenek çarpanı | skill_multiplier | float | {0.5, 1.5} | Arketip yetenek çarpanı |
 | Yetenek hasarı | skill_damage | int | 1–350 | Sonuç (min 1 garantili) |
 
 **Çıktı Aralığı**: 1 – ~350 (Lv50 sınır). MVP'de max ~70.
 
-**Örnek** (Kat 5 Saldırgan mini-boss, Lv5, ATK=57, vs DEF=25, nötr — fiziksel):
-`floor(max(1, 57 × 1.5 - floor(25/2)) × 1.0)` = `floor(85.5 - 12)` = **73**
+**Örnek** (Kat 5 Saldırgan mini-boss, Lv5, ATK=57, vs DEF=25 — fiziksel):
+`floor(max(1, 57 × 1.5 - floor(25/2)))` = `floor(85.5 - 12)` = **73**
 
-**Örnek** (Kat 5 Büyücü mini-boss, Lv5, ATK=57, vs DEF=25, nötr — büyü):
-`floor(max(1, floor(57 × 0.5) - floor(25/4)) × 1.0)` = `floor(28 - 6)` = **22**
+**Örnek** (Kat 5 Büyücü mini-boss, Lv5, ATK=57, vs DEF=25 — büyü):
+`floor(max(1, floor(57 × 0.5) - floor(25/4)))` = `floor(28 - 6)` = **22**
 
 ### Formül 5: Boss Güçlü Saldırı Hasarı
 
 Boss güçlü saldırısı, normal hasar formülüne güçlü çarpan ekler. `defense_reduction_factor` boss arketipine göre değişir:
 
 **Tek hedef güçlü saldırı — fiziksel hasar (Tank/Destekçi arketip):**
-`strong_damage = floor(max(1, effective_ATK × strong_multiplier - floor(target_DEF / 2)) × element_multiplier)`
+`strong_damage = floor(max(1, effective_ATK × strong_multiplier - floor(target_DEF / 2)))`
 
 **AoE güçlü saldırı — fiziksel hasar (Saldırgan arketip):**
-`strong_aoe_damage = floor(max(1, effective_ATK × aoe_multiplier - floor(target_DEF / 2)) × element_multiplier)`
+`strong_aoe_damage = floor(max(1, effective_ATK × aoe_multiplier - floor(target_DEF / 2)))`
 
 **AoE güçlü saldırı — büyü hasarı (Büyücü arketip):**
-`strong_aoe_damage = floor(max(1, effective_ATK × aoe_multiplier - floor(target_DEF / 4)) × element_multiplier)`
+`strong_aoe_damage = floor(max(1, effective_ATK × aoe_multiplier - floor(target_DEF / 4)))`
 
 | Değişken | Sembol | Tip | Aralık | Açıklama |
 |----------|--------|-----|--------|----------|
@@ -249,7 +235,6 @@ Boss güçlü saldırısı, normal hasar formülüne güçlü çarpan ekler. `de
 | Hedef DEF | target_DEF | int | 15–499 | Hedef DEF (oyuncu stat pipeline'ından) |
 | DEF faktörü (fiziksel) | defense_reduction_factor | int | 2 | Tank/Destekçi ve Saldırgan arketip |
 | DEF faktörü (büyü) | magic_defense_factor | int | 4 | Büyücü arketip |
-| Element çarpanı | element_multiplier | float | {0.75, 1.0, 1.5} | Element çarpan |
 | Güçlü saldırı çarpanı | strong_multiplier | float | 2.0 | Tek hedef güçlü çarpan |
 | AoE çarpanı | aoe_multiplier | float | 0.75 | AoE güçlü çarpan |
 | Güçlü hasar | strong_damage | int | 1–550 | Tek hedef sonuç |
@@ -257,12 +242,12 @@ Boss güçlü saldırısı, normal hasar formülüne güçlü çarpan ekler. `de
 
 **Çıktı Aralığı**: Tek hedef 1–~550, AoE fiziksel 1–~200, AoE büyü 1–~215. MVP'de tek hedef max ~148, AoE fiziksel max ~48, AoE büyü max ~54.
 
-**Örnek** (Kat 10 boss, Saldırgan, Lv10, ATK=80, vs DEF=25, nötr — fiziksel):
-- Tek hedef: `floor(max(1, 80 × 2.0 - floor(25/2)) × 1.0)` = `floor(160 - 12)` = **148**
-- AoE: `floor(max(1, 80 × 0.75 - floor(25/2)) × 1.0)` = `floor(60 - 12)` = **48**
+**Örnek** (Kat 10 boss, Saldırgan, Lv10, ATK=80, vs DEF=25 — fiziksel):
+- Tek hedef: `floor(max(1, 80 × 2.0 - floor(25/2)))` = `floor(160 - 12)` = **148**
+- AoE: `floor(max(1, 80 × 0.75 - floor(25/2)))` = `floor(60 - 12)` = **48**
 
-**Örnek** (Kat 10 boss, Büyücü, Lv10, ATK=80, vs DEF=25, nötr — büyü):
-- AoE: `floor(max(1, 80 × 0.75 - floor(25/4)) × 1.0)` = `floor(60 - 6)` = **54**
+**Örnek** (Kat 10 boss, Büyücü, Lv10, ATK=80, vs DEF=25 — büyü):
+- AoE: `floor(max(1, 80 × 0.75 - floor(25/4)))` = `floor(60 - 6)` = **54**
 
 ### Formül 6: Boss Öfke Modu Değişiklikleri
 
@@ -308,10 +293,6 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 
 - **If tüm oyuncu canavarları savaş dışıysa ve AI sırası gelirse**: Savaş zaten kaybedilmiştir — Savaş Sistemi TPK (Total Party Kill) akışını tetikler. AI karar döngüsüne girmez.
 
-- **If düşman takımında 2+ aynı element canavar varsa (sinerji aktif)**: Düşmanlar da oyuncu canavarlarıyla aynı sinerji kurallarından yararlanır — Element Sistemi GDD'sindeki sinerji tablosu uygulanır. `enemy_synergy_frequency` (%15) bu durumun ne sıklıkta oluşacağını kontrol eder.
-
-- **If Patron AI'ın element bilinci avantajlı hedef bulamazsa**: `has_advantage_i = 0` tüm hedefler için. Ek ağırlık uygulanmaz, normal hedef seçim ağırlıkları geçerli. Patron AI nötr/dezavantajlı hedeflerden kaçınmaz — sadece avantajlıya hafif eğilim gösterir.
-
 - **If mini-boss Büyücü AoE saldırısında tek hedef kaldıysa**: AoE hasarı tek hedefe tam uygulanır (`0.5x ATK` — azaltma yok). AoE'nin avantajı çoklu hedef; tek hedefe karşı normal saldırıdan zayıf kalır.
 
 ## Dependencies
@@ -323,8 +304,7 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 | **Hasar Hesaplama** | Sert | `CalculateDamage(attackerId, targetId, damageType)` — AI saldırı kararı sonrası hasar pipeline'ını tetikler; `EstimateDamage(attackerId, targetId)` → int — Patron AI hedef seçiminde deterministik tahmin | Olmadan AI saldırıları hasar üretemez |
 | **Oyuncu Sınıf Sistemi** | Yumuşak | Büyücü arketip düşmanlar için `damageType=magic`; diğer arketipler için `damageType=physical` — hasar türü kararı | Olmadan Büyücü düşmanlar yanlış DEF faktörü kullanır |
 | **Sağlık / Can Sistemi** | Sert | `GetHPRatio(monsterId)` → float (0.0–1.0) — hedef seçiminde HP oranı; `IsAlive(monsterId)` → bool — hayatta olma kontrolü | Olmadan AI hedef seçimi yapamaz |
-| **Element Sistemi** | Yumuşak | `GetElementMultiplier(attackerElement, defenderElement)` → float — Patron AI element-bilinçli hedef seçimi için | Olmadan Patron AI element avantajını görmez, rastgele seçer |
-| **Canavar Veritabanı** | Sert | `GetBaseStats(monsterId, level)` → {hp, atk, def, spd}; `GetMonsterIdentity(monsterId)` → {element, archetype, rarity} — düşman stat ve kimlik bilgisi | Olmadan düşman canavarlar oluşturulamaz |
+| **Canavar Veritabanı** | Sert | `GetBaseStats(monsterId, level)` → {hp, atk, def, spd}; `GetMonsterIdentity(monsterId)` → {archetype, rarity} — düşman stat ve kimlik bilgisi | Olmadan düşman canavarlar oluşturulamaz |
 | **Zindan Keşif** | Sert | `GetFloorEnemies(floorNumber)` → düşman listesi tanımları; kat numarası ve bölge bilgisi | Olmadan AI hangi düşmanların savaşacağını bilemez |
 
 ### Downstream (Bu sisteme bağlı)
@@ -334,9 +314,9 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 | **Savaş Sistemi** | Sert | `GetEnemyAction(enemyId)` → {actionType, targetId, skillId} — savaş döngüsünde düşman aksiyonu; `OnEnemyAction` event → animasyon tetiklemesi | Olmadan düşmanlar savaşta hiçbir şey yapmaz |
 | **Savaş UI** | Yumuşak | `OnEnemyAction` event → {actionType, targetId, damage} — AI aksiyon bilgisi görsel gösterim için | Olmadan düşman aksiyonları gösterilmez ama savaş çalışır |
 
-**Bağımlılık doğası**: 5 upstream'den veri alır (stat, HP, element, düşman listesi, hasar tahmin). Savaş Sistemi'a aksiyon kararı, UI'a görüntüleme bilgisi gönderir. Düşman AI'ın kendisi state tutmaz (boss öfke modu hariç) — her karar bağımsız hesaplanır.
+**Bağımlılık doğası**: 4 upstream'den veri alır (stat, HP, düşman listesi, hasar tahmin). Savaş Sistemi'a aksiyon kararı, UI'a görüntüleme bilgisi gönderir. Düşman AI'ın kendisi state tutmaz (boss öfke modu hariç) — her karar bağımsız hesaplanır.
 
-**Bidirectional check**: Hasar Hesaplama GDD'sinde Düşman AI "yumuşak downstream" ✓. Sağlık/Can GDD'sinde Düşman AI "yumuşak downstream" ✓. Element Sistemi GDD'sinde Düşman AI "yumuşak downstream" ✓. Zindan Keşif GDD: ✅ Yazıldı — `GetFloorEnemies` arayüzü doğrulandı.
+**Bidirectional check**: Hasar Hesaplama GDD'sinde Düşman AI "yumuşak downstream" ✓. Sağlık/Can GDD'sinde Düşman AI "yumuşak downstream" ✓. Zindan Keşif GDD: ✅ Yazıldı — `GetFloorEnemies` arayüzü doğrulandı.
 
 ## Tuning Knobs
 
@@ -353,7 +333,6 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 | `boss_lowHP_weight` | 40 | 25–55 | Boss çok hedefli → "adaletsiz" | Hedef seçimi rastgele → tehditkâr değil |
 | `boss_highATK_weight` | 35 | 20–50 | Saldırganları hep hedef alır → saldırgan kullanılamaz | Saldırganlar çok güvenli |
 | `boss_random_weight` | 25 | 10–40 | Çok rastgele → tehditkâr değil | Çok öngörülebilir |
-| `boss_element_weight_bonus` | 10 | 5–20 | Element bilinci çok güçlü → cezalandırıcı | Element bilinci hissedilmez |
 | `strong_multiplier` | 2.0 | 1.5–3.0 | Güçlü saldırı tek vuruşta öldürür | Güçlü saldırı fark edilmez |
 | `aoe_multiplier` | 0.75 | 0.5–1.0 | AoE çok güçlü → tüm takım erir | AoE çok zayıf |
 | `rage_spd_bonus` | 0.20 | 0.10–0.40 | Öfke modu çok hızlı → tepki verilemez | Hız farkı hissedilmez |
@@ -368,7 +347,6 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 - `difficulty_multiplier` × `rarity_stat_pools` (registry) birlikte düşman güç eğrisini belirler. İkisini aynı anda artırmak zorluk patlar.
 - `strong_multiplier` × boss ATK stat'ı birlikte tek vuruş öldürme potansiyelini belirler. Lv10 boss (ATK=80) × 2.0 = 160 hasar — Zayıf Büyücü Lv1 (HP=18) için overkill. Bu beklenen davranış — boss'un güçlü saldırısı tehditkâr olmalı.
 - `aoe_multiplier` × `max_team_size` (4) birlikte toplam AoE hasarını belirler: 48 × 4 = 192 toplam (vs tek hedef 148). AoE toplam hasarı tek hedefe yakın ama dağıtık.
-- `enemy_synergy_frequency` Element Sistemi GDD'sinde de tanımlı — tek kaynak Element Sistemi, bu GDD referans alır.
 
 ## Visual/Audio Requirements
 
@@ -412,12 +390,12 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 - Düşman sıra göstergesi: savaş sırası barında düşman ikonları gösterilir (SPD bazlı) — oyuncu hangi düşmanın ne zaman saldıracağını görebilir
 
 ### Düşman Bilgi Paneli
-- Düşmana dokunulduğunda (long press) bilgi popup: düşman adı, element ikonu, arketip, HP barı, AI katmanı göstergesi (normal/mini-boss/boss)
+- Düşmana dokunulduğunda (long press) bilgi popup: düşman adı, arketip, HP barı, AI katmanı göstergesi (normal/mini-boss/boss)
 - Boss'lar için ek bilgi: öfke eşiği göstergesi (HP barında %50 çizgisi), saldırı döngüsü sayacı (mevcut tur/3)
 - Minimum dokunma hedefi: 44×44 dp (mobil erişilebilirlik)
 
 ### Kat Önizlemesi — Düşman Bilgisi
-- Zindan katına girmeden önce düşman sayısı, element dağılımı ve AI katmanı (normal/mini-boss/boss) gösterilir
+- Zindan katına girmeden önce düşman sayısı ve AI katmanı (normal/mini-boss/boss) gösterilir
 - Mini-boss ve boss katları özel ikon ile işaretlenir (kılıç ikonu mini-boss, taç ikonu boss)
 
 > **UX Flag — Düşman AI**: Bu sistem UI gereksinimleri içeriyor. Phase 4'te (Pre-Production) `/ux-design` çalıştırarak savaş ekranı düşman aksiyon gösterimi, düşman bilgi paneli ve kat önizlemesi için UX spec oluşturulmalı.
@@ -430,31 +408,29 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 
 3. **GIVEN** Taktik AI mini-boss ve 3 canavar hayatta, hiçbiri Destekçi değil, **WHEN** ağırlıklar hesaplanırsa, **THEN** destekçi ağırlığı sıfırlanır, P(en düşük HP) = 50/70 = %71.4, P(rastgele) = 20/70 = %28.6.
 
-4. **GIVEN** Patron AI boss ve 3 canavar, boss'un hiçbirinde element avantajı yok, **WHEN** ağırlıklar hesaplanırsa, **THEN** P(en düşük HP) = %40, P(en yüksek ATK) = %35, P(rastgele) = %25.
+4. **GIVEN** Patron AI boss ve 3 canavar, **WHEN** ağırlıklar hesaplanırsa, **THEN** P(en düşük HP) = %40, P(en yüksek ATK) = %35, P(rastgele) = %25.
 
-5. **GIVEN** Patron AI boss (Ateş) ve 3 canavar: A (Toprak, ATK=35), B (Su, ATK=52), C (Hava, ATK=30), en düşük HP = A, **WHEN** ağırlıklar hesaplanırsa, **THEN** A'nın ağırlığı 40+10(avantaj)=50, toplam=110, P(A) = 50/110 = %45.5.
+5. **GIVEN** Kat 5 Saldırgan mini-boss (Lv5, ATK=57), hedef DEF=25, **WHEN** 1.5x yetenek kullanırsa, **THEN** hasar = floor(max(1, 57×1.5 - floor(25/2))) = **73**.
 
-6. **GIVEN** Kat 5 Saldırgan mini-boss (Lv5, ATK=57), hedef DEF=25, nötr element, **WHEN** 1.5x yetenek kullanırsa, **THEN** hasar = floor(max(1, 57×1.5 - floor(25/2)) × 1.0) = **73**.
+6. **GIVEN** Kat 5 Büyücü mini-boss (ATK=57), 3 hedef (DEF=25), büyü hasarı, **WHEN** 0.5x AoE kullanırsa, **THEN** her hedefe hasar = floor(max(1, floor(57×0.5) - floor(25/4))) = floor(28 - 6) = **22**.
 
-7. **GIVEN** Kat 5 Büyücü mini-boss (ATK=57), 3 hedef (DEF=25), nötr, büyü hasarı, **WHEN** 0.5x AoE kullanırsa, **THEN** her hedefe hasar = floor(max(1, floor(57×0.5) - floor(25/4)) × 1.0) = floor(28 - 6) = **22**.
+7. **GIVEN** Kat 5 Tank mini-boss (DEF=57), **WHEN** savunma duruşu kullanırsa, **THEN** buffed_DEF = 57 × 2 = **114**, 2 tur sürer, sonra 57'ye döner.
 
-8. **GIVEN** Kat 5 Tank mini-boss (DEF=57), **WHEN** savunma duruşu kullanırsa, **THEN** buffed_DEF = 57 × 2 = **114**, 2 tur sürer, sonra 57'ye döner.
+8. **GIVEN** Kat 10 boss (Saldırgan, ATK=80), hedef DEF=25, **WHEN** 2.0x güçlü tek hedef saldırısı yaparsa, **THEN** hasar = floor(max(1, 80×2.0 - floor(25/2))) = **148**.
 
-9. **GIVEN** Kat 10 boss (Saldırgan, ATK=80), hedef DEF=25, nötr, **WHEN** 2.0x güçlü tek hedef saldırısı yaparsa, **THEN** hasar = floor(max(1, 80×2.0 - floor(25/2)) × 1.0) = **148**.
+9. **GIVEN** Kat 10 boss (Saldırgan, ATK=80), 3 hedef (DEF=25), **WHEN** 0.75x güçlü AoE yaparsa, **THEN** her hedefe hasar = floor(max(1, 80×0.75 - floor(25/2))) = **48**.
 
-10. **GIVEN** Kat 10 boss (Saldırgan, ATK=80), 3 hedef (DEF=25), nötr, **WHEN** 0.75x güçlü AoE yaparsa, **THEN** her hedefe hasar = floor(max(1, 80×0.75 - floor(25/2)) × 1.0) = **48**.
+10. **GIVEN** Boss (base_SPD=46, HP > %50), saldırı döngüsü Tur 2'de, **WHEN** bu turda HP %50 altına düşerse, **THEN** öfke modu **bir sonraki turda** aktifleşir, rage_SPD = floor(46 × 1.20) = **55**, güçlü CD: 3→2.
 
-11. **GIVEN** Boss (base_SPD=46, HP > %50), saldırı döngüsü Tur 2'de, **WHEN** bu turda HP %50 altına düşerse, **THEN** öfke modu **bir sonraki turda** aktifleşir, rage_SPD = floor(46 × 1.20) = **55**, güçlü CD: 3→2.
+11. **GIVEN** Boss öfke modunda (rage aktif, güçlü CD=2), **WHEN** saldırı döngüsü başlarsa, **THEN** patern: Normal→Güçlü→Normal→Güçlü... (her 2 turda güçlü saldırı).
 
-12. **GIVEN** Boss öfke modunda (rage aktif, güçlü CD=2), **WHEN** saldırı döngüsü başlarsa, **THEN** patern: Normal→Güçlü→Normal→Güçlü... (her 2 turda güçlü saldırı).
+12. **GIVEN** herhangi AI katmanı, 2 canavar aynı HP oranında, **WHEN** "en düşük HP" ağırlığı uygulanırsa, **THEN** ikisi arasında eşit olasılıkla rastgele seçilir.
 
-13. **GIVEN** herhangi AI katmanı, 2 canavar aynı HP oranında, **WHEN** "en düşük HP" ağırlığı uygulanırsa, **THEN** ikisi arasında eşit olasılıkla rastgele seçilir.
+13. **GIVEN** herhangi AI katmanı, tek canavar hayatta, **WHEN** hedef seçimi yapılırsa, **THEN** probability = 1.0, AI katmanı fark etmez.
 
-14. **GIVEN** herhangi AI katmanı, tek canavar hayatta, **WHEN** hedef seçimi yapılırsa, **THEN** probability = 1.0, AI katmanı fark etmez.
+14. **GIVEN** Boss AoE saldırısı, 4 canavardan 2'si savaş dışı, **WHEN** AoE uygulanırsa, **THEN** hasar sadece hayatta olan 2 hedefe uygulanır; savaş dışı canavarlar etkilenmez.
 
-15. **GIVEN** Boss AoE saldırısı, 4 canavardan 2'si savaş dışı, **WHEN** AoE uygulanırsa, **THEN** hasar sadece hayatta olan 2 hedefe uygulanır; savaş dışı canavarlar etkilenmez.
-
-16. **GIVEN** Taktik AI mini-boss, yeteneğini bu tur kullanmış (CD=3), **WHEN** sonraki 2 turda sırası gelirse, **THEN** normal saldırı yapar. 3. turda CD=0 olur ve yetenek tekrar kullanılabilir.
+15. **GIVEN** Taktik AI mini-boss, yeteneğini bu tur kullanmış (CD=3), **WHEN** sonraki 2 turda sırası gelirse, **THEN** normal saldırı yapar. 3. turda CD=0 olur ve yetenek tekrar kullanılabilir.
 
 ## Open Questions
 

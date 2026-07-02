@@ -2,9 +2,47 @@
 
 <!-- STATUS -->
 Epic: GDD Design
-Feature: Yetenek Sistemi
-Task: TAMAMLANDI — Tüm bölümler yazıldı, registry güncellendi, status: Designed
+Feature: Canavar Toplama ve Evrim
+Task: REVİZE TAMAMLANDI (2026-07-02, 1. tur) — tam `/design-review` (game-designer, systems-designer, economy-designer, qa-lead, creative-director). Master blocker (Form A/B/C eski model vs F-D-C-B-A-S-SS tier pivotu) bu dosyanın kendi kapsamında ÇÖZÜLDÜ: Pokédex artık (tür,tier) modeli, instance şeması level-deneyim-sistemi.md ile hizalandı, satış formülü exploit'i kapatıldı (sell_level_bonus 0.02→0.01), S/SS otomatik satıştan muaf tutuldu (creative-director kararı). **SIRADAKI ADIM (kullanıcı onayladı)**: /clear sonrası `/design-review canavar-toplama-evrim.md` yeniden çalıştırılıp revizyonlar bağımsız doğrulanacak.
 <!-- /STATUS -->
+
+## Current Task (2026-07-02, 1. tur) — REVİZE TAMAMLANDI, RE-REVIEW BEKLİYOR
+
+`/design-review canavar-toplama-evrim.md` çalıştırıldı (full mode, 4 uzman + creative-director). Verdict: MAJOR REVISION NEEDED — 12 blocker bulundu, ~7'si tek bir kök nedene (üç dosyada üç farklı evrim modeli) bağlıydı. Kullanıcı "şimdi revize et" dedi, 3 tasarım kararı alındı:
+1. Pokédex modeli: **tür × ulaşılan tier** (değişken giriş sayısı, basit "sadece tür" seçeneği yerine)
+2. Satış exploit fix: kullanıcı özel yönlendirme verdi ("seviyelenme XP iksiri/keşif ile kazanılıyor, bedava değil") → level bonusu kaldırılmadı, küçültüldü (0.02→0.01)
+3. S/SS otomatik satış: creative-director önerisi kabul edildi — tamamen muaf (30 gün sınırı kaldırıldı)
+
+Tüm 12 blocker + türev AC/formül/dependency güncellemeleri tek oturumda uygulandı (bkz. Files Modified). **Bu revizyonlar HENÜZ bağımsız bir uzman turundan geçmedi** — sıradaki adım kullanıcının seçtiği gibi temiz context'te yeniden `/design-review` çalıştırmak.
+
+### Yeni oturumda ilk adım
+1. Bu dosyayı oku (zaten otomatik olacak)
+2. `/design-review canavar-toplama-evrim.md` çalıştır — 2. tur re-review, önceki 12 blocker'ın gerçekten çözüldüğünü doğrula
+3. Not: Bu revizyon 3 kardeş dosyada (canavar-veritabani.md, canavar-guclendirme.md, kesif-alani.md, loot-odul-sistemi.md) yeni Open Question'lar (#6 kısmen, #7, #8) açtı — bunlar bu GDD'nin kapsamı dışında, ayrı `/design-review` oturumları gerektirir.
+
+## Files Modified This Session (2026-07-02, 1. tur)
+- design/gdd/canavar-toplama-evrim.md (12 blocker düzeltmesi: Kural 2 instance şeması, Kural 5 Pokédex tier-zinciri modeli, Kural 6 ödüller/milestone, Kural 1 Keşif Alanı kaynağı, Kural 4.3/4.5 S/SS muafiyeti, Formül 2/3 yeniden hesaplama, Dependencies, Edge Cases, Acceptance Criteria #1/5/6/7/8/9/10/21/22 revize + #23-26 yeni, Tuning Knobs, Open Questions #2/#3/#6 revize + #7/#8 yeni)
+
+## Previous Task (2026-07-01, 3. tur) — TAMAMLANDI
+`/design-review level-deneyim-sistemi.md` yeniden çalıştırıldı (4 uzman + creative-director, taze oturum). 2. turun 6 blocker'ı bağımsız doğrulandı: 4'ü tam ÇÖZÜLDÜ, 1'i (Kural 8 vs Kural 5 pseudocode) YENİ bir blocker doğurdu (`pet.banked_progress` tanımsız terim — systems-designer + economy-designer bağımsız yakaladı), 1 alan (Kural 3 atomiklik) AC eksikliği nedeniyle hâlâ blocking bulundu (qa-lead). Bu 2 yeni blocker + 5 önerilen madde (SS40 dead-end OQ8'e eklendi, MAX rozeti, overflow-stacking riski Open Questions'a taşındı, materyal-kontrol yarışı için deferral notu, remaining_tier_xp≈0 dejenere UX düzeltmesi) bu oturumda çözüldü. Nice-to-have (SS geçiş anı banked_xp stranding) da düzeltildi.
+Kullanıcı disagreement not: game-designer oyuncu Lv30 sonrası büyüme eksikliğini hâlâ Blocking görüyor, creative-director roadmap kalemi olarak tutuyor (OQ#8) — çözülmedi, kayıtlı.
+
+**Kalan durum**: Bu GDD'nin kendi kapsamındaki TÜM blocker'lar çözüldü. Implementasyon hâlâ 3 harici dosyanın revizyonuna bağlı (Open Questions #1, #6, #7) — bu GDD'nin dışında bir iş.
+
+**Sıradaki önerilen adım**: `/design-review canavar-toplama-evrim.md` (bu GDD'yi açan en kritik blocker) veya kullanıcı tercihine göre başka bir sistem.
+
+## Files Modified This Session (2026-07-01, 3. tur)
+- design/gdd/level-deneyim-sistemi.md (2 yeni blocker düzeltmesi: banked_progress → XPInvestedThisTier tanımlandı, AC #29 atomiklik testi eklendi; + 5 önerilen madde: OQ#8 genişletildi, MAX rozeti, OQ#10 overflow-stacking, materyal-kontrol yarışı deferral notu, remaining_tier_xp≈0 UX düzeltmesi, SS geçiş anı banked_xp stranding düzeltmesi)
+
+## Files Modified Previous Session (2026-07-01, 2. tur)
+- design/gdd/level-deneyim-sistemi.md (1. turun 6 blocker düzeltmesi — bkz. review-log)
+- design/gdd/kaydetme-yukleme.md (save şeması: player_level/xp, banked_xp, lifetime_pet_level eklendi)
+- design/registry/entities.yaml (potion_lock_threshold_ratio → overfill_cap_ratio yeniden adlandırıldı)
+
+## Files Modified Previous Session (2026-07-01, 1. tur)
+- design/gdd/level-deneyim-sistemi.md (YENİ — 8 zorunlu + Visual/Audio + UI Requirements bölümleri, 2 formül, 23 acceptance criteria)
+- design/registry/entities.yaml (xp_to_next_level_formula, xp_overflow_gold_formula, player_level_cap, pet_tier_level_caps, xp_to_gold_rate, potion_lock_threshold_ratio eklendi)
+- design/gdd/systems-index.md (#34 eklendi, Pet Evrim #8 ve Oyuncu Sınıf #10 dependency güncellendi, Progress Tracker sayıları güncellendi)
 
 ## Current Task
 **PIVOT + KISALTMALAR TAMAMLANDI (2026-06-26)**

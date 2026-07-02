@@ -92,7 +92,7 @@ Ekranın üst bölümü. Düşman oyuncuyu hedef alır; hasar sayıları Oyuncu 
 
 | Eleman | Detay |
 |--------|-------|
-| **Başlık Satırı** | Element ikonu (küçük, renkli) + Monster Adı (font orta) + SG değeri (sağ köşe, küçük, gri) |
+| **Başlık Satırı** | Monster Adı (font orta) + SG değeri (sağ köşe, küçük, gri) |
 | **Sprite** | Merkezi hizalı. Boyut: normal monster ~110×110 dp, boss ~130×130 dp. |
 | **HP Barı** | Kırmızı/turuncu dolgu, soldan sağa. Anlık değer metni: "240/300" sağda. Hasar gelince bar hızlı azalır (200ms tween). |
 | **Status İkon Satırı** | HP barının altında. Küçük 20×20 dp ikonlar, soldan sağa aktif efektler. Max 6 ikon; 7+: son ikona "..." |
@@ -113,7 +113,7 @@ Ortadaki boş alan; statik arka plan yok, sadece animasyonlar ve yüzen elementl
 |--------|-------|
 | **Hasar Sayıları** | Hedefe yakın belirip yukarı süzülerek kaybolur. 0.8s görünür, 0.3s fade. |
 | **Tur Sırası Göstergesi** | Sağ alt köşede 3 küçük ikon (Pet / Oyuncu / Düşman), aktif olan büyük ve parlak. Soldan sağa sıralı, her tur güncellenir. |
-| **Animasyon Canvas** | Slash efektleri, element dalgaları, iyileştirme ışınları bu katmanda oynar. |
+| **Animasyon Canvas** | Slash efektleri, büyü dalgaları, iyileştirme ışınları bu katmanda oynar. |
 
 **Hasar sayısı tipleri**:
 
@@ -156,7 +156,7 @@ Oyuncu Zonu'nun hemen altı, Aksiyon Çubuğu'nun üstünde. Pet ikincil saldır
 
 | Eleman | Detay |
 |--------|-------|
-| **Pet İkonu** | Sol köşede 40×40 dp küçük sprite/ikon. Element rengi kenarlık. |
+| **Pet İkonu** | Sol köşede 40×40 dp küçük sprite/ikon. Nadirlik rengi kenarlık. |
 | **Pet Adı** | İkon yanında, küçük metin. |
 | **HP Barı** | Daha ince (12 dp yüksek), yeşil dolgu. Sağda "150/200". |
 | **Enerji Barı** | HP barının altında, 10 dp yüksek, mavi. Sağda kalan enerji. |
@@ -482,8 +482,8 @@ displayed_cd = current_cd   // her tur başı güncellenir
 | **Savaş Sistemi** | Her tur başı/sonu event'leri, aksiyon sonuçları | `OnTurnStart(unitId)`, `OnActionExecuted(result)`, `OnBattleEnd(outcome)`, `OnModeChanged(mode)` |
 | **Sağlık / Can Sistemi** | HP değişimleri (real-time) | `OnHPChanged(unitId, newHP, maxHP)` |
 | **Oyuncu Sınıf Sistemi** | Sınıf adı, slot yetenekleri, CD durumları, SPD | `GetClassInfo()` → {name, slots[], color} |
-| **Pet Sistemi** | Aktif pet adı, element, tier, sprite referansı, SG | `GetActivePet()` → {name, element, tier, sprite, SG, energy} |
-| **Canavar Veritabanı** | Düşman adı, element, tier, sprite referansı, SG | `GetMonsterIdentity(enemyId)` |
+| **Pet Sistemi** | Aktif pet adı, tier, sprite referansı, SG | `GetActivePet()` → {name, tier, sprite, SG, energy} |
+| **Canavar Veritabanı** | Düşman adı, tier, sprite referansı, SG | `GetMonsterIdentity(enemyId)` |
 | **Loot / Ödül Sistemi** | Savaş sonu loot listesi, EXP miktarı | `GetBattleReward(battleResult)` → {lootItems[], exp} |
 | **UI Framework** | Stack navigasyon, modal, toast | `UIManager.*` |
 

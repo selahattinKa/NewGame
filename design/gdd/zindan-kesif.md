@@ -7,7 +7,7 @@
 
 ## Overview
 
-**Zindan Keşif Sistemi**, oyunun ana aktivite döngüsünü oluşturan yapıdır: oyuncunun canavar takımını göndereceği katlı zindanları tanımlar, her kattaki düşman gruplarını yapılandırır, kat ilerleme mantığını yönetir ve savaş-loot-ilerleme akışını orkestre eder. Mekanik olarak sistem, bölge → zindan → kat hiyerarşisinde çalışır: her bölge kendine ait düşman havuzu, element teması ve zorluk eğrisine sahiptir; her zindan bölgenin alt kümesidir; her kat 1 düşman grubu + 1 savaş + 1 loot rulosu içerir. Her 5. kat boss katıdır — daha güçlü düşman, daha cömert ödül, boss canavarı düşme şansı. Kat girişi enerji maliyetlidir (2 enerji/kat), kazanılan savaşlar katı temizler ve bir sonrakini açar; kaybedilen savaşlar enerji harcamaz ve cezasızdır.
+**Zindan Keşif Sistemi**, oyunun ana aktivite döngüsünü oluşturan yapıdır: oyuncunun canavar takımını göndereceği katlı zindanları tanımlar, her kattaki düşman gruplarını yapılandırır, kat ilerleme mantığını yönetir ve savaş-loot-ilerleme akışını orkestre eder. Mekanik olarak sistem, bölge → zindan → kat hiyerarşisinde çalışır: her bölge kendine ait düşman havuzu, görsel tema ve zorluk eğrisine sahiptir; her zindan bölgenin alt kümesidir; her kat 1 düşman grubu + 1 savaş + 1 loot rulosu içerir. Her 5. kat boss katıdır — daha güçlü düşman, daha cömert ödül, boss canavarı düşme şansı. Kat girişi enerji maliyetlidir (2 enerji/kat), kazanılan savaşlar katı temizler ve bir sonrakini açar; kaybedilen savaşlar enerji harcamaz ve cezasızdır.
 
 Oyuncu perspektifinden Zindan Keşif, "bir kat daha" psikolojisinin motoru ve keşif heyecanının kaynağıdır. Oyuncu zindana girdiğinde her kat onu ödüllendiren bir meydan okumadır: düşman grubunu yen, loot topla, bir sonraki kata ilerle. Bir sonraki katın potansiyel ödülünü görme dürtüsü oturumu doğal olarak uzatır. İlk kez temizlenen katlar ekstra elmas ödülü verir; daha önce geçilen katlar tekrar edilebilir (farm). Boss katları zorluk sıçraması + cömert ödül denklemiyle "doruk an" yaratır. Sistem, oyuncunun gücüne göre katlar arası zorluk ölçeklemesiyle "her zaman bir sonraki zorluk var" hissini korurken, "Cömert Zindan" gereği eli boş döndüren bir kat asla yoktur.
 
@@ -21,7 +21,7 @@ Zindan Keşif Sistemi'nde oyuncu **fetih komutanı** fantezisi yaşar. Çekirdek
 
 **İlerleme tatmini**: Daha önce 8 turda geçilen Kat 3, şimdi 3 turda geçiliyor. Oyuncu zindan tekrarında bu farkı somut olarak hisseder — güçlendirme çalışmış, ordusu büyümüş. Boss'u ilk seferde yenemeyip takımı güçlendirip geri dönüp ezmek, oyunun en tatmin edici anlarından biri.
 
-**Keşif heyecanı**: Her yeni katta karşılaşılan düşman canavar türleri Pokédex'e kaydedilir. İlk kez görülen bir canavar "bu ne?" merakı uyandırır. Yeni bir bölge açıldığında (Tier 2+) tamamen farklı bir düşman havuzu ve element teması — her bölge yeni bir macera hissi.
+**Keşif heyecanı**: Her yeni katta karşılaşılan düşman canavar türleri Pokédex'e kaydedilir. İlk kez görülen bir canavar "bu ne?" merakı uyandırır. Yeni bir bölge açıldığında (Tier 2+) tamamen farklı bir düşman havuzu ve görsel tema — her bölge yeni bir macera hissi.
 
 **Negatif fantezi (kaçınılacak)**: "Duvar" — oyuncunun günlerce aynı katta kalması. Zorluk ölçeklemesi oyuncu gücünün biraz gerisinde kalmalı — oyuncu "biraz önde" hissetmeli. "Boş tekrar" — aynı katları farm ederken sıkılma. Boss katları ve nadir canavar düşme şansı tekrarı anlamlı kılmalı. "Enerji cezası" — enerjisi bitti diye oturamama. Enerji geri dönüş hızı (1/5dk) makul sınır koyar ama cezalandırıcı hissettirmemeli.
 
@@ -39,7 +39,7 @@ Oyun dünyası üç katmanlı bir yapıda organize edilir:
 
 | Katman | Tanım | MVP Kapsamı |
 |--------|-------|-------------|
-| **Bölge** | En üst düzey alan — kendine ait düşman havuzu, element teması, arka plan sanatı, müzik | 1 bölge: "Karanlık Orman" |
+| **Bölge** | En üst düzey alan — kendine ait düşman havuzu, görsel tema, arka plan sanatı, müzik | 1 bölge: "Karanlık Orman" |
 | **Zindan** | Bölge içindeki oynanabilir birim — katlara bölünmüş dikey yapı | 1 zindan: 10 kat |
 | **Kat** | Tek bir savaş karşılaşması — düşman dalgaları + loot | 10 kat (Kat 1-10) |
 
@@ -106,7 +106,6 @@ Sweep loot'u normal loot'la aynıdır — "Cömert Zindan" gereği sweep eden oy
 | Boss katı sıklığı | Her 5. kat (Kat 5, 10, 15...) |
 | Boss sayısı | 1 boss + 1-2 yardımcı düşman |
 | Boss türü | Kat 5: Mini-Boss, Kat 10: Alan Patronu (MVP) |
-| Boss element | Bölge element temasına uygun |
 | Boss düşme | Loot GDD Kural 6: B Tier=%5, A Tier=%3, S/SS Tier=%1 |
 | Boss altını | Normal kat × 3 (boss_gold_multiplier = 3.0) |
 | Sweep | Boss katı sweep edilemez |
@@ -133,7 +132,6 @@ Her dalgadaki düşmanlar şu parametrelerle belirlenir:
 | Kat 10 (Boss) | Yüksek | Alan Patronu |
 
 4. **Düşman seviyesi**: Düşman AI GDD'den — `floor(floor_number × difficulty_multiplier)`. MVP'de difficulty_multiplier = 1.0 (lineer).
-5. **Element dağılımı**: Bölge temasına ağırlıklı — ana bölge elementi %50, diğer elementler eşit dağılım (%50 / 3).
 
 **Kural 8 — İlk Temizleme Ödülleri**
 
@@ -156,7 +154,6 @@ Zorluk oyuncu güçlendirmesinin biraz gerisinde kalmalı — "biraz önde" hiss
 | difficulty_multiplier | 1.0 (MVP) | Düşman seviyesi = kat numarası |
 | Enerji harcaması | 2/kat (sabit) | Tüm katlar eşit maliyet |
 | Düşman sayısı artışı | Kat 1: 4 toplam → Kat 10: 8 toplam (boss dahil) | Kademeli artış |
-| Element çeşitliliği | Erken katlar tek element → geç katlar karışık | Stratejik karmaşıklık artar |
 
 Dengeleme prensibi: Game Concept'ten — "Zorluk kademeli olarak zorlaşır ama oyuncu gücü daha hızlı büyür — oyuncu hep 'biraz önde' hisseder. Boss katları zorluk sıçraması yapar ama cömert ödülle telafi eder."
 
@@ -241,7 +238,7 @@ MVP'de tek bölge her zaman Available durumundadır.
 
 | Sistem | Yön | Veri Akışı | Arayüz |
 |--------|-----|-----------|--------|
-| **Savaş Sistemi** | ↔ çift yönlü | Düşman listesi sağlar ←; savaş sonucu alır → | `GetFloorEnemies(floorNumber, waveIndex)` → [{monsterId, level, element}]; `OnBattleComplete(result)` ← {outcome, turnsUsed} |
+| **Savaş Sistemi** | ↔ çift yönlü | Düşman listesi sağlar ←; savaş sonucu alır → | `GetFloorEnemies(floorNumber, waveIndex)` → [{monsterId, level}]; `OnBattleComplete(result)` ← {outcome, turnsUsed} |
 | **Loot / Ödül** | → tetikler | Kat bilgisi sağlar; loot hesaplamasını tetikler | `GetCurrentFloorInfo()` → {floor, type, region, boss_id}; `DistributeFloorLoot(floorNumber, floorType, regionId)` |
 | **Canavar Toplama** | → tetikler | Düşman karşılaşma sinyali (Pokédex keşfi) | `OnEnemyEncountered(monsterId)` — her dalgadaki düşmanlar için |
 | **Ekonomi** | ← okur + → çağırır | Enerji kontrolü ve harcama | `HasEnergy(amount)` → bool; `SpendEnergy(amount)`; `GetCurrentEnergy()` → int |
@@ -249,7 +246,7 @@ MVP'de tek bölge her zaman Available durumundadır.
 | **Canavar Veritabanı** | ← okur | Bölge canavar havuzu | `GetRegionMonsterPool(regionId)` → [monsterId[]] |
 | **Takım Kurma** | ← okur | Aktif takım kontrolü | `GetActiveTeam()` — savaş öncesi takım yükleme |
 | **Kaydetme/Yükleme** | ↔ persist | Kat durumları, first_clear flagları, en yüksek kat | `SaveDungeonState()` / `LoadDungeonState()` |
-| **Zindan Harita UI** | → sağlar | Kat durumları, bölge bilgisi, ilerleme verisi | `GetFloorStates()` → [{floor, status, firstClear}]; `GetRegionInfo()` → {name, theme, element} |
+| **Zindan Harita UI** | → sağlar | Kat durumları, bölge bilgisi, ilerleme verisi | `GetFloorStates()` → [{floor, status, firstClear}]; `GetRegionInfo()` → {name, theme} |
 | **Otofarm / Idle** | → sağlar | En yüksek temizlenmiş kat, bölge bilgisi | `GetHighestClearedFloor()` → int; idle hesaplama için referans |
 
 **Veri akışı özeti**: Bu sistem savaş öncesi hazırlık (düşman oluşturma, enerji kontrolü) ve savaş sonrası sonuç işleme (loot tetikleme, ilerleme güncelleme) arasında orkestratör rolü üstlenir. Savaş Sistemi gerçek savaşı yönetir; bu sistem savaşın bağlamını (hangi kat, hangi düşmanlar, ne ödül) tanımlar.
@@ -446,7 +443,6 @@ Sweep normal loot tablosunu kullanır — verimlilikte fark yoktur. Tek fark sü
 | `max_floors_per_region` | 10 | 5–50 | İçerik gereksinimi artar, dengeleme zorlaşır | Bölge çok kısa, keşif hissi yok |
 | `wave_1_enemy_count_early` | 2 | 1–3 | Erken katlar zor | Erken katlar çok kolay |
 | `wave_2_enemy_count_late` | 4 | 3–5 | Geç katlar çok zor | Düşman sayısı artışı hissedilmez |
-| `region_element_weight` | 0.50 | 0.30–0.80 | Bölge çok monoton (tek element) | Element teması kaybolur |
 | `background_timeout_minutes` | 30 | 10–60 | Arka planda çok uzun bekleme → stale state riski | Kısa mola bile oturumu iptal eder |
 
 **Etkileşim Uyarıları**:
@@ -462,7 +458,7 @@ Sweep normal loot tablosunu kullanır — verimlilikte fark yoktur. Tek fark sü
 
 | Olay | VFX | Süre | Öncelik |
 |------|-----|------|---------|
-| Zindan giriş | Karanlık kapı açılma animasyonu + bölge element renginde ışık patlaması | 1.5s | MVP |
+| Zindan giriş | Karanlık kapı açılma animasyonu + bölge renginde ışık patlaması | 1.5s | MVP |
 | Kat geçiş (dalga arası) | Kısa ekran geçiş efekti — düşmanlar sağdan kayarak çıkar, yeni dalga sağdan girer | 0.8s | MVP |
 | Kat temizleme | Altın parlama + "KAT TEMİZLENDİ" yazısı + loot ikonları belirme | 1.5s | MVP |
 | Boss katı giriş | Ekran kararma + dramatik aydınlanma + boss silüet belirme + boss isim kartı | 2.0s | MVP |
@@ -553,7 +549,7 @@ Sweep normal loot tablosunu kullanır — verimlilikte fark yoktur. Tek fark sü
 
 ## Open Questions
 
-1. **Evrim Zindanı**: Loot GDD'de "Evrim Zindanı" (element taşı farm) referans ediliyor. Bu özel zindan tipi MVP'de mi yoksa Tier 2+'da mı? Eğer MVP'deyse dalga yapısı ve loot tablosu nasıl farklılaşır? → Mevcut karar: MVP dışı (Tier 2+).
+1. **Evrim Zindanı**: Loot GDD'de "Evrim Zindanı" (Evrim Taşı farm) referans ediliyor. Bu özel zindan tipi MVP'de mi yoksa Tier 2+'da mı? Eğer MVP'deyse dalga yapısı ve loot tablosu nasıl farklılaşır? → Mevcut karar: MVP dışı (Tier 2+).
 
 2. **Prosedürel kat düzenleri**: Game Concept'te "MVP'de sabit, sonra prosedürel" diyor. MVP'de düşman grubu yapısı sabit mi (her oyunda aynı düşmanlar) yoksa bölge havuzundan rastgele mi seçiliyor? → Mevcut tasarım: düşman türleri bölge havuzundan rastgele, sayı ve nadirlik konfigürasyonla sabit.
 

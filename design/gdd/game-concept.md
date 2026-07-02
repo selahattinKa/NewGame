@@ -155,7 +155,7 @@ Oyuna giriş
 - **Curiosity**: Kilitli zindan bölgeleri, SS'e ulaşabilen gizli petler, "bu pet SS'de nasıl görünür?", ödül ekranında ne düşecek?
 - **Investment**: F'den evrimleştirilen SS pet, sınıf dalı ilerlemesi, koleksiyon + mağazadan alınan kostüm kombinasyonları
 - **Social**: Arena ligi rekabeti, ırk etkinlik sıralaması, koleksiyon karşılaştırma
-- **Mastery**: Tur bazlı cooldown yönetimi, element avantajı, sınıf + pet sinerji kurma
+- **Mastery**: Tur bazlı cooldown yönetimi, sınıf + pet sinerji kurma
 
 ---
 
@@ -341,7 +341,7 @@ Türkçe + İngilizce
 **Ön yönlendirme** (brainstorm'dan çıkarılan):
 - 2D sanat stili, AI üretimi görseller — kart formatı (koleksiyon) + tam ekran savaş görseli
 - **Savaş perspektifi**: Düşman/yaratık kameraya bakıyor, tam dikey ekranı dolduruyor — oyuncu ve pet görünmüyor. "Bana saldırıyor" hissi.
-- Canavar tasarımları çeşitli ve renkli — her element farklı renk paleti; kameraya bakış açısı AI prompt'ta zorunlu
+- Canavar tasarımları çeşitli ve renkli — her tür/arketip farklı renk paleti; kameraya bakış açısı AI prompt'ta zorunlu
 - Mobil dostu temiz UI; yetenek butonları ekranın alt kısmında
 - Zindan ortamları atmosferik ama karanlık değil — "güçlü kahraman" hissi, "hayatta kalma korkusu" değil
 
@@ -392,7 +392,7 @@ Türkçe + İngilizce
 
 ### Open Questions
 - Oto-savaş ile manuel savaş ne kadar farklı sonuç vermeli? → MVP prototipinde test et
-- Kaç element yeterli? → 4 elementle başla, oyuncu feedback'ine göre genişlet
+- ~~Kaç element yeterli?~~ **ÇÖZÜLDÜ (2026-07-02)**: Element sistemi prototype kapsamından tamamen kaldırıldı (kullanıcı kararı) — oyun tutarsa ileride tekrar değerlendirilebilir.
 - Arena asenkron mu yoksa gerçek zamanlı mı? → MVP'de asenkron, feedback'e göre karar
 - AI video saldırı formatı: MP4 mi (daha uyumlu) yoksa WebM/alpha-channel mı? → Unity VideoPlayer test gerekir
 - Sınıf dalı seçimi kalıcı mı yoksa maliyetli geri dönüşe izin verecek mi? → GDD'de netleştirilecek

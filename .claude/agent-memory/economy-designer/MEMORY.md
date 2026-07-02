@@ -1,0 +1,1 @@
+- [XP System Conflict](project_xp_system_conflict.md) — canavar-guclendirme.md gold-injection XP model (Lv50, no tier caps) conflicts with new level-deneyim-sistemi.md tier-capped battle-XP model; needs explicit reconciliation decision.

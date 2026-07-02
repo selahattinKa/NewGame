@@ -19,7 +19,7 @@ Oyuncu harita ekranını açtığında **macera haritasına bakan kaşif** hissi
 
 **SG renk psikolojisi**: Yeşil aşama rahatlık ve özgüven verir; sarı aşama dikkat ve heyecan; kırmızı aşama "acaba yapabilir miyim?" gerilimi. Bu renk kodu oyuncuya hazırlık durumunu sormadan söyler.
 
-**Detay paneli merakı**: Bir aşamaya dokunmak önce detay panelini açar — savaşa girmek için bir adım daha gerekir. Bu bekleme anı "bu savaşı kazanabilir miyim?" sorusunun cevabını aramayı sağlar: SG karşılaştırması, düşman elementi, enerji maliyeti. Bilgili karar.
+**Detay paneli merakı**: Bir aşamaya dokunmak önce detay panelini açar — savaşa girmek için bir adım daha gerekir. Bu bekleme anı "bu savaşı kazanabilir miyim?" sorusunun cevabını aramayı sağlar: SG karşılaştırması, enerji maliyeti. Bilgili karar.
 
 **Negatif fantezi (kaçınılacak)**: Haritanın tamamı kilit ikonuyla dolup gitmemeli — bu "duvar" hissi yaratır. Oyuncunun her zaman en az 1-2 sarı/yeşil erişilebilir aşama görmesi gerekir. Kilit ikonları mümkün olduğunca sessiz/sade olmalı — büyük kırmızı çarpı veya uyarı mesajı değil.
 
@@ -132,7 +132,7 @@ Erişilebilir bir aşamaya dokunulduğunda alt kısımdan süzülerek açılan p
 
 Panel içeriği:
 - **Aşama Başlığı**: "Aşama [N]" + Tip rozeti (Normal / Şampiyon / Mini Boss / Alan Patronu)
-- **Düşman Kartı**: Monster adı + element ikonu + tier ikonu (F/D/C/B). İlk karşılaşmada monster siluet (adı bilinmiyor); tamamlanmışsa tam isim + ikon.
+- **Düşman Kartı**: Monster adı + tier ikonu (F/D/C/B). İlk karşılaşmada monster siluet (adı bilinmiyor); tamamlanmışsa tam isim + ikon.
 - **SG Karşılaştırması**: Düşman SG + oyuncu SG + renk ikonu (🟢🟡🔴🔒)
 - **Enerji Maliyeti**: ⚡ ikonu + maliyet (1/2/3)
 - **İlk Temizleme Bonusu**: Aşama ilk kez temizlenmemişse gösterilir. Bonuslar ikon + miktar olarak listelenir. Zaten temizlenmişse bu bölüm gösterilmez — yerine "✓ Tamamlandı" etiketi.
@@ -261,7 +261,7 @@ Metin kullanıcıya görünür; gizli Kauçuk Bant değeri gösterilmez.
 | **Keşif Alanı Sistemi** | Aşama durumu (kilitli/açık/temizlenmiş), stage_SG, stage tipi, loot önizleme | `GetStageStatus(areaId, stageNum)`, `GetStageConfig(areaId, stageNum)` |
 | **Pet Sistemi** | Aktif pet SG, pet mini portresi | `GetActivePet()` → {SG, portrait} |
 | **Ekonomi** | Güncel enerji miktarı | `GetCurrentEnergy()` |
-| **Canavar Veritabanı** | Düşman adı, elementi, tier'ı, first-encounter durumu | `GetMonsterIdentity(monsterId)` |
+| **Canavar Veritabanı** | Düşman adı, tier'ı, first-encounter durumu | `GetMonsterIdentity(monsterId)` |
 | **UI Framework** | Ekran stack, tab bar, toast, HUD | `UIManager.*` |
 | **Kaydetme / Yükleme** | İlk temizleme durumu, açık aşamalar | `IsFirstClear(stageId)` |
 

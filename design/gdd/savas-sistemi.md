@@ -195,7 +195,7 @@ else:
 raw_damage = attacking_ATK × yetenek_carpani   // normal saldırı: çarpan = 1.0
 damage_reduction = floor(enemy.DEF × 0.50)
 base_damage = max(1, raw_damage - damage_reduction)
-final_damage = floor(base_damage × element_multiplier)  // prototipte 1.0
+final_damage = base_damage  // element sistemi kaldırıldı (2026-07-02) — çarpan yok
 ```
 
 ### Formül 3: Pet Hasar
@@ -289,7 +289,7 @@ new_HP = min(player.HP + heal, player.max_HP)
 |--------|------|
 | **Oyuncu Sınıf Sistemi** | `base_HP`, `base_ATK`, `base_DEF`, `base_SPD`, skill slot tanımları, CD değerleri |
 | **Ekipman Sistemi** | `effective_player_ATK`, `effective_player_DEF`, `effective_player_HP` (ekipman bonusları dahil) |
-| **Hasar Hesaplama** | Hasar formülü, element_multiplier (prototipte 1.0), DoT, status efektleri |
+| **Hasar Hesaplama** | Hasar formülü, DoT, status efektleri |
 | **Düşman AI** | Enemy pattern seçimi, hedef belirleme |
 | **Pet/Canavar Veritabanı** | Pet `base_ATK`, `base_SPD`, enerji yeteneği tanımı |
 | **Ekonomi** | Enerji harcama/iade |
@@ -302,6 +302,7 @@ new_HP = min(player.HP + heal, player.max_HP)
 | **Savaş UI** | Tur gösterimi, HP barları, skill butonları, iksir paneli |
 | **Keşif Alanı** | Savaş sonucu (zafer/yenilgi/çekilme) → aşama kilidi güncelleme |
 | **Loot Sistemi** | Zafer → loot trigger |
+| **Level / Deneyim Sistemi** | `ExpGained` (BattleReward, zafer sonu 200-280) → oyuncu ve aktif pet XP kaynağı |
 
 ## Tuning Knobs
 

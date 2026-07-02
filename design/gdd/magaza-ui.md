@@ -145,7 +145,7 @@ Sandık "AÇ" butonuna basılınca tam ekran overlay açılır:
 Aşama 1 (0.5s):   Sandık ekranda titreşir / ışık saçar
 Aşama 2 (0.8s):   Sandık kapağı açılır, ışık patlaması
 Aşama 3 (0.5s):   Pet kartı kapaktan yükselir (flip animasyon)
-Aşama 4 (süresiz): Kart ekranda durur — tier rozeti + isim + element görünür
+Aşama 4 (süresiz): Kart ekranda durur — tier rozeti + isim görünür
 ```
 
 - Pet kartı tier'a göre çerçeve rengi (F gri / D yeşil / C mavi / B altın).

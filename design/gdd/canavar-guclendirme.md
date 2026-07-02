@@ -1,8 +1,13 @@
 # Canavar Güçlendirme (Monster Enhancement)
 
-> **Status**: Designed
+> **Status**: **DEPRECATED (2026-07-02)** — Bu sistem `canavar-toplama-evrim.md`'ye birleştirildi (kullanıcı kararı, `/design-review canavar-toplama-evrim` re-review turu). Bu dosyanın içeriği artık kanonik değildir, yalnızca tarihsel referans için tutulur:
+> - **Seviye Atlama ekseni (Kural 2-3, Formül 1-3)**: Zaten `level-deneyim-sistemi.md`'ye taşınmıştı (bkz. o dosyanın Dependencies notu) — düz Lv1-50 + altın-XP hibrit model, tier-relative level cap + goldless XP modeliyle değiştirildi.
+> - **Evrim ekseni (Kural 4-6, Formül 4/6)**: `level-deneyim-sistemi.md`'nin "seviye tavanı = tek gate" kararıyla, buradaki başarı-oranı/pity mekaniği geçersiz kılındı; evrim artık deterministiktir. Evrim yürütme ve malzeme gereksinimleri artık `canavar-toplama-evrim.md` Kural 10'da tanımlıdır. `evolution_bonus=0.40` çarpanı da gereksizleşti — stat büyümesi artık `canavar-veritabani.md`'nin tier-başına base stat havuzu tablosundan gelir.
+> - **Yıldız Sistemi (Kural 7, Formül 5)**: `canavar-toplama-evrim.md` Kural 11'e taşındı, nadirlik kademeleri F-D-C-B-A-S-SS olarak güncellendi.
+>
+> Bu dosyadaki `evolution_stage` (Form A/B/C), `pity_counter`, Common-Legendary nadirlik adları ve Lv1-50 sabit tavanı **artık kullanılmamalıdır**.
 > **Author**: user + systems-designer, economy-designer
-> **Last Updated**: 2026-06-24
+> **Last Updated**: 2026-06-24 *(içerik tarihsel — deprecation notu 2026-07-02'de eklendi)*
 > **Implements Pillar**: Güç Hisset, Topla Hepsini
 
 ## Overview

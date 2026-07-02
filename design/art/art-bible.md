@@ -3,6 +3,8 @@
 *Created: 2026-06-23*
 *Status: Complete*
 
+> ⚠️ **AÇIK BAYRAK (2026-07-02)**: Element sistemi (Ateş/Su/Toprak/Hava) prototype kapsamından gameplay mekaniği olarak tamamen kaldırıldı (kullanıcı kararı — bkz. `systems-index.md` Deprecated listesi). Bu dosya "Element Renk Paleti" (Section 4.3), "Element Geometrik Modifikatörü" ve `char_monster_[element]_[archetype]_...` dosya adlandırma şemasını **görsel çeşitlilik ekseni** olarak kullanmaya devam ediyor — bu artık bir gameplay sistemine bağlı değil, sadece kozmetik/tema kimliği. Element'i tam bir görsel eksen olarak değiştirmek (ör. arketip veya nadirlik bazlı yeni bir renk kodlama şemasına geçmek) `art-director` ile ayrı bir tasarım oturumu gerektiren büyük bir kapsam — bu bulk temizlik oturumunun dışında bırakıldı. Tek net mekanik kalıntı (Section 8, "Element Avantaj Okları" UI göstergesi) aşağıda düzeltildi çünkü doğrudan kaldırılan hasar formülüne (element_multiplier) referans veriyordu.
+
 ---
 
 ## 1. Visual Identity Statement
@@ -1077,7 +1079,6 @@ Sonunda toplam kazanım sayıları "slot makinesi" animasyonuyla yukarı sayar.
 | Element | Komutan | Otofarm |
 |---------|---------|---------|
 | Yetenek Butonları | Aktif, dokunulabilir | Gri/gizli |
-| Element Avantaj Okları | Görünür | Gizli |
 | Güç Bonus Rozeti | "Komutan +%25" altın | Gizli |
 | Otomatik Rozeti | Gizli | "OTOMATİK" yeşil pulse |
 | Loot Akışı | Bireysel her düşüş | Birikimli 10s'de toplam |

@@ -2,7 +2,7 @@
 
 > **Status**: Designed
 > **Author**: Kullanıcı + Claude Code Game Studios
-> **Last Updated**: 2026-06-24
+> **Last Updated**: 2026-07-01 (küçük güncelleme — `level-deneyim-sistemi.md` `/design-review` blocker düzeltmesi: `player_level/xp`, `banked_xp`, `lifetime_pet_level` alanları save şemasına eklendi)
 > **Implements Pillar**: Senin Tempon (Play Your Way), Güç Hisset (Power Fantasy)
 
 ## Overview
@@ -23,9 +23,9 @@ Kaydetme / Yükleme doğrudan bir oyuncu fantezisi sunmaz — oyuncu bu sistemle
    - `schema_version` (int) — veri format versiyonu, migrasyon için kullanılır
    - `save_timestamp` (ISO 8601 string) — son kaydetme anının UTC zaman damgası
    - `play_time_seconds` (int) — toplam aktif oynama süresi
-   - `player_profile` — oyuncu adı, seviye, deneyim puanı
+   - `player_profile` — oyuncu adı, `player_level` (int), `player_xp` (int, mevcut level'a biriken deneyim — bkz. `level-deneyim-sistemi.md` Kural 1/7)
    - `resources` — altın, elmas, enerji miktarları + enerji son yenilenme zamanı
-   - `monster_collection` — sahip olunan canavarlar listesi (her biri: `monster_id`, `level`, `xp`, `star_rank`, `evolution_stage`, `element`, `rarity`, `stats`, `acquired_date`)
+   - `monster_collection` — sahip olunan canavarlar listesi (her biri: `monster_id`, `level`, `xp`, `banked_xp` (int, tier tavanında bekleyen bankalanmış XP — bkz. `level-deneyim-sistemi.md` Kural 5), `lifetime_pet_level` (int, evrimde asla sıfırlanmayan kalıcı toplam seviye sayacı — bkz. `level-deneyim-sistemi.md` Kural 6), `star_rank`, `evolution_stage`, `rarity`, `stats`, `acquired_date`)
    - `pending_monsters` — bekleyen canavar buffer'ı (max 10, `pending_expiry_days`=7 gün)
    - `team_presets` — kayıtlı takım konfigürasyonları (max slot sayısı açılmış kadar)
    - `active_team_index` — şu an aktif takım preset indeksi
@@ -94,7 +94,8 @@ Kaydetme / Yükleme doğrudan bir oyuncu fantezisi sunmaz — oyuncu bu sistemle
 |--------|------|--------|-------|
 | **Ekonomi / Kaynak Yönetimi** | ← Kaynak verisini sağlar | `resources` bloğu | Altın, elmas, enerji miktarları + enerji regen timestamp |
 | **Canavar Toplama ve Evrim** | ← Canavar verisini sağlar | `monster_collection`, `pending_monsters` | Tüm canavar detayları, pending buffer |
-| **Canavar Güçlendirme** | ← Güçlendirme verisini sağlar | `monster_collection` içinde | Seviye, XP, yıldız, evrim aşaması |
+| **Level / Deneyim Sistemi** *(design-review 2026-07-01 — `Canavar Güçlendirme`'nin level/xp sorumluluğunun yerine geçti)* | ← Level/XP verisini sağlar | `player_profile.player_level/xp`, `monster_collection[].level/xp/banked_xp/lifetime_pet_level` | Oyuncu ve pet seviye/XP/bankalanmış XP/kalıcı toplam seviye |
+| **Canavar Güçlendirme** *(level/xp hariç — bkz. yukarıdaki satır)* | ← Güçlendirme verisini sağlar | `monster_collection` içinde | Yıldız, evrim aşaması (seviye/XP artık Level/Deneyim Sistemi'nin kapsamında) |
 | **Takım Kurma** | ← Takım verisini sağlar | `team_presets`, `active_team_index` | Preset listesi ve aktif takım |
 | **Zindan Keşif** | ← İlerleme verisini sağlar | `dungeon_progress` | Kat ilerlemesi, first-clear durumları |
 | **Otofarm / Idle** | ← Idle state sağlar, → çevrimdışı süre sağlar | `idle_state`, `save_timestamp` | Otofarm başlangıç zamanı; offline_duration hesaplaması |
@@ -177,7 +178,8 @@ Sabit değer: **0.5 saniye**. Debounce penceresi içinde gelen tüm save request
 | **Otofarm / Idle Sistemi** | Hard | `save_timestamp`, `idle_state`, `offline_duration` | Çevrimdışı birikimi hesaplamak için `offline_duration`'a mutlak bağımlı. Bu sistem olmadan idle ödülleri hesaplanamaz. |
 | **Ekonomi / Kaynak Yönetimi** | Soft | `resources` bloğu | Kaynak bakiyeleri persist edilir. Save olmadan veriler oturum sonunda kaybolur ama sistem çalışabilir. |
 | **Canavar Toplama ve Evrim** | Soft | `monster_collection`, `pending_monsters` | Canavar koleksiyonu persist edilir. `pending_expiry_days` (7 gün) kontrolü yükleme anında yapılır. |
-| **Canavar Güçlendirme** | Soft | `monster_collection` içinde | Seviye, XP, yıldız, evrim verileri persist edilir. |
+| **Level / Deneyim Sistemi** *(design-review 2026-07-01)* | Sert | `player_profile.player_level/xp`, `monster_collection[].level/xp/banked_xp/lifetime_pet_level` | Oyuncu ve pet seviye/XP/bankalanmış XP/kalıcı toplam seviye persist edilir — bu GDD "kaybolmaz" garantisi veriyor, bu alanların kalıcı olmasına sert bağımlı. |
+| **Canavar Güçlendirme** *(level/xp hariç)* | Soft | `monster_collection` içinde | Yıldız, evrim aşaması verileri persist edilir (seviye/XP artık yukarıdaki satırın kapsamında). |
 | **Takım Kurma** | Soft | `team_presets`, `active_team_index` | Takım preset'leri persist edilir. |
 | **Zindan Keşif** | Soft | `dungeon_progress` | Kat ilerlemesi ve first-clear durumları persist edilir. |
 | **Savaş Sistemi** | Soft | Event: `OnBattleComplete` → save tetikler | Savaş sonuçları save'i tetikler ama savaş sistemi save'e bağımlı değildir. |

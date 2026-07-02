@@ -37,8 +37,11 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: "2026-06-24"
+last_updated: "2026-07-02"
 # Updated: otofarm-idle.md design-review revision — idle_gold_formula tiered, idle_floors_cleared max(1,...), referenced_by updates
+# Updated 2026-07-02: Element sistemi prototype kapsamından tamamen kaldırıldı (kullanıcı kararı) — element-sistemi.md silindi,
+#   tüm element bazlı entry/formül/constant status: deprecated olarak işaretlendi (asla silinmez, registry kuralı), evrim_tasi (generic, element'siz) eklendi
+# Updated 2026-07-01: level-deneyim-sistemi.md design-review 2. tur blocker düzeltmesi — potion_lock_threshold_ratio → overfill_cap_ratio yeniden adlandırıldı, yeni yüzdesel-sınır mekaniğini yansıtacak şekilde notes güncellendi
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
 # Named game-world objects: enemies, NPCs, characters, factions, bosses.
@@ -80,7 +83,7 @@ entities: []
 
 items:
   - name: ates_tasi
-    status: active
+    status: deprecated   # 2026-07-02: element sistemi kaldırıldı (kullanıcı kararı) — evrim_tasi ile değiştirildi
     source: design/gdd/canavar-guclendirme.md
     referenced_by:
       - design/gdd/canavar-guclendirme.md
@@ -89,10 +92,10 @@ items:
     element: fire
     stackable: true
     added: 2026-06-24
-    revised: ""
+    revised: "2026-07-02"
 
   - name: su_tasi
-    status: active
+    status: deprecated   # 2026-07-02: element sistemi kaldırıldı (kullanıcı kararı) — evrim_tasi ile değiştirildi
     source: design/gdd/canavar-guclendirme.md
     referenced_by:
       - design/gdd/canavar-guclendirme.md
@@ -101,10 +104,10 @@ items:
     element: water
     stackable: true
     added: 2026-06-24
-    revised: ""
+    revised: "2026-07-02"
 
   - name: toprak_tasi
-    status: active
+    status: deprecated   # 2026-07-02: element sistemi kaldırıldı (kullanıcı kararı) — evrim_tasi ile değiştirildi
     source: design/gdd/canavar-guclendirme.md
     referenced_by:
       - design/gdd/canavar-guclendirme.md
@@ -113,10 +116,10 @@ items:
     element: earth
     stackable: true
     added: 2026-06-24
-    revised: ""
+    revised: "2026-07-02"
 
   - name: hava_tasi
-    status: active
+    status: deprecated   # 2026-07-02: element sistemi kaldırıldı (kullanıcı kararı) — evrim_tasi ile değiştirildi
     source: design/gdd/canavar-guclendirme.md
     referenced_by:
       - design/gdd/canavar-guclendirme.md
@@ -125,6 +128,19 @@ items:
     element: air
     stackable: true
     added: 2026-06-24
+    revised: "2026-07-02"
+
+  - name: evrim_tasi
+    status: active
+    source: design/gdd/canavar-toplama-evrim.md
+    referenced_by:
+      - design/gdd/canavar-toplama-evrim.md
+      - design/gdd/loot-odul-sistemi.md
+      - design/gdd/otofarm-idle.md
+    category: evolution_material
+    stackable: true
+    notes: "Element'siz, generic evrim malzemesi — ates_tasi/su_tasi/toprak_tasi/hava_tasi'nin yerine geçti (2026-07-02, element sistemi kaldırıldı). B→A/A→S/S→SS tier evrimlerinde canavar+altın gereksinimine ek olarak gerekir (bkz. canavar-toplama-evrim.md Kural 10)."
+    added: 2026-07-02
     revised: ""
 
 # Example:
@@ -188,20 +204,19 @@ formulas:
     revised: ""
 
   - name: element_damage_multiplier
-    status: active
+    status: deprecated   # 2026-07-02: element sistemi kaldırıldı (kullanıcı kararı) — hiçbir formülden çağrılmıyor
     source: design/gdd/canavar-veritabani.md
     referenced_by:
       - design/gdd/canavar-veritabani.md
-      - design/gdd/element-sistemi.md
       - design/gdd/hasar-hesaplama.md
     variables:
       - attacker_element
       - defender_element
     output_range: [0.75, 1.50]
     expression: "ELEMENT_MATRIX[attacker][defender]"
-    notes: "Ateş→Toprak→Hava→Su→Ateş döngüsü. Avantaj=1.5x, dezavantaj=0.75x, nötr=1.0x."
+    notes: "Ateş→Toprak→Hava→Su→Ateş döngüsü. Avantaj=1.5x, dezavantaj=0.75x, nötr=1.0x. DEPRECATED: element-sistemi.md silindi, bu formül artık hiçbir hasar pipeline'ında kullanılmıyor."
     added: 2026-06-24
-    revised: ""
+    revised: "2026-07-02"
 
   - name: level_up_cost_formula
     status: active
@@ -344,21 +359,19 @@ formulas:
     source: design/gdd/hasar-hesaplama.md
     referenced_by:
       - design/gdd/hasar-hesaplama.md
-      - design/gdd/canavar-guclendirme.md
-      - design/gdd/hibrit-savas.md
     variables:
       - effective_ATK
       - effective_DEF
       - defense_reduction_factor
-      - element_multiplier
       - crit_chance
       - crit_multiplier
+      - variance
     output_range: [1, 1800]
     # was: [1, 290] before 2026-06-25 — updated after canavar-guclendirme GDD revealed effective_ATK max ~499 (full pipeline: Lv50 + Form C + ★5)
-    expression: "max(1, floor(max(1, effective_ATK - floor(effective_DEF / defense_reduction_factor)) × element_multiplier × crit_multiplier?))"
-    notes: "Tam hasar pipeline'ı. 6 adım: stat çözümleme → temel hasar → element → kritik → clamp → uygulama. Min=1 garantili. Max ~1800 (max ATK 599 with synergy, min DEF, element advantage, crit)."
+    expression: "max(1, floor(max(1, effective_ATK - floor(effective_DEF / defense_reduction_factor)) × crit_multiplier? × variance))"
+    notes: "Tam hasar pipeline'ı: stat çözümleme → temel hasar → kritik → varyans → clamp → uygulama. Min=1 garantili. DEPRECATED referenced_by removed 2026-07-02: canavar-guclendirme.md ve hibrit-savas.md deprecated dosyalar, element_multiplier terimi element sistemi kaldırıldığı için formülden çıkarıldı."
     added: 2026-06-24
-    revised: "2026-06-25"
+    revised: "2026-07-02"
 
   - name: team_power_formula
     status: active
@@ -382,14 +395,15 @@ formulas:
     source: design/gdd/takim-kurma.md
     referenced_by:
       - design/gdd/takim-kurma.md
+    status: deprecated   # 2026-07-02: hem takim-kurma.md (tek-pet modeliyle değiştirildi) hem element sistemi kaldırıldı
     variables:
       - monster_power
       - element_context_multiplier
     output_range: [45, 2574]
     expression: "monster_power × element_context_multiplier"
-    notes: "Auto-Suggest canavar sıralama skoru. Zindan bağlamında element avantajı 1.5x, dezavantaj 0.75x."
+    notes: "Auto-Suggest canavar sıralama skoru. Zindan bağlamında element avantajı 1.5x, dezavantaj 0.75x. DEPRECATED: takim-kurma.md deprecated + element sistemi kaldırıldı."
     added: 2026-06-25
-    revised: ""
+    revised: "2026-07-02"
 
   - name: preset_slot_cost_formula
     status: active
@@ -479,6 +493,36 @@ formulas:
     added: 2026-06-24
     revised: "2026-06-24"
 
+  - name: xp_to_next_level_formula
+    status: active
+    source: design/gdd/level-deneyim-sistemi.md
+    referenced_by:
+      - design/gdd/level-deneyim-sistemi.md
+    variables:
+      - L
+      - xp_base
+      - xp_growth
+      - xp_quad
+    output_range: [200, 8370]
+    expression: "floor(xp_base + xp_growth * (L - 1) + xp_quad * (L - 1)^2)"
+    notes: "Oyuncu ve pet AYNI formül/sabitleri paylaşır (xp_base=200, xp_growth=120, xp_quad=2.5). Pet L, tier cap'te durur ve evrimde 1'e resetlenir. Max=Lv39→40 pet SS tier eşiği (8370)."
+    added: 2026-07-01
+    revised: ""
+
+  - name: xp_overflow_gold_formula
+    status: active
+    source: design/gdd/level-deneyim-sistemi.md
+    referenced_by:
+      - design/gdd/level-deneyim-sistemi.md
+    variables:
+      - xp_gained
+      - xp_to_gold_rate
+    output_range: [400, 560]
+    expression: "floor(xp_gained * xp_to_gold_rate)"
+    notes: "Sadece oyuncu Lv30'da veya pet SS tier Lv40'ta uygulanır (level tavanı, gidecek yer yok). Diğer pet tier'larında taşan XP bankalanır, altına çevrilmez."
+    added: 2026-07-01
+    revised: ""
+
   - name: offline_duration_formula
     status: active
     source: design/gdd/kaydetme-yukleme.md
@@ -529,19 +573,18 @@ formulas:
 
 constants:
   - name: synergy_bonus_formula
-    status: active
+    status: deprecated   # 2026-07-02: element-sistemi.md silindi + takim-kurma.md tek-pet modeliyle değiştirildi
     source: design/gdd/element-sistemi.md
     referenced_by:
-      - design/gdd/element-sistemi.md
       - design/gdd/hasar-hesaplama.md
       - design/gdd/takim-kurma.md
     variables:
       - same_element_count
     output_range: [0.00, 0.20]
     expression: "SYNERGY_TABLE[same_element_count] → {atk_bonus, def_bonus, spd_bonus}"
-    notes: "Takım element sinerjisi. 2=+10%ATK, 3=+15%ATK/+10%DEF, 4=+20%ATK/+15%DEF/+10%SPD. Bonus sadece aynı elementteki canavarlara uygulanır."
+    notes: "Takım element sinerjisi. 2=+10%ATK, 3=+15%ATK/+10%DEF, 4=+20%ATK/+15%DEF/+10%SPD. Bonus sadece aynı elementteki canavarlara uygulanır. DEPRECATED: kaynak dosya silindi, hasar-hesaplama.md'de artık çağrılmıyor."
     added: 2026-06-24
-    revised: ""
+    revised: "2026-07-02"
 
   - name: evolution_bonus
     status: active
@@ -555,15 +598,14 @@ constants:
     revised: ""
 
   - name: synergy_table
-    status: active
+    status: deprecated   # 2026-07-02: element-sistemi.md silindi + takim-kurma.md tek-pet modeliyle değiştirildi
     source: design/gdd/element-sistemi.md
     referenced_by:
-      - design/gdd/element-sistemi.md
       - design/gdd/takim-kurma.md
     value: "2=+10%ATK, 3=+15%ATK/+10%DEF, 4=+20%ATK/+15%DEF/+10%SPD"
     unit: stat_percentage_bonus
     added: 2026-06-24
-    revised: ""
+    revised: "2026-07-02"
 
   - name: rarity_stat_pools
     status: active
@@ -780,12 +822,12 @@ constants:
     source: design/gdd/takim-kurma.md
     referenced_by:
       - design/gdd/takim-kurma.md
-      - design/gdd/element-sistemi.md
       - design/gdd/canavar-toplama-evrim.md
     value: 4
     unit: monsters
+    notes: "element-sistemi.md referansı kaldırıldı 2026-07-02 (dosya silindi)."
     added: 2026-06-25
-    revised: ""
+    revised: "2026-07-02"
 
   - name: free_preset_slots
     status: active
@@ -1124,14 +1166,14 @@ constants:
     revised: ""
 
   - name: region_element_weight
-    status: active
+    status: deprecated   # 2026-07-02: element sistemi kaldırıldı (kullanıcı kararı)
     source: design/gdd/zindan-kesif.md
     referenced_by:
       - design/gdd/zindan-kesif.md
     value: 0.50
     unit: probability
     added: 2026-06-24
-    revised: ""
+    revised: "2026-07-02"
 
   - name: background_timeout_minutes
     status: active
@@ -1152,6 +1194,51 @@ constants:
     unit: minutes
     added: 2026-06-24
     revised: ""
+
+  - name: player_level_cap
+    status: active
+    source: design/gdd/level-deneyim-sistemi.md
+    referenced_by:
+      - design/gdd/level-deneyim-sistemi.md
+      - design/gdd/oyuncu-sinif-sistemi.md
+    value: 30
+    unit: level
+    notes: "oyuncu-sinif-sistemi.md Open Question #4'ü (max level TBD) kapatır."
+    added: 2026-07-01
+    revised: ""
+
+  - name: pet_tier_level_caps
+    status: active
+    source: design/gdd/level-deneyim-sistemi.md
+    referenced_by:
+      - design/gdd/level-deneyim-sistemi.md
+      - design/gdd/canavar-toplama-evrim.md
+    value: "F=10, D=15, C=20, B=25, A=30, S=35, SS=40"
+    unit: level_per_tier
+    notes: "Pet, tier tavanına ulaşınca 'Evrime Hazır' bayrağı alır. Evrimde level 1'e resetlenir."
+    added: 2026-07-01
+    revised: ""
+
+  - name: xp_to_gold_rate
+    status: active
+    source: design/gdd/level-deneyim-sistemi.md
+    referenced_by:
+      - design/gdd/level-deneyim-sistemi.md
+    value: 2
+    unit: gold_per_xp
+    added: 2026-07-01
+    revised: ""
+
+  - name: overfill_cap_ratio
+    status: active
+    source: design/gdd/level-deneyim-sistemi.md
+    referenced_by:
+      - design/gdd/level-deneyim-sistemi.md
+    value: 0.5
+    unit: ratio_of_remaining_tier_xp
+    notes: "Eski adı potion_lock_threshold_ratio idi (hard level-eşiği kilidi modeli) — design-review 2026-07-01'de anlamı değişti: artık tek-uygulama yüzdesel sınır modeli (Kural 8). max_applicable_xp = floor(remaining_tier_xp * overfill_cap_ratio). remaining_tier_xp=0 ise (pet zaten tavanda) bu oran hiç devreye girmez, doğrudan bankalama mantığına gidilir."
+    added: 2026-07-01
+    revised: "2026-07-01"  # isim + mekanik design-review 2026-07-01 2. turda güncellendi (eski hard-lock modelinden yüzdesel-sınır modeline)
 
   - name: max_offline_minutes
     status: active

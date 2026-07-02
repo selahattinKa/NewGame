@@ -85,7 +85,7 @@ Hasar Hesaplama sistemi bir final hasar değeri üretir ve bu sisteme `TakeDamag
 3. `current_hp == 0` ise Savaş Dışı durumunu tetikler
 4. HP değişimini Savaş UI'a bildirir (olay/event yayınlar)
 
-Hasar hesaplaması (ATK, DEF, element çarpanı, kritik vb.) bu sistemin sorumluluğunda **değildir** — Hasar Hesaplama GDD'sinde tanımlanacaktır.
+Hasar hesaplaması (ATK, DEF, kritik vb.) bu sistemin sorumluluğunda **değildir** — Hasar Hesaplama GDD'sinde tanımlanacaktır.
 
 **Kural 4 — Savaş Dışı Kalma (Knockout)**
 
@@ -331,7 +331,7 @@ Canavar Güçlendirme GDD'sinde tanımlanacak. Bu GDD, güncel max_hp değerini 
 
 | Olay | Ses Türü | Ton | Öncelik |
 |------|----------|-----|---------|
-| Hasar alma | Kısa "darbe" sesi — etli, fiziksel | Element rengine göre değişebilir (Hasar Hesaplama'da) | MVP |
+| Hasar alma | Kısa "darbe" sesi — etli, fiziksel | Nötr | MVP |
 | Kritik HP uyarısı | Kalp atışı benzeri düşük ritimli ses | Gerilim, aciliyet | MVP |
 | Savaş dışı kalma | Düşen-kaybolma sesi | Kesin ama dramatik değil — cezalandırıcı hissettirmemeli | MVP |
 | İyileşme | Yükselen, parlak "ding" + yumuşak chime | Pozitif, rahatlatıcı | MVP |

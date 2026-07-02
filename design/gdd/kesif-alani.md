@@ -137,16 +137,16 @@ adjusted_stat = floor(base_stat × rubber_band_factor)
 
 ### Alan Örneği (MVP): Karanlık Orman
 
-| Aşama | Tip | Monster Element | Tahmini SG |
-|-------|-----|----------------|-----------|
-| 1-4 | Normal | Hava / Toprak | ~100-160 |
-| 5 | Şampiyon | Hava | ~200 |
-| 6-9 | Normal | Su / Hava | ~220-280 |
-| 10 | Mini Boss | Su | ~300 |
-| 11-14 | Normal | Toprak / Hava | ~320-400 |
-| 15 | Şampiyon | Toprak | ~420 |
-| 16-19 | Normal | Hava / Ateş | ~450-550 |
-| 20 | Alan Patronu | Ateş | ~700 |
+| Aşama | Tip | Tahmini SG |
+|-------|-----|-----------|
+| 1-4 | Normal | ~100-160 |
+| 5 | Şampiyon | ~200 |
+| 6-9 | Normal | ~220-280 |
+| 10 | Mini Boss | ~300 |
+| 11-14 | Normal | ~320-400 |
+| 15 | Şampiyon | ~420 |
+| 16-19 | Normal | ~450-550 |
+| 20 | Alan Patronu | ~700 |
 
 > **Not**: SG değerleri taslak — Canavar Veritabanı ve Pet Evrim Sistemi formülleri kesinleşince güncellenecek.
 
@@ -248,7 +248,7 @@ Detaylar Canavar Veritabanı ve Pet Evrim Sistemi GDD'lerinde tanımlanır. Keş
 | Sistem | Tip | Veri | Arayüz |
 |--------|-----|------|--------|
 | **Pet Sistemi** | Sert | Aktif pet + SG değeri | `GetActivePet()` → {petId, SG} |
-| **Canavar Veritabanı** | Sert | Aşama monster tanımı (SG, element, arketip) | `GetMonsterByStage(areaId, stageNum)` → MonsterDef |
+| **Canavar Veritabanı** | Sert | Aşama monster tanımı (SG, arketip) | `GetMonsterByStage(areaId, stageNum)` → MonsterDef |
 | **Savaş Sistemi** | Sert | Savaş yürütme, sonuç | `StartBattle(petId, enemyId)` → BattleResult |
 | **Loot / Ödül Sistemi** | Sert | Loot dağıtımı | `DistributeLoot(stageId, stageType, isFirstClear)` |
 | **Ekonomi** | Sert | Enerji okuma/harcama | `GetCurrentEnergy()`, `SpendEnergy(amount)` |

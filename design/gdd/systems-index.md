@@ -21,15 +21,14 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 | # | System Name | Category | Priority | Status | Design Doc | Depends On |
 |---|-------------|----------|----------|--------|------------|------------|
 | 1 | Pet/Canavar Veritabanı | Core | MVP | Revised | design/gdd/canavar-veritabani.md | — |
-| 2 | Element Sistemi | Core | MVP | **Removed** | design/gdd/element-sistemi.md | Savaşta mekanik etkisi yok; görsel/narrative olarak tutuldu |
 | 3 | Ekonomi / Kaynak Yönetimi | Economy | MVP | Revised | design/gdd/ekonomi.md | — |
 | 4 | Kaydetme / Yükleme | Persistence | MVP | Approved | design/gdd/kaydetme-yukleme.md | — |
 | 5 | UI Framework | UI | MVP | Approved | design/gdd/ui-framework.md | — |
 | 6 | Sağlık / Can Sistemi | Core | MVP | Revised | design/gdd/saglik-can-sistemi.md | Oyuncu Sınıf Sistemi, Ekipman Sistemi, Pet/Canavar Veritabanı |
 | 7 | Hasar Hesaplama | Core | MVP | Revised | design/gdd/hasar-hesaplama.md | Oyuncu Sınıf Sistemi, Ekipman Sistemi, Keşif Alanı |
-| 8 | Pet Evrim Sistemi | Progression | MVP | Revised | design/gdd/canavar-toplama-evrim.md | Pet/Canavar Veritabanı, Ekonomi |
+| 8 | Pet Evrim Sistemi | Progression | MVP | Revised | design/gdd/canavar-toplama-evrim.md | Pet/Canavar Veritabanı, Ekonomi, Level/Deneyim Sistemi |
 | 9 | Ödül Ekranı / Loot Sistemi | Economy | MVP | Revised | design/gdd/loot-odul-sistemi.md | Pet/Canavar Veritabanı, Ekonomi |
-| 10 | Oyuncu Sınıf Sistemi | Gameplay | MVP | Designed | design/gdd/oyuncu-sinif-sistemi.md | Ekonomi, Kaydetme, Hasar Hesaplama, Sağlık/Can, Yetenek Sistemi |
+| 10 | Oyuncu Sınıf Sistemi | Gameplay | MVP | Designed | design/gdd/oyuncu-sinif-sistemi.md | Ekonomi, Kaydetme, Hasar Hesaplama, Sağlık/Can, Yetenek Sistemi, Level/Deneyim Sistemi |
 | 11 | Düşman AI | Gameplay | MVP | Revised | design/gdd/dusuman-ai.md | Hasar Hesaplama, Sağlık |
 | 12 | Savaş Sistemi | Gameplay | MVP | Designed | design/gdd/savas-sistemi.md | Hasar Hesaplama, Sağlık, Düşman AI, Oyuncu Sınıf Sistemi, Yetenek Sistemi |
 | 13 | Keşif Alanı Sistemi | Gameplay | MVP | Designed | design/gdd/kesif-alani.md | Savaş Sistemi, Loot, Pet Evrim Sistemi, Ekonomi, Kaydetme |
@@ -54,11 +53,13 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 | 31 | Yetenek Sistemi | Gameplay | MVP | Designed | design/gdd/yetenek-sistemi.md | Hasar Hesaplama, Sağlık/Can, Oyuncu Sınıf Sistemi, Pet/Canavar Veritabanı |
 | 32 | Ekipman Sistemi | Gameplay | MVP | Designed | design/gdd/ekipman-sistemi.md | Savaş Sistemi, Hasar Hesaplama, Ekonomi, Loot Sistemi, Kaydetme |
 | 33 | Dükkan Sistemi | Economy | MVP | Designed | design/gdd/dukkan.md | Ekipman Sistemi, Ekonomi, UI Framework |
+| 34 | Level / Deneyim Sistemi | Core | MVP | Revised — Implementation Blocked *(kendi kapsamı revize edildi, 2 tur `/design-review` geçti; implementasyon `canavar-toplama-evrim.md`/`canavar-veritabani.md`/`canavar-guclendirme.md` revizyonuna bağlı)* | design/gdd/level-deneyim-sistemi.md | Savaş Sistemi, Loot/Ödül Sistemi, Kaydetme/Yükleme |
 
 > **Deprecated (kaldırılan sistemler):**
 > - ~~Takım Kurma~~ (design/gdd/takim-kurma.md) — Oyuncu Sınıf Sistemi + tek pet modeli ile değiştirildi
 > - ~~Hibrit Savaş Sistemi~~ → Savaş Sistemi (#12) olarak yeniden yazıldı (design/gdd/savas-sistemi.md) — Designed
 > - ~~Canavar Güçlendirme~~ (design/gdd/canavar-guclendirme.md) — Pet Evrim Sistemi (#8) ile birleştirildi
+> - ~~Element Sistemi~~ (design/gdd/element-sistemi.md) — **kaldırıldı (2026-07-02)**: prototype kapsamı için tamamen çıkarıldı (kullanıcı kararı), dosya silindi; hasar hesaplama, evrim malzemesi ve düşman AI'daki tüm element bağımlılıkları kaldırıldı
 
 ---
 
@@ -90,22 +91,21 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 ### Foundation Layer (bağımlılık yok)
 
 1. **Pet/Canavar Veritabanı** — Tüm pet verisi buradan akar; kart şeması, F-D-C-B-A-S-SS tier (7 kademe), AI görsel referansları; 10+ sistem doğrudan bağımlı
-2. **Element Sistemi** — 4 element matrisi, avantaj/dezavantaj tablosu; hasar ve sinerji temeli
-3. **Ekonomi / Kaynak Yönetimi** — Altın, enerji, elmas, evrim materyali; loot ve mağazanın para birimi
-4. **Kaydetme / Yükleme** — Serializasyon framework'ü; mobilde ilerleme koruması
-5. **UI Framework** — Ekran yönetimi, modal, bildirim; tüm UI sistemlerinin altyapısı
+2. **Ekonomi / Kaynak Yönetimi** — Altın, enerji, elmas, evrim materyali; loot ve mağazanın para birimi
+3. **Kaydetme / Yükleme** — Serializasyon framework'ü; mobilde ilerleme koruması
+4. **UI Framework** — Ekran yönetimi, modal, bildirim; tüm UI sistemlerinin altyapısı
 
 ### Core Layer (Foundation'a bağlı)
 
 1. **Sağlık / Can Sistemi** — bağlı: Pet/Canavar Veritabanı
-2. **Hasar Hesaplama** — bağlı: Pet/Canavar Veritabanı, Element Sistemi
+2. **Hasar Hesaplama** — bağlı: Pet/Canavar Veritabanı
 3. **Pet Evrim Sistemi** — bağlı: Pet/Canavar Veritabanı, Ekonomi; F→D→C→B→A→S→SS (7 tier); item düşmüyor — EXP + milestone
 4. **Ödül Ekranı / Loot Sistemi** — bağlı: Pet/Canavar Veritabanı, Ekonomi; savaş sonu ödül ekranı: EXP + düşen eşyalar (elbise/silah/takı/pet kartı); savaş sırasında ekrana saçılmıyor — ödül ekranında listeleniyor
 5. **Oyuncu Sınıf Sistemi** — bağlı: Ekonomi, Kaydetme
 
 ### Feature Layer (Core'a bağlı)
 
-1. **Düşman AI** — bağlı: Hasar Hesaplama, Sağlık, Element Sistemi
+1. **Düşman AI** — bağlı: Hasar Hesaplama, Sağlık
 2. **Savaş Sistemi** — bağlı: Hasar Hesaplama, Sağlık, Düşman AI, Oyuncu Sınıf Sistemi; tur bazlı cooldown + oto-savaş toggle
 3. **Zindan Keşif Sistemi** — bağlı: Savaş Sistemi, Loot, Pet Evrim Sistemi
 4. **Otofarm / Idle Sistemi** — bağlı: Savaş Sistemi, Loot, Ekonomi, Kaydetme
@@ -134,7 +134,6 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 | Order | System | Priority | Layer | Agent(s) | Est. Effort |
 |-------|--------|----------|-------|----------|-------------|
 | 1 | Pet/Canavar Veritabanı *(revision)* | MVP | Foundation | game-designer, systems-designer | M |
-| 2 | Element Sistemi | MVP | Foundation | game-designer, systems-designer | S |
 | 3 | Ekonomi / Kaynak Yönetimi | MVP | Foundation | economy-designer | M |
 | 4 | Sağlık / Can Sistemi | MVP | Core | game-designer | S |
 | 5 | Hasar Hesaplama | MVP | Core | systems-designer | M |
@@ -175,7 +174,7 @@ Tespit edilmedi. Tüm bağımlılıklar tek yönlü akar.
 | Pet/Canavar Veritabanı | Scope | 7 tier (F-D-C-B-A-S-SS) × 50+ pet = 350+ AI görsel. Prototype'ta 3 tier ile başla. | Prototype: 10-15 pet, 3 tier (F/C/S). Her tier'ı onayladıkça ilerle. SS ve D/B görselleri MVP'ye ertele. |
 | Savaş Sistemi | Design | Manuel/oto-savaş dengesi: oto çok güçlüyse kimse manuel oynamaz; cooldown tasarımı tatmin edici olmalı. | MVP prototipinde test. Oto-savaş ve manuel sonuçları karşılaştır, farkı kapat veya oyna. |
 | Otofarm / Idle Sistemi | Technical | Arka plan hesaplaması mobilde pil/performans sorunları yaratabilir. iOS arka plan kısıtlamaları. | Arka plan hesaplamayı "geri dönüş anında simüle et" olarak uygula, gerçek arka plan işlem yerine. |
-| Hasar Hesaplama | Design | Element çarpanları + sınıf dalı bonusları + pet tier farkı birlikte dengelenmesi zorlaşır. | Formülleri katmanlı tasarla (temel → element → sınıf bonus). Her katmanı bağımsız test et. |
+| Hasar Hesaplama | Design | Sınıf dalı bonusları + pet tier farkı birlikte dengelenmesi zorlaşır. | Formülleri katmanlı tasarla (temel → sınıf bonus). Her katmanı bağımsız test et. |
 | AI Görsel Tutarlılığı | Technical | Aynı petin B ve SS görselleri arasında tanınabilirlik sağlamak (aynı silüet, farklı detay) zor. | Art bible stil çapası + her pet için referans silüet. Tier geçişinde sadece detay değişmeli, form değil. |
 | AI Video Entegrasyonu | Technical | VideoPlayer mobil formatları, alpha-channel sorunları, bellek yönetimi ve döngü kusurları. | MVP'de MP4 + black BG ile test başla. Tier 2'de alpha-channel WebM değerlendir. |
 
@@ -185,17 +184,17 @@ Tespit edilmedi. Tüm bağımlılıklar tek yönlü akar.
 
 | Metric | Count |
 |--------|-------|
-| Total systems identified | 33 |
-| Design docs started | 16 |
+| Total systems identified | 34 |
+| Design docs started | 17 |
 | Design docs reviewed | 14 |
 | Design docs approved | 9 (pivot sonrası re-review gerekli olanlar hariç) |
-| MVP systems approved | 9/22 |
-| MVP systems designed (awaiting review) | 3 (Yetenek, Ekipman, Dükkan) |
+| MVP systems approved | 9/23 |
+| MVP systems designed (awaiting review) | 4 (Yetenek, Ekipman, Dükkan, Level/Deneyim) |
 | MVP systems revision needed | 3 (Pet Veritabanı, Pet Evrim, Savaş Sistemi) |
 | MVP systems not started | 5 (IAP+Reklam, Yaşayan Kart, İntikam, Aranıyor Tahtası, Lokalizasyon) |
 | Tier 2 systems designed | 0/5 |
 
-> **Not:** Element Sistemi, Kaydetme/Yükleme, UI Framework approved — pivot etkilemedi. Sağlık, Hasar Hesaplama, Loot, Otofarm, Pet Veritabanı, Pet Evrim, Ekonomi, Düşman AI, Zindan Keşif Revised — 7 tier (F-D-C-B-A-S-SS) kademe yeniden adlandırma ve yeni SS tier değerleri uygulandı.
+> **Not:** Kaydetme/Yükleme, UI Framework approved — pivot etkilemedi. Sağlık, Hasar Hesaplama, Loot, Otofarm, Pet Veritabanı, Pet Evrim, Ekonomi, Düşman AI, Zindan Keşif Revised — 7 tier (F-D-C-B-A-S-SS) kademe yeniden adlandırma ve yeni SS tier değerleri uygulandı.
 
 ---
 

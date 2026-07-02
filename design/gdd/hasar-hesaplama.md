@@ -5,14 +5,11 @@
 > **Last Updated**: 2026-06-30
 > **Implements Pillar**: Güç Hisset, Cömert Zindan
 
-> ⚠️ **PROTOTYPE KAPSAM NOTU**: `element_multiplier` prototipte sabit **1.0** — element
-> avantaj/dezavantaj hesabı yapılmaz. `GetElementMultiplier()` her zaman 1.0f döner.
-> Pipeline adımı 3 (element_damage satırı) prototipte `element_damage = base_damage`
-> olarak basitleşir. Tam avantaj sistemi MVP+'da etkinleştirilir.
+> **REVİZYON NOTU (2026-07-02)**: Element sistemi prototype kapsamından tamamen kaldırıldı (kullanıcı kararı, bkz. `systems-index.md` Deprecated listesi). Eski `element_multiplier` pipeline adımı (ve `GetElementMultiplier()` arayüzü) kaldırıldı — bu artık "prototipte sabit 1.0" değil, kalıcı olarak yok. Pipeline: Temel Hasar → Kritik Vuruş → Varyans → Final Clamp.
 
 ## Overview
 
-**Hasar Hesaplama**, savaştaki her saldırının final hasar değerini üreten merkezi hesaplama pipeline'ıdır. Saldıran tarafın effective_ATK'sını, savunan tarafın effective_DEF'ini, element çarpanını ve kritik vuruş şansını katmanlı bir formülle birleştirerek tek bir tamsayı hasar değeri üretir. Bu değer Sağlık / Can Sistemi'ne `TakeDamage()` aracılığıyla iletilir.
+**Hasar Hesaplama**, savaştaki her saldırının final hasar değerini üreten merkezi hesaplama pipeline'ıdır. Saldıran tarafın effective_ATK'sını, savunan tarafın effective_DEF'ini ve kritik vuruş şansını katmanlı bir formülle birleştirerek tek bir tamsayı hasar değeri üretir. Bu değer Sağlık / Can Sistemi'ne `TakeDamage()` aracılığıyla iletilir.
 
 Savaşta **3 olası saldırı yönü** vardır:
 
@@ -24,19 +21,19 @@ Savaşta **3 olası saldırı yönü** vardır:
 
 Oyuncu ana savaşçıdır — düşman oyuncuyu hedef alır. Defeat = Oyuncu HP = 0.
 
-MVP kapsamında temel ATK-DEF formülü, element çarpanı (prototipte 1.0), kritik vuruş mekanikliği ve **iki hasar türü** (fiziksel / büyü) yer alır. Fiziksel hasar `defense_reduction_factor=2`, büyü hasarı `magic_defense_factor=4` kullanır — büyü, yüksek DEF hedeflere karşı daha etkilidir. Sinerji bonusu kaldırıldı (takım yok, tek pet). DoT (yanma/zehir) Oyuncu Sınıf Sistemi GDD'sinde tanımlanmıştır; bu pipeline'ı tetiklemez, bağımsız flat hasar olarak uygulanır.
+MVP kapsamında temel ATK-DEF formülü, kritik vuruş mekanikliği ve **iki hasar türü** (fiziksel / büyü) yer alır. Fiziksel hasar `defense_reduction_factor=2`, büyü hasarı `magic_defense_factor=4` kullanır — büyü, yüksek DEF hedeflere karşı daha etkilidir. Sinerji bonusu kaldırıldı (takım yok, tek pet). DoT (yanma/zehir) Oyuncu Sınıf Sistemi GDD'sinde tanımlanmıştır; bu pipeline'ı tetiklemez, bağımsız flat hasar olarak uygulanır.
 
 ## Player Fantasy
 
-Oyuncu hasar hesaplamasını iki katmanda deneyimler. **Yüzeyde**, ekranda uçuşan hasar sayıları savaşın ritmini ve enerjisini oluşturur. Büyük kırmızı sayılar "güçlüyüm" hissini anında iletir; element avantajıyla %50 daha büyük sayılar görmek "doğru strateji seçtim" tatminidir. Kritik vuruşta sayının ikiye katlanması ve özel VFX patlaması — "vay, şanslı darbe!" heyecanı.
+Oyuncu hasar hesaplamasını iki katmanda deneyimler. **Yüzeyde**, ekranda uçuşan hasar sayıları savaşın ritmini ve enerjisini oluşturur. Büyük kırmızı sayılar "güçlüyüm" hissini anında iletir. Kritik vuruşta sayının ikiye katlanması ve özel VFX patlaması — "vay, şanslı darbe!" heyecanı.
 
 **Çekirdek duygu**: Yıkıcı güç ve stratejik ustalık. Oyuncu canavarının saldırısını izlerken "şu düşmanı kaç vuruşta düşürebilirim?" hesabını yapar — ve güçlendirme sonrası aynı düşmanı daha az vuruşta devirmek somut ilerleme kanıtıdır. Bir Tank canavarın düşük ama istikrarlı hasarı vs. bir Saldırganın yüksek ama savunmasız hasarı — arketip farkı hasar sayılarında hissedilir.
 
 **Büyüme tatmini**: Seviye atladıkça ATK büyür, hasar sayıları gözle görülür şekilde artar. Eskiden 5 vuruşta düşen düşman artık 2 vuruşta düşer — "ne kadar güçlendim" anı. Evrim ile stat havuzu %40 artınca hasar farkı dramatik olur.
 
-**Negatif fantazi (kaçınılacak)**: Sıfır hasar asla görülmemeli — dezavantajlı element + yüksek savunma durumunda bile minimum 1 hasar garantisi. "Hiçbir şey yapamıyorum" frustrasyonu, "Güç Hisset" sütununu doğrudan ihlal eder. DEF asla hasarı tamamen sıfırlamamalı — azaltmalı ama ortadan kaldırmamalı.
+**Negatif fantazi (kaçınılacak)**: Sıfır hasar asla görülmemeli — yüksek savunma durumunda bile minimum 1 hasar garantisi. "Hiçbir şey yapamıyorum" frustrasyonu, "Güç Hisset" sütununu doğrudan ihlal eder. DEF asla hasarı tamamen sıfırlamamalı — azaltmalı ama ortadan kaldırmamalı.
 
-**Pillar bağlantısı**: "Güç Hisset" — büyüyen hasar sayıları gücün en görünür ifadesi. "Cömert Zindan" — dezavantajlı element bile anlamlı hasar verir, cezalandırıcı değil. "Senin Tempon" — otofarm'da hasar otomatik hesaplanır, komutan modunda oyuncu element avantajını bilinçli kullanır.
+**Pillar bağlantısı**: "Güç Hisset" — büyüyen hasar sayıları gücün en görünür ifadesi. "Cömert Zindan" — yüksek DEF hedeflere karşı bile minimum 1 hasar garantisi, cezalandırıcı değil. "Senin Tempon" — otofarm'da hasar otomatik hesaplanır, komutan modunda oyuncu ekipman/sınıf seçimlerini bilinçli kullanır.
 
 ## Detailed Rules
 
@@ -187,11 +184,10 @@ Tek "durum" kavramı: kritik vuruş olasılık dağılımı. MVP'de bu sabit %10
 | **Ekipman Sistemi** | ← okur | Tüm ekipman bonusları (effective_ATK ve effective_DEF hesabına girer) | `GetEffectivePlayerStats()` → {effective_ATK, effective_DEF, effective_HP} |
 | **Pet/Canavar Veritabanı** | ← okur | Pet `base_ATK`, `base_DEF` (koleksiyondaki pet statları) | `GetPetBaseStats(petId, level)` → {atk, def, spd} |
 | **Keşif Alanı** | ← okur | Düşman `enemy_ATK`, `enemy_DEF` (rubber-band ile ayarlanmış) | `GetEnemyStats(stageId)` → {atk, def, hp, spd} |
-| **Element Sistemi** | ← okur | Element çarpanı (prototipte sabit 1.0) | `GetElementMultiplier(atkElement, defElement)` → float |
 | **Sağlık / Can Sistemi** | → gönderir | Final hasar değeri | `TakeDamage(targetId, amount)` — HP azaltma Sağlık'ın sorumluluğu |
 | **Savaş Sistemi** | ← tetiklenir | Saldırı komutu | `CalculateDamage(attackerId, targetId, damageType)` her saldırıda çağırılır |
 | **Düşman AI** | dolaylı | AI hasar tahmini | `EstimateDamage(attackerId, targetId)` → int (kritik hariç) |
-| **Savaş UI** | → gönderir | Hasar gösterim verileri | `OnDamageDealt` event → {final_damage, was_critical, element_info} |
+| **Savaş UI** | → gönderir | Hasar gösterim verileri | `OnDamageDealt` event → {final_damage, base_damage, was_critical} |
 
 **Veri akışı özeti**: Oyuncu Sınıf Sistemi + Ekipman Sistemi (oyuncu statları), Pet Veritabanı (pet statları), Keşif Alanı (düşman statları) → giriş sağlar. Bu sistem → Sağlık'a hasar, UI'a görüntüleme gönderir.
 
@@ -229,62 +225,59 @@ Tek "durum" kavramı: kritik vuruş olasılık dağılımı. MVP'de bu sabit %10
 - Fiziksel: 55 - floor(60/2) = 55-30 = **25**
 - Büyü: 55 - floor(60/4) = 55-15 = **40** — yüksek DEF hedefe karşı %60 daha fazla
 
-### Formül 2: Element Hasarı
+### Formül 2: Kritik Vuruş
 
-`element_damage = floor(base_damage × element_multiplier)`
+`crit_damage = was_critical ? floor(base_damage × crit_multiplier) : base_damage`
 
 | Değişken | Sembol | Tip | Aralık | Açıklama |
 |----------|--------|-----|--------|----------|
 | Temel hasar | base_damage | int | 1–∞ | Formül 1'den |
-| Element çarpanı | element_multiplier | float | 0.75–1.50 | Element Sistemi'nden |
-| Element hasarı | element_damage | int | 1–∞ | Floor ile yuvarlanır |
-
-**Çıktı Aralığı**: 0 (min base × dezavantaj: floor(1 × 0.75) = 0 — Formül 4'te final min 1'e clamp edilir) ile 276 (floor(184 × 1.50))
-
-**Örnek**: base_damage=18, avantajlı → floor(18 × 1.5) = floor(27) = **27**
-**Örnek**: base_damage=18, dezavantajlı → floor(18 × 0.75) = floor(13.5) = **13**
-
-### Formül 3: Kritik Vuruş
-
-`final_after_crit = was_critical ? floor(element_damage × crit_multiplier) : element_damage`
-
-| Değişken | Sembol | Tip | Aralık | Açıklama |
-|----------|--------|-----|--------|----------|
-| Element hasarı | element_damage | int | 1–∞ | Formül 2'den |
 | Kritik şansı | crit_chance | float | 0.10 | Sabit %10 (MVP) |
 | Kritik çarpanı | crit_multiplier | float | 2.0 | Sabit 2x (MVP) |
 | Kritik mi? | was_critical | bool | true/false | random < crit_chance |
-| Kritik sonrası hasar | final_after_crit | int | 1–∞ | Floor ile yuvarlanır |
+| Kritik sonrası hasar | crit_damage | int | 1–∞ | Floor ile yuvarlanır |
 
-**Çıktı Aralığı**: element_damage (kritik değil) ile element_damage × 2 (kritik)
+**Çıktı Aralığı**: base_damage (kritik değil) ile base_damage × 2 (kritik)
 
-**Örnek**: element_damage=27, kritik → floor(27 × 2.0) = **54**
-**Örnek**: element_damage=27, kritik değil → **27**
+**Örnek**: base_damage=27, kritik → floor(27 × 2.0) = **54**
+**Örnek**: base_damage=27, kritik değil → **27**
+
+### Formül 3: Varyans
+
+`varied_damage = floor(crit_damage × variance)`, `variance = random(0.85, 1.15)`
+
+| Değişken | Sembol | Tip | Aralık | Açıklama |
+|----------|--------|-----|--------|----------|
+| Kritik sonrası hasar | crit_damage | int | 1–∞ | Formül 2'den |
+| Varyans | variance | float | 0.85–1.15 | ±%15 rastgele spread |
+| Varyanslı hasar | varied_damage | int | 1–∞ | Floor ile yuvarlanır |
+
+**Örnek**: crit_damage=27 → varied_damage aralığı: floor(27×0.85)=**22** ile floor(27×1.15)=**31**
 
 ### Formül 4: Final Hasar (Tüm Pipeline)
 
-`final_damage = max(1, final_after_crit)`
+`final_damage = max(1, varied_damage)`
 
 **Tam pipeline örneği — Best case**:
 Savaşçı Komutan Modu, effective_ATK=80 → attacking_ATK = floor(80 × 1.30) = 104
-vs Düşman (DEF=20), avantajlı element, kritik vuruş:
+vs Düşman (DEF=20), kritik vuruş, varyans=1.15:
 1. base_damage = 104 - floor(20/2) = 104 - 10 = 94
-2. element_damage = floor(94 × 1.5) = 141
-3. crit_damage = floor(141 × 2.0) = 282
-4. final_damage = max(1, 282) = **282**
+2. crit_damage = floor(94 × 2.0) = 188
+3. varied_damage = floor(188 × 1.15) = 216
+4. final_damage = max(1, 216) = **216**
 
 **Tam pipeline örneği — Worst case**:
-Oyuncu (ATK=32, ekipman yok) vs Yüksek DEF Düşman (DEF=90), dezavantajlı element, kritik yok:
+Oyuncu (ATK=32, ekipman yok) vs Yüksek DEF Düşman (DEF=90), kritik yok, varyans=0.85:
 1. base_damage = max(1, 32 - floor(90/2)) = max(1, 32 - 45) = max(1, -13) = 1
-2. element_damage = floor(1 × 0.75) = 0
-3. crit_damage = 0 (kritik yok)
+2. crit_damage = 1 (kritik yok)
+3. varied_damage = floor(1 × 0.85) = 0
 4. final_damage = max(1, 0) = **1**
 
 ### Formül 5: Hasar Tahmini (AI için)
 
-`estimated_damage = max(1, floor((effective_ATK - floor(effective_DEF / 2)) × element_multiplier))`
+`estimated_damage = max(1, effective_ATK - floor(effective_DEF / 2))`
 
-Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi için kullanır.
+Kritik vuruş ve varyans dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi için kullanır.
 
 ## Edge Cases
 
@@ -294,9 +287,9 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 
 - **If savunan savaş dışıysa (HP=0)**: Hedef geçersiz — saldırı iptal, Savaş Sistemi yeni hedef seçer. Hasar Hesaplama çağrılmaz.
 
-- **If element çarpanı × base_damage floor sonucu 0 olursa**: Formül 4'teki `max(1, ...)` ile 1'e clamp edilir. (ör: base_damage=1, dezavantaj 0.75x → floor(0.75) = 0 → final 1)
+- **If varyans × crit_damage floor sonucu 0 olursa**: Formül 4'teki `max(1, ...)` ile 1'e clamp edilir. (ör: crit_damage=1, varyans 0.85x → floor(0.85) = 0 → final 1)
 
-- **If kritik vuruş + element avantajı + sinerji birlikte çok yüksek hasar üretirse**: Hasar cap uygulanmaz — oyun cömert güç fantezisi hedefliyor. Oyuncu güçlüyse büyük sayılar görsün. Dengeleme stat havuzları ve düşman HP ile yapılır, hasar cap ile değil.
+- **If kritik vuruş + varyans birlikte çok yüksek hasar üretirse**: Hasar cap uygulanmaz — oyun cömert güç fantezisi hedefliyor. Oyuncu güçlüyse büyük sayılar görsün. Dengeleme stat havuzları ve düşman HP ile yapılır, hasar cap ile değil.
 
 - **If ATK veya DEF 0 veya negatifse (veri hatası)**: 0 olarak işlenir. ATK=0 → base_damage = max(1, 0 - DEF/2) = 1. DEF=0 → base_damage = ATK (tam hasar). Hata loglanır.
 
@@ -316,9 +309,8 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 |--------|-----|--------|-----------|
 | **Oyuncu Sınıf Sistemi** | Sert | `GetPlayerBaseStats()` → {base_class_ATK, base_class_DEF, damageType ("physical"/"magic")} | Olmadan oyuncu statları ve hasar türü alınamaz |
 | **Ekipman Sistemi** | Sert | `GetEffectivePlayerStats()` → {effective_ATK, effective_DEF, effective_HP} | Olmadan ekipman bonusları hesaba katılamaz |
-| **Pet/Canavar Veritabanı** | Sert | `GetPetBaseStats(petId, level)` → {base_ATK, base_DEF, element} | Olmadan pet saldırı statları alınamaz |
+| **Pet/Canavar Veritabanı** | Sert | `GetPetBaseStats(petId, level)` → {base_ATK, base_DEF} | Olmadan pet saldırı statları alınamaz |
 | **Keşif Alanı** | Sert | `GetEnemyStats(stageId)` → {enemy_ATK, enemy_DEF, enemy_HP} — rubber-band uygulanmış | Olmadan düşman statları alınamaz |
-| **Element Sistemi** | Sert | `GetElementMultiplier(atkElement, defElement)` → float | Olmadan element çarpanı hesaplanamaz |
 
 ### Downstream (Bu sisteme bağlı)
 
@@ -329,7 +321,7 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 | **Düşman AI** | Yumuşak | `EstimateDamage(attackerId, targetId)` — hedef seçimi tahmini | AI daha akıllı hedef seçer; olmadan rastgele |
 | **Savaş UI** | Yumuşak | `OnDamageDealt` event → hasar gösterim verileri | Olmadan hasar sayıları gösterilemez |
 
-**Bağımlılık doğası**: İki upstream'den stat ve çarpan alır. Sağlık'a hasar, Savaş'a tetik, UI'a görüntüleme gönderir. Stateless pipeline — çift yönlü bağımlılık yok.
+**Bağımlılık doğası**: Upstream sistemlerden stat alır. Sağlık'a hasar, Savaş'a tetik, UI'a görüntüleme gönderir. Stateless pipeline — çift yönlü bağımlılık yok.
 
 ## Tuning Knobs
 
@@ -344,7 +336,6 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 **Etkileşim Uyarıları**:
 - `defense_reduction_factor` × Ekipman Sistemi'ndeki DEF değerleri birlikte oyuncunun efektif dayanıklılığını belirler. Factor=2.0 ile Oyuncu (effective_DEF=60) 30 azaltır; Factor=3.0 ile sadece 20 azaltır.
 - `crit_chance` × `crit_multiplier` birlikte ortalama hasar çarpanını belirler: 1 + (0.10 × 1.0) = **1.10** (ortalamanın %10 üstünde). İkisini aynı anda artırmak hasar varyansını patlatabilir.
-- Element Sistemi'ndeki `element_advantage_multiplier` (1.50) × `crit_multiplier` (2.0) birlikte best-case hasar çarpanını belirler: 1.5 × 2.0 = **3.0** (normal hasarın 3 katı). Bu üst sınır dengeleme testlerinde kontrol edilmeli.
 
 ## Visual/Audio Requirements
 
@@ -353,8 +344,6 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 | Olay | VFX | Süre | Öncelik |
 |------|-----|------|---------|
 | Normal hasar | Beyaz hasar sayısı yukarı uçar | 0.5s | MVP |
-| Element avantajlı hasar | Hasar sayısı %30 büyük + element renginde + "Etkili!" yazısı | 0.8s | MVP |
-| Element dezavantajlı hasar | Hasar sayısı %20 küçük + gri + "Etkisiz..." yazısı | 0.5s | MVP |
 | Kritik vuruş | Hasar sayısı 2x büyük + sarı/altın renk + yıldız patlaması VFX + ekran hafif sarsıntısı | 1.0s | MVP |
 | Minimum hasar (1) | Küçük, soluk hasar sayısı | 0.3s | Nice-to-have |
 
@@ -363,7 +352,6 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 | Olay | Ses Türü | Ton | Öncelik |
 |------|----------|-----|---------|
 | Normal hasar | Kısa darbe sesi | Nötr | MVP |
-| Element avantajlı hasar | Parlak "zing" + element efekti | Ödüllendirici | MVP |
 | Kritik vuruş | Ağır darbe + cam kırılması hissi | Güçlü, tatmin edici | MVP |
 | Minimum hasar (1) | Hafif "tink" | Zayıf ama var | Nice-to-have |
 
@@ -373,8 +361,6 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 - Hasar sayıları canavar sprite'ının üstünde floating text olarak gösterilir
 - Normal hasar: beyaz, 24pt font
 - Kritik hasar: altın/sarı, 36pt font, yıldız ikonu
-- Element avantajlı: element renginde, 30pt font, "Etkili!" alt yazı
-- Element dezavantajlı: gri, 20pt font, "Etkisiz..." alt yazı
 - Birden fazla hasar aynı anda gösterilirse, sayılar üst üste binmemeli — hafif offset ile dağıtılır
 - Minimum dokunma hedefi gerekli değil — hasar sayıları interaktif değil, salt görüntüleme
 
@@ -382,17 +368,17 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 
 ## Acceptance Criteria
 
-1. **GIVEN** Savaşçı (base_class_ATK=40, ekipman yok), fiziksel, nötr element vs Düşman (DEF=30), **WHEN** hasar hesaplanırsa, **THEN** base_damage = 40 - 15 = 25, element_damage = 25, final = 25 (kritik yoksa).
+1. **GIVEN** Savaşçı (base_class_ATK=40, ekipman yok), fiziksel vs Düşman (DEF=30), **WHEN** hasar hesaplanırsa, **THEN** base_damage = 40 - 15 = 25 (kritik yoksa, varyans=1.0 varsayımıyla final ≈ 25).
 
-2. **GIVEN** Savaşçı (D Silah+20, effective_ATK=60) vs Düşman (DEF=25), avantajlı element, **WHEN** hasar hesaplanırsa, **THEN** base = 60-12=48, element = floor(48×1.5)=72.
+2. **GIVEN** Savaşçı (D Silah+20, effective_ATK=60) vs Düşman (DEF=25), **WHEN** hasar hesaplanırsa, **THEN** base = 60-12=**48**.
 
-3. **GIVEN** Oyuncu (ATK=30, fiziksel) vs Yüksek DEF Düşman (DEF=80), dezavantajlı element, **WHEN** hasar hesaplanırsa, **THEN** base = max(1, 30-40)=1, element = floor(1×0.75)=0, final = max(1, 0) = 1.
+3. **GIVEN** Oyuncu (ATK=30, fiziksel) vs Yüksek DEF Düşman (DEF=80), **WHEN** hasar hesaplanırsa, **THEN** base = max(1, 30-40)=1, kritik yoksa crit_damage=1, final = max(1, floor(1×varyans)) = 1.
 
 4. **GIVEN** herhangi bir saldırı, **WHEN** final hasar hesaplanırsa, **THEN** sonuç asla 0'dan küçük olamaz — minimum 1.
 
 5. **GIVEN** crit_chance=0.10, **WHEN** 1000 saldırı simüle edilirse, **THEN** kritik oranı %8–12 arasında (istatistiksel tolerans).
 
-6. **GIVEN** element_damage=27, **WHEN** kritik vuruş gerçekleşirse, **THEN** crit_damage = floor(27×2.0) = 54.
+6. **GIVEN** base_damage=27, **WHEN** kritik vuruş gerçekleşirse, **THEN** crit_damage = floor(27×2.0) = 54.
 
 7. **GIVEN** saldıran savaş dışı (HP=0), **WHEN** saldırı sırası gelirse, **THEN** CalculateDamage çağrılmaz.
 
@@ -400,13 +386,13 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 
 9. **GIVEN** DEF=0, **WHEN** hasar hesaplanırsa, **THEN** base_damage = ATK (tam hasar, azaltma yok).
 
-10. **GIVEN** Savaşçı Komutan Modu (effective_ATK=80 → attacking_ATK=104) vs Düşman (DEF=20), avantajlı element, kritik vuruş, **WHEN** tam pipeline çalışırsa, **THEN** base=94, element=floor(94×1.5)=141, crit=floor(141×2.0)=282, final = **282**.
+10. **GIVEN** Savaşçı Komutan Modu (effective_ATK=80 → attacking_ATK=104) vs Düşman (DEF=20), kritik vuruş, varyans=1.15, **WHEN** tam pipeline çalışırsa, **THEN** base=94, crit=floor(94×2.0)=188, varied=floor(188×1.15)=216, final = **216**.
 
-11. **GIVEN** hasar hesaplanınca, **WHEN** OnDamageDealt event yayınlanırsa, **THEN** event final_damage, was_critical, element_info alanlarını içerir.
+11. **GIVEN** hasar hesaplanınca, **WHEN** OnDamageDealt event yayınlanırsa, **THEN** event final_damage, base_damage, was_critical alanlarını içerir.
 
 12. **GIVEN** EstimateDamage çağrılırsa, **WHEN** sonuç döndürülürse, **THEN** kritik vuruş dahil edilmez — deterministik sonuç.
 
-13. **GIVEN** Büyücü (effective_ATK=45) vs Düşman (DEF=40), nötr element, crit yok, **WHEN** büyü hasarı hesaplanırsa, **THEN** `max(1, 45 - floor(40/4)) = max(1, 35) = 35`.
+13. **GIVEN** Büyücü (effective_ATK=45) vs Düşman (DEF=40), crit yok, **WHEN** büyü hasarı hesaplanırsa, **THEN** `max(1, 45 - floor(40/4)) = max(1, 35) = 35`.
 
 14. **GIVEN** aynı ATK=45 ve Düşman DEF=40, fiziksel hasar olsaydı, **THEN** `max(1, 45 - floor(40/2)) = max(1, 25) = 25`. Büyü **%40 daha fazla** hasar verir.
 
@@ -414,7 +400,7 @@ Kritik vuruş dahil edilmez — deterministik tahmin. Düşman AI hedef seçimi 
 
 1. **Buff/debuff sistemi (Tier 2+)**: ATK/DEF geçici değişiklikleri (DEF kırma, ATK zayıflatma) formül pipeline'ına nasıl eklenir? → Oyuncu Sınıf Sistemi GDD'sinde durum etkileri tanımlandı; pipeline entegrasyonu Savaş Sistemi revizyonunda.
 
-2. **AoE (alan hasarı) mekanikliği**: Büyücü Element Fırtınası her hedefe bağımsız pipeline çalıştırır (oyuncu-sinif-sistemi.md Kural 3). Genel AoE kural detayları Savaş Sistemi revizyonunda.
+2. **AoE (alan hasarı) mekanikliği**: Büyücü Büyü Fırtınası her hedefe bağımsız pipeline çalıştırır (oyuncu-sinif-sistemi.md Kural 3). Genel AoE kural detayları Savaş Sistemi revizyonunda.
 
 3. ~~**DoT (hasar zaman içinde)**~~ **ÇÖZÜLDÜ**: Yanma (Büyücü) ve Zehir (Hırsız) DoT bu pipeline'dan bağımsızdır — `floor(max_hp × dot_rate)` flat hasar, DEF bypass. Oyuncu Sınıf Sistemi GDD'sinde tanımlı (Kural 4, Formül 2).
 

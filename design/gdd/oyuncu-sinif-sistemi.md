@@ -16,7 +16,7 @@ Her sınıf için 2 yan sınıf dalı tanımlanmıştır (isimler sabit, içerik
 ## Player Fantasy
 
 - **Savaşçı**: "Ben ölmüyorum." — düşmanlar kendi kendine erirken oyuncu yerinden kımıldamaz. Yıkım Darbesi'nin 4× hasarı bir mini-boss'u devirdiğinde "bu benim zaferim" anı.
-- **Büyücü**: "Bir dokunuşta çöküyorlar." — cam kanon riski. Element Fırtınası sahneyi kaplarken 3 düşman aynı anda yanmaya başlar.
+- **Büyücü**: "Bir dokunuşta çöküyorlar." — cam kanon riski. Büyü Fırtınası sahneyi kaplarken 3 düşman aynı anda yanmaya başlar.
 - **Hırsız**: "Gördüklerimi seçerim." — Suikast Fırtınası'nın 5 bıçağından 3'ü kritik yaparken sayılar patlar.
 - **Şifacı**: "Hiçbir şey ölmez benim yanımda." — Koruma Aura'sı aktifken düşmanların çektiği hasar erirken kontrol hissi.
 
@@ -39,7 +39,7 @@ Stat ölçekleme: `stat(level) = floor(base_stat × (1 + stat_growth × (level -
 
 `stat_growth = 0.08` (tüm sınıflarda eşit; yan sınıf bonusları bu değerin üstüne eklenir, TBD)
 
-Oyuncu max seviyesi TBD (MVP öneri: Level 30).
+Oyuncu max seviyesi **30** (kapatıldı — bkz. `level-deneyim-sistemi.md` Kural 7).
 
 ---
 
@@ -72,9 +72,9 @@ Büyü hasarı tüm saldırı slotlarına (Slot 0–3) uygulanır; "magic" olara
 | Slot | Yetenek | CD | Etki | Hedef |
 |------|---------|----|------|-------|
 | 0 | **Büyü Oku** | 0 | Büyü ATK × 1.0 (defense_reduction_factor=4) | Tek düşman |
-| 1 | **Element Patlaması** | 3 | Büyü ATK × 2.0 + **Yanma DoT**: max_hp × 0.05/tur, 3 tur | Tek düşman |
+| 1 | **Büyü Patlaması** | 3 | Büyü ATK × 2.0 + **Yanma DoT**: max_hp × 0.05/tur, 3 tur | Tek düşman |
 | 2 | **Büyü Zırhı** | 5 | **Kalkan**: max_hp × 0.25 hasar emer, 3 tur (dolunca kalkar) | Kendisi |
-| 3 | **Element Fırtınası** | 8 | Tüm düşmanlara Büyü ATK × 1.5 + her hedefe **Yanma DoT**: max_hp × 0.05/tur, 3 tur | Tüm düşmanlar |
+| 3 | **Büyü Fırtınası** | 8 | Tüm düşmanlara Büyü ATK × 1.5 + her hedefe **Yanma DoT**: max_hp × 0.05/tur, 3 tur | Tüm düşmanlar |
 
 #### Hırsız (Thief)
 
@@ -122,7 +122,7 @@ Her ana sınıfın 2 yan sınıf dalı vardır. Yan sınıf seçimi şartı (bel
 | Ana Sınıf | Dal 1 | Dal 2 |
 |-----------|-------|-------|
 | **Savaşçı** | Berserker (saldırı dal) | Koruyucu (savunma dal) |
-| **Büyücü** | Elementalist (DoT + element) | Kaoscu (saf burst) |
+| **Büyücü** | Elementalist (DoT odaklı — isim TBD, element sistemi kaldırıldı) | Kaoscu (saf burst) |
 | **Hırsız** | Gölge (zehir + DoT) | Düellocu (kritik + hız) |
 | **Şifacı** | Işık Rahibi (iyileştirme odaklı) | Savaş Rahibi (iyileştirme + büyü hasarı) |
 
@@ -136,7 +136,7 @@ Aktif pet oyuncuya pasif stat bonusu verir (DEF, fiziksel ATK, büyü ATK, max H
 
 ### Formül 1: Büyü Hasarı
 
-`magic_damage = max(1, floor(effective_ATK × multiplier - floor(effective_DEF / magic_defense_factor)) × element_multiplier × [crit])`
+`magic_damage = max(1, floor(effective_ATK × multiplier - floor(effective_DEF / magic_defense_factor)) × [crit])`
 
 | Değişken | Sembol | Tip | Değer | Açıklama |
 |----------|--------|-----|-------|----------|
@@ -196,7 +196,7 @@ Her vuruş bağımsız crit roll (%40 şans, crit_multiplier=2.0):
 
 - **If Boss/mini-boss'a Sersemletme uygulanırsa**: Hasar uygulanır, sersemletme bağışıklığı devreye girer. VFX ile "bağışık" bildirimi gösterilir.
 
-- **If Yanma aktif hedef üzerine tekrar Element Patlaması uygulanırsa**: Yanma süresi 3'e yenilenir, tick hasarı değişmez (stack olmaz).
+- **If Yanma aktif hedef üzerine tekrar Büyü Patlaması uygulanırsa**: Yanma süresi 3'e yenilenir, tick hasarı değişmez (stack olmaz).
 
 - **If Zehir ve Yanma aynı hedefte aynı anda aktifse**: Bağımsız sayaçlar — her biri kendi tur başında tetiklenir. Her tur iki ayrı DoT hasarı.
 
@@ -224,6 +224,7 @@ Her vuruş bağımsız crit roll (%40 şans, crit_multiplier=2.0):
 | **Sağlık / Can Sistemi** | Sert | `Heal(targetId, amount)`, `TakeDamage(targetId, amount)`, `GetMaxHP(targetId)` | İyileştirme ve DoT uygulaması için zorunlu |
 | **Yetenek Sistemi** | Sert | Cooldown yönetimi, slot çerçevesi | Slot 0–3 CD yapısı Yetenek Sistemi'nden gelir |
 | **Ekonomi / Kaydetme** | Orta | Sınıf seçimi + seviye persist | Olmadan sınıf seçimi kaybolur |
+| **Level / Deneyim Sistemi** | Sert | `GetPlayerLevel()` — Kural 1'deki `stat(level)` formülüne girdi sağlar; `player_level_cap=30` bu sistemden gelir | Olmadan level sabit kalır (şu an sabit 1) |
 
 ### Downstream (Bu sisteme bağlı)
 
@@ -259,7 +260,7 @@ Her vuruş bağımsız crit roll (%40 şans, crit_multiplier=2.0):
 
 2. **GIVEN** Savaşçı (ATK=18), aynı düşman (DEF=40), nötr, crit yok, **WHEN** Kılıç Darbesi kullanılırsa, **THEN** `max(1, 18 - floor(40/2)) = max(1, -2) = 1` hasar (min floor).
 
-3. **GIVEN** Büyücü Slot 1 kullanılırsa, **WHEN** Element Patlaması çarpınca, **THEN** hedef Yanma debuffunu alır: 3 tur süre, her tur `max(1, floor(hedef_max_hp × 0.05))` hasar.
+3. **GIVEN** Büyücü Slot 1 kullanılırsa, **WHEN** Büyü Patlaması çarpınca, **THEN** hedef Yanma debuffunu alır: 3 tur süre, her tur `max(1, floor(hedef_max_hp × 0.05))` hasar.
 
 4. **GIVEN** Yanma aktif, hedef max_hp=60, **WHEN** 3 tur geçerse, **THEN** toplam DoT = `max(1, floor(60×0.05)) × 3 = 3 × 3 = 9`.
 

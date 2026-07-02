@@ -9,15 +9,15 @@
 
 **Koleksiyon / Envanter UI**, oyuncunun sahip olduğu tüm petleri görüntülediği, aktif petini seçtiği, peti detaylarıyla incelediği ve pet yönetim işlemlerini (satma, evrim, yıldız yükseltme) başlattığı ekrandır. Tab Bar'ın "Koleksiyon" sekmesinden erişilir. HUD görünürdür (altın/elmas/enerji).
 
-Ekran iki ana görünümden oluşur: **Izgara Görünümü** (tüm petler kart biçiminde, filtrelenebilir/sıralanabilir) ve **Pet Detay Paneli** (bir pete dokunulunca açılan tam bilgi sayfası — stat'lar, yetenek, element, aktif seçme, sat/evrimleştir). Pet Detay Paneli ayrı bir screen push'tur.
+Ekran iki ana görünümden oluşur: **Izgara Görünümü** (tüm petler kart biçiminde, filtrelenebilir/sıralanabilir) ve **Pet Detay Paneli** (bir pete dokunulunca açılan tam bilgi sayfası — stat'lar, yetenek, aktif seçme, sat/evrimleştir). Pet Detay Paneli ayrı bir screen push'tur.
 
-MVP kapsamında tüm petlerin listesi, filtre (element / tier / aktif), sıralama (SG / tier / yeni eklenen), pet detay sayfası, aktif pet seçme, satma onayı ve otomatik satış filtresi ayarı yer alır. Evrim ve yıldız yükseltme işlemleri Detay Paneli'nden Pet Evrim Sistemi UI'ına bağlanır (ayrı GDD).
+MVP kapsamında tüm petlerin listesi, filtre (tier / aktif), sıralama (SG / tier / yeni eklenen), pet detay sayfası, aktif pet seçme, satma onayı ve otomatik satış filtresi ayarı yer alır. Evrim ve yıldız yükseltme işlemleri Detay Paneli'nden Pet Evrim Sistemi UI'ına bağlanır (ayrı GDD).
 
 ## Player Fantasy
 
 Oyuncu koleksiyon ekranında **müze direktörü** hissini yaşar. Topladığı yaratıklar sıralanmış, hepsi bir arada — "bak neler biriktirdim." Tier arttıkça kart çerçeveleri renkleniyor, yıldızlar parlıyor; B tier bir pet ızgarada diğerlerinin arasında altın çerçevesiyle öne çıkıyor.
 
-**Seçim tatmini**: Aktif peti değiştirmek bir karar anıdır. Oyuncu farklı element ve arkotipler arasında gezinir, "bu sefer Büyücü denerim" der, peti seçer — harita ekranına döndüğünde SG renk kodu anında güncellenir.
+**Seçim tatmini**: Aktif peti değiştirmek bir karar anıdır. Oyuncu farklı arketipler arasında gezinir, "bu sefer Büyücü denerim" der, peti seçer — harita ekranına döndüğünde SG renk kodu anında güncellenir.
 
 **Büyüme görünür**: İlk günkü F tier Gölge Sıçanı hâlâ koleksiyonda, yanında şimdi C tier Demir Golem var. Izgara görsel büyümenin kaydıdır.
 
@@ -91,7 +91,6 @@ Filtre açılır menüsü çoklu seçime izin verir (multiselect):
 | Filtre Grubu | Seçenekler |
 |-------------|-----------|
 | **Tier** | F / D / C / B |
-| **Element** | Ateş / Su / Toprak / Hava |
 | **Arketip** | Saldırgan / Tank / Destekçi / Büyücü |
 | **Durum** | Aktif / Kilitsiz / Kilitli |
 
@@ -146,7 +145,7 @@ Bir karta dokunulduğunda yeni bir screen push'u ile açılır (soldan giriş, 2
 ├────────────────────────────────┤
 │                                │
 │     [BÜYÜK PORTRAIT — 160dp]   │
-│     [Tier] [Element] [★★★☆☆☆]  │
+│     [Tier] [★★★☆☆☆]            │
 │     SG: 255                    │
 │                                │
 ├────────────────────────────────┤
@@ -378,7 +377,7 @@ sell_price = base_sell_price[tier]
 | Sistem | Veri | Arayüz |
 |--------|------|--------|
 | **Pet Sistemi** | Tüm petler, aktif pet | `GetAllPets()` → [PetData], `GetActivePet()` |
-| **Canavar Veritabanı** | Pet adı, element, arketip, tier, portrait referansı | `GetMonsterIdentity(petId)` |
+| **Canavar Veritabanı** | Pet adı, arketip, tier, portrait referansı | `GetMonsterIdentity(petId)` |
 | **Canavar Güçlendirme / Pet Evrim** | Effective stats, seviye, EXP, yıldız, evrim malzeme durumu | `GetEffectiveStats(petId)`, `GetLevelInfo(petId)`, `GetEvolutionStatus(petId)` |
 | **Ekonomi** | Satış sonrası altın güncelleme | `SellPet(petId)` → gold_gained |
 | **Kaydetme / Yükleme** | Otomatik satış filtresi ayarı, aktif pet | `GetAutoSellFilter()`, `SetActivePet(petId)`, `SetAutoSellFilter(config)` |

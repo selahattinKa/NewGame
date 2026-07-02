@@ -3,6 +3,8 @@
 > Tüm görseller ve videolar için kullanıma hazır prompt şablonları.
 > Araç: Leonardo.ai / Stable Diffusion / Kling AI / Suno AI / ElevenLabs
 > Güncellendi: 2026-06-26
+>
+> **NOT (2026-07-02)**: Element sistemi (Ateş/Su/Toprak/Hava) prototype kapsamından oyun mekaniği olarak tamamen kaldırıldı. Bu dosyadaki "element" başlıkları/gruplamaları artık sadece **görsel tema/palet çeşitliliği** referansıdır — hiçbir gameplay sistemine bağlı değildir. Prompt metinleri (İngilizce "fire element", "water element" vb.) AI görsel aracına verilecek ham metin olduğundan aynen bırakıldı; bunlar sadece görsel stil ipucu, oyun içi mekanik değil.
 
 ---
 
@@ -36,8 +38,8 @@ realistic photo, 3D render, NSFW, multiple creatures, border
 | D | Yeşil | Biraz tehdit edici | Küçük-orta |
 | C | Mavi | Orta güç, net özellikler | Orta |
 | B | Mor | Güçlü, karanlık hava | Orta-büyük |
-| A | Turuncu / Altın | Etkileyici, elementel | Büyük |
-| S | Kırmızı / Erguvan | Görkemli, elementel güçler görünür | Çok büyük |
+| A | Turuncu / Altın | Etkileyici, güçlü aura | Büyük |
+| S | Kırmızı / Erguvan | Görkemli, görsel güçler belirgin | Çok büyük |
 | SS | Altın / Gökkuşağı | Efsanevi, ışıl ışıl, tanrısal | Devasa |
 
 ---
@@ -59,7 +61,7 @@ background scenery, border, frame, bad anatomy, extra limbs
 
 ---
 
-### ELEMENT TANIMLAMALARI
+### TEMA TANIMLAMALARI (görsel çeşitlilik — gameplay mekaniği değil)
 
 **Ateş Elementi:**
 ```
@@ -90,7 +92,7 @@ storm clouds forming around creature, floating debris
 
 ---
 
-### ÖRNEK YARATIKLAR — 4 ELEMENT × 3 TİER (F/C/S)
+### ÖRNEK YARATIKLAR — 4 TEMA × 3 TİER (F/C/S)
 
 > Bu 12 görsel prototype için yeterli. Her birini ayrı ayrı üret.
 > Boyut: 512×768 px, PNG, beyaz arka plan → rembg ile şeffaflaştır.
@@ -282,7 +284,7 @@ Negative: blurry, low quality, multiple creatures, peaceful expression,
 looking away, small in frame, top-down view, side view
 ```
 
-### Hazır Savaş Ekranı Promptları (4 element)
+### Hazır Savaş Ekranı Promptları (4 tema)
 
 **Ateş — Savaş Ekranı:**
 ```
@@ -673,13 +675,13 @@ screen shaking bass with monster roar
 Prototype için minimum gerekli içerik ve üretim sırası:
 
 ### 1. Önce Üret (Görsel)
-- [ ] 4 element × 3 tier = **12 kart görseli** (Bölüm 2 promptları)
-- [ ] 4 element savaş ekranı = **4 tam ekran görsel** (Bölüm 3 promptları)
+- [ ] 4 tema × 3 tier = **12 kart görseli** (Bölüm 2 promptları)
+- [ ] 4 tema savaş ekranı = **4 tam ekran görsel** (Bölüm 3 promptları)
 - [ ] 3 zindan arka planı = **3 ortam görseli** (Bölüm 4 promptları)
 - [ ] 3 kart çerçevesi (F/C/S) = **3 UI görseli** (Bölüm 5 promptları)
 
 ### 2. Sonra Üret (Video)
-- [ ] 4 element saldırı videosu = **4 video** (Bölüm 6 promptları)
+- [ ] 4 tema saldırı videosu = **4 video** (Bölüm 6 promptları)
 - [ ] 1 evrim animasyonu = **1 video** (Bölüm 6 — evrim promptu)
 
 ### 3. Son Üret (Ses)

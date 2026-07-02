@@ -38,7 +38,7 @@
 ---
 
 ### 1. Gölge Sıçanı
-**Element:** Hava | **Tip:** Saldırgan | **Tier:** F
+**Tip:** Saldırgan | **Tier:** F
 
 #### ImageFX — Kart Görseli
 ```
@@ -103,7 +103,7 @@ Sound: a sharp crack followed by a pained yelp. 2 seconds.
 ---
 
 ### 2. Kil Golem
-**Element:** Toprak | **Tip:** Tank | **Tier:** F
+**Tip:** Tank | **Tier:** F
 
 #### ImageFX — Kart Görseli
 ```
@@ -170,7 +170,7 @@ Sound: a loud crack of clay splitting, pieces scattering. 2 seconds.
 ---
 
 ### 3. Buz Büyücüsü
-**Element:** Su | **Tip:** Büyücü | **Tier:** D
+**Tip:** Büyücü | **Tier:** D
 
 #### ImageFX — Kart Görseli
 ```
@@ -241,7 +241,7 @@ Sound: a heavy blow, multiple ice shards exploding, a sharp cold exhale. 2 secon
 ---
 
 ### 4. Gölge Kurdu
-**Element:** Hava | **Tip:** Saldırgan | **Tier:** C
+**Tip:** Saldırgan | **Tier:** C
 
 #### ImageFX — Kart Görseli
 ```
@@ -306,7 +306,7 @@ threatening growl. 2 seconds.
 ---
 
 ### 5. Demir Golem
-**Element:** Toprak | **Tip:** Tank | **Tier:** C
+**Tip:** Tank | **Tier:** C
 
 #### ImageFX — Kart Görseli
 ```
@@ -374,7 +374,7 @@ Sound: a massive metallic crash, sparks, a deep groan of bending iron. 2 seconds
 ---
 
 ### 6. Ateş Ejderi
-**Element:** Ateş | **Tip:** Saldırgan | **Tier:** B
+**Tip:** Saldırgan | **Tier:** B
 
 #### ImageFX — Kart Görseli
 ```
@@ -439,7 +439,7 @@ Sound: a thunderous impact, scale cracking, a deep enraged roar. 2 seconds.
 ---
 
 ### 7. Kan Vampiri
-**Element:** Hava | **Tip:** Saldırgan | **Tier:** B
+**Tip:** Saldırgan | **Tier:** B
 
 #### ImageFX — Kart Görseli
 ```
