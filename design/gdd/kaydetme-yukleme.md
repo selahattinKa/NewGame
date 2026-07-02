@@ -97,7 +97,7 @@ Kaydetme / Yükleme doğrudan bir oyuncu fantezisi sunmaz — oyuncu bu sistemle
 | **Level / Deneyim Sistemi** *(design-review 2026-07-01 — `Canavar Güçlendirme`'nin level/xp sorumluluğunun yerine geçti)* | ← Level/XP verisini sağlar | `player_profile.player_level/xp`, `monster_collection[].level/xp/banked_xp/lifetime_pet_level` | Oyuncu ve pet seviye/XP/bankalanmış XP/kalıcı toplam seviye |
 | **Canavar Güçlendirme** *(level/xp hariç — bkz. yukarıdaki satır)* | ← Güçlendirme verisini sağlar | `monster_collection` içinde | Yıldız, evrim aşaması (seviye/XP artık Level/Deneyim Sistemi'nin kapsamında) |
 | **Takım Kurma** | ← Takım verisini sağlar | `team_presets`, `active_team_index` | Preset listesi ve aktif takım |
-| **Zindan Keşif** | ← İlerleme verisini sağlar | `dungeon_progress` | Kat ilerlemesi, first-clear durumları |
+| **Keşif Alanı** | ← İlerleme verisini sağlar | `dungeon_progress` | Kat ilerlemesi, first-clear durumları |
 | **Otofarm / Idle** | ← Idle state sağlar, → çevrimdışı süre sağlar | `idle_state`, `save_timestamp` | Otofarm başlangıç zamanı; offline_duration hesaplaması |
 | **Savaş Sistemi** | → Savaş sonu save tetikler | Event: `OnBattleComplete` | Savaş bitince kaydet |
 | **UI Framework** | → Save durumu bildirir | Event: `OnSaveStateChanged` | Loading göstergesi, hata bildirimi |
@@ -181,7 +181,7 @@ Sabit değer: **0.5 saniye**. Debounce penceresi içinde gelen tüm save request
 | **Level / Deneyim Sistemi** *(design-review 2026-07-01)* | Sert | `player_profile.player_level/xp`, `monster_collection[].level/xp/banked_xp/lifetime_pet_level` | Oyuncu ve pet seviye/XP/bankalanmış XP/kalıcı toplam seviye persist edilir — bu GDD "kaybolmaz" garantisi veriyor, bu alanların kalıcı olmasına sert bağımlı. |
 | **Canavar Güçlendirme** *(level/xp hariç)* | Soft | `monster_collection` içinde | Yıldız, evrim aşaması verileri persist edilir (seviye/XP artık yukarıdaki satırın kapsamında). |
 | **Takım Kurma** | Soft | `team_presets`, `active_team_index` | Takım preset'leri persist edilir. |
-| **Zindan Keşif** | Soft | `dungeon_progress` | Kat ilerlemesi ve first-clear durumları persist edilir. |
+| **Keşif Alanı** | Soft | `dungeon_progress` | Kat ilerlemesi ve first-clear durumları persist edilir. |
 | **Savaş Sistemi** | Soft | Event: `OnBattleComplete` → save tetikler | Savaş sonuçları save'i tetikler ama savaş sistemi save'e bağımlı değildir. |
 | **UI Framework** | Soft | Event: `OnSaveStateChanged` | Save durumu değişikliklerini dinler (loading spinner, hata mesajı). |
 

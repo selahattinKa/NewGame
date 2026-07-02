@@ -1,5 +1,7 @@
 # Review Log: Zindan Keşif Sistemi
 
+> **Tarihsel not (2026-07-02)**: `zindan-kesif.md` dosyası silindi — sistemi ikiye ayrıldı: (1) gerçek implementasyon (dalga sistemi, 20 kat) `kesif-alani.md`'ye birleştirildi, (2) "Zindan Keşif" adı tamamen yeni bir kavramla (`zindan-saldirisi.md` — EXP/Altın Zindanı) değiştirildi. Bu log yalnızca tarihsel referans için tutuluyor, aşağıdaki review kararları artık hiçbir canlı dosyaya bağlı değil.
+
 ## Review — 2026-06-25 — Verdict: APPROVED (revizyon sonrası)
 Scope signal: L
 Specialists: Lean mode — no specialists (single-session analysis)

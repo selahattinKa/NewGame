@@ -38,6 +38,8 @@
 
 version: 1
 last_updated: "2026-07-02"
+# Updated 2026-07-02: zindan-kesif.md silindi (kesif-alani.md ile birleşti + zindan-saldirisi.md yeni sistem olarak ayrıldı) —
+#   ilgili tüm formül/constant kayıtları kesif-alani.md'ye taşındı veya deprecated işaretlendi, yeni first-clear elmas tavanları eklendi
 # Updated: otofarm-idle.md design-review revision — idle_gold_formula tiered, idle_floors_cleared max(1,...), referenced_by updates
 # Updated 2026-07-02: Element sistemi prototype kapsamından tamamen kaldırıldı (kullanıcı kararı) — element-sistemi.md silindi,
 #   tüm element bazlı entry/formül/constant status: deprecated olarak işaretlendi (asla silinmez, registry kuralı), evrim_tasi (generic, element'siz) eklendi
@@ -242,14 +244,14 @@ formulas:
       - design/gdd/ekonomi.md
       - design/gdd/loot-odul-sistemi.md
       - design/gdd/dusuman-ai.md
-      - design/gdd/zindan-kesif.md
+      - design/gdd/kesif-alani.md
     variables:
       - base_gold_per_floor
       - floor_number
       - difficulty_multiplier
     output_range: [100, 20000]
     expression: "base_gold_per_floor × floor_number × difficulty_multiplier"
-    notes: "Zindan kat temizleme altın ödülü. İleri katlar daha cömert."
+    notes: "Zindan kat temizleme altın ödülü. İleri katlar daha cömert. NOT (2026-07-02): kesif-alani.md'nin gerçek implementasyonu (Formül 1) bu genel formülü aşama-tipi bazlı sabit çarpanlarla (1.0/1.5/2.5/5.0) somutlaştırıyor — bkz. o dosya."
     added: 2026-06-24
     revised: ""
 
@@ -424,13 +426,14 @@ formulas:
     source: design/gdd/dusuman-ai.md
     referenced_by:
       - design/gdd/dusuman-ai.md
-      - design/gdd/zindan-kesif.md
+      - design/gdd/kesif-alani.md
+      - design/gdd/zindan-saldirisi.md
     variables:
       - floor_number
       - difficulty_multiplier
     output_range: [1, 200]
     expression: "floor(floor_number × difficulty_multiplier)"
-    notes: "Düşman seviyesi kat numarasına göre. MVP'de difficulty_multiplier=1.0 (lineer). İleride bölge başına ölçeklenir."
+    notes: "Düşman seviyesi kat numarasına göre. MVP'de difficulty_multiplier=1.0 (lineer). İleride bölge başına ölçeklenir. NOT (2026-07-02): kesif-alani.md'nin gerçek implementasyonu bu genel eğriyi kullanmıyor, kendi somut formülünü tanımlıyor (Formül 5); zindan-saldirisi.md ise kesif-alani.md'deki en yüksek temizlenen aşamaya göre türetilmiş effective_floor kullanıyor."
     added: 2026-06-25
     revised: ""
 
@@ -638,7 +641,7 @@ constants:
     source: design/gdd/ekonomi.md
     referenced_by:
       - design/gdd/ekonomi.md
-      - design/gdd/zindan-kesif.md
+      - design/gdd/kesif-alani.md
     value: 100
     unit: energy
     added: 2026-06-24
@@ -649,7 +652,7 @@ constants:
     source: design/gdd/ekonomi.md
     referenced_by:
       - design/gdd/ekonomi.md
-      - design/gdd/zindan-kesif.md
+      - design/gdd/kesif-alani.md
     value: 5
     unit: minutes
     added: 2026-06-24
@@ -743,7 +746,7 @@ constants:
     source: design/gdd/loot-odul-sistemi.md
     referenced_by:
       - design/gdd/loot-odul-sistemi.md
-      - design/gdd/zindan-kesif.md
+      - design/gdd/kesif-alani.md
       - design/gdd/otofarm-idle.md
     value: 0.15
     unit: probability
@@ -751,11 +754,10 @@ constants:
     revised: ""
 
   - name: boss_gold_multiplier
-    status: active
+    status: deprecated   # 2026-07-02: kaynak dosya (zindan-kesif.md) silindi; kesif-alani.md gerçek implementasyonunda tek bir "boss" çarpanı yok, aşama tipine göre 4 ayrı çarpan var (1.0/1.5/2.5/5.0, bkz. kesif-alani.md Formül 1)
     source: design/gdd/loot-odul-sistemi.md
     referenced_by:
       - design/gdd/loot-odul-sistemi.md
-      - design/gdd/zindan-kesif.md
     value: 3.0
     unit: multiplier
     added: 2026-06-25
@@ -1093,97 +1095,111 @@ constants:
 
   - name: energy_per_floor
     status: active
-    source: design/gdd/zindan-kesif.md
+    source: design/gdd/kesif-alani.md
     referenced_by:
-      - design/gdd/zindan-kesif.md
+      - design/gdd/kesif-alani.md
       - design/gdd/ekonomi.md
     value: 2
     unit: energy
     added: 2026-06-24
-    revised: ""
+    revised: "2026-07-02"  # kaynak zindan-kesif.md → kesif-alani.md (dosya birleşti)
 
   - name: boss_floor_interval
     status: active
-    source: design/gdd/zindan-kesif.md
+    source: design/gdd/kesif-alani.md
     referenced_by:
-      - design/gdd/zindan-kesif.md
+      - design/gdd/kesif-alani.md
     value: 5
     unit: floors
     added: 2026-06-24
-    revised: ""
+    revised: "2026-07-02"  # kaynak zindan-kesif.md → kesif-alani.md (dosya birleşti)
 
   - name: base_first_clear_gems
     status: active
-    source: design/gdd/zindan-kesif.md
+    source: design/gdd/kesif-alani.md
     referenced_by:
-      - design/gdd/zindan-kesif.md
+      - design/gdd/kesif-alani.md
       - design/gdd/loot-odul-sistemi.md
     value: 5
     unit: diamonds
+    notes: "Normal aşama ilk temizleme elması."
     added: 2026-06-24
-    revised: ""
+    revised: "2026-07-02"  # kaynak zindan-kesif.md → kesif-alani.md (dosya birleşti)
 
-  - name: boss_first_clear_gems
+  - name: champion_first_clear_gems
     status: active
-    source: design/gdd/zindan-kesif.md
+    source: design/gdd/kesif-alani.md
     referenced_by:
-      - design/gdd/zindan-kesif.md
+      - design/gdd/kesif-alani.md
       - design/gdd/loot-odul-sistemi.md
     value: 50
     unit: diamonds
+    notes: "Şampiyon aşama (kat 5, 15) ilk temizleme elması. Eski adı boss_first_clear_gems idi — 2026-07-02'de kesif-alani.md'nin 4 aşama tipi netleşince (Normal/Şampiyon/Mini Boss/Alan Patronu) yeniden adlandırıldı."
     added: 2026-06-24
+    revised: "2026-07-02"
+
+  - name: miniboss_first_clear_gems
+    status: active
+    source: design/gdd/kesif-alani.md
+    referenced_by:
+      - design/gdd/kesif-alani.md
+      - design/gdd/loot-odul-sistemi.md
+    value: 100
+    unit: diamonds
+    notes: "Mini Boss aşama (kat 10) ilk temizleme elması. Eski 10 katlı sistemde bu kat 'son kat' olduğundan final_boss_first_clear_gems ile aynı değeri (100) taşıyordu; 20 katlı sisteme geçince Mini Boss ve Alan Patronu ayrıştı (bkz. final_boss_first_clear_gems=200)."
+    added: 2026-07-02
     revised: ""
 
   - name: final_boss_first_clear_gems
     status: active
-    source: design/gdd/zindan-kesif.md
+    source: design/gdd/kesif-alani.md
     referenced_by:
-      - design/gdd/zindan-kesif.md
+      - design/gdd/kesif-alani.md
       - design/gdd/loot-odul-sistemi.md
-    value: 100
+    value: 200
     unit: diamonds
+    notes: "Alan Patronu (kat 20, gerçek son aşama) ilk temizleme elması. Değer 2026-07-02'de 100→200 güncellendi: eski 10 katlı zindan modelinde kat 10 hem 'son' hem 'boss'tu (100 elmas); 20 katlı Keşif Alanı'na geçince Mini Boss (kat 10, 100 elmas) ve gerçek Alan Patronu (kat 20, 200 elmas) ayrı tavanlar oldu."
     added: 2026-06-24
-    revised: ""
+    revised: "2026-07-02"
 
   - name: wave_count_normal
     status: active
-    source: design/gdd/zindan-kesif.md
+    source: design/gdd/kesif-alani.md
     referenced_by:
-      - design/gdd/zindan-kesif.md
+      - design/gdd/kesif-alani.md
     value: 2
     unit: waves
     added: 2026-06-24
-    revised: ""
+    revised: "2026-07-02"  # kaynak zindan-kesif.md → kesif-alani.md (dosya birleşti)
 
   - name: wave_count_boss
     status: active
-    source: design/gdd/zindan-kesif.md
+    source: design/gdd/kesif-alani.md
     referenced_by:
-      - design/gdd/zindan-kesif.md
+      - design/gdd/kesif-alani.md
     value: 3
     unit: waves
+    notes: "5'in katı olan her aşamada (Şampiyon/Mini Boss/Alan Patronu) geçerli — yalnızca 'gerçek boss' katlarında değil."
     added: 2026-06-24
-    revised: ""
+    revised: "2026-07-02"  # kaynak zindan-kesif.md → kesif-alani.md (dosya birleşti)
 
   - name: region_element_weight
-    status: deprecated   # 2026-07-02: element sistemi kaldırıldı (kullanıcı kararı)
-    source: design/gdd/zindan-kesif.md
-    referenced_by:
-      - design/gdd/zindan-kesif.md
+    status: deprecated   # 2026-07-02: element sistemi kaldırıldı (kullanıcı kararı) + kaynak dosya (zindan-kesif.md) silindi
+    source: design/gdd/kesif-alani.md
+    referenced_by: []
     value: 0.50
     unit: probability
     added: 2026-06-24
     revised: "2026-07-02"
 
   - name: background_timeout_minutes
-    status: active
-    source: design/gdd/zindan-kesif.md
-    referenced_by:
-      - design/gdd/zindan-kesif.md
+    status: deprecated   # 2026-07-02: kaynak dosya (zindan-kesif.md) silindi; bu mekanik kesif-alani.md'nin gerçek implementasyonunda (DungeonManager.cs) bulunmuyor — kod tarafında hiç yazılmamış bir tasarım fikriydi
+    source: design/gdd/kesif-alani.md
+    referenced_by: []
     value: 30
     unit: minutes
     added: 2026-06-24
-    revised: ""
+    revised: "2026-07-02"
 
   - name: idle_minutes_per_floor
     status: active

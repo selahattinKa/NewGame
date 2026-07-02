@@ -121,7 +121,7 @@ Patron faz geçişi: `Karar → Öfke Modu` — HP %50 altına düşünce bir ke
 | **Sağlık / Can Sistemi** | ← okur | Hedef HP oranı (hedef seçimi için) | `GetHPRatio(monsterId)` → float |
 | **Canavar Veritabanı** | ← okur | Düşman stat'ları, arketip | `GetMonsterIdentity()`, `GetBaseStats()` |
 | **Savaş Sistemi** | ↔ çift yönlü | Savaş sırası alır, aksiyon sonucu bildirir | `GetTurnOrder()` ←, `ExecuteAction(action)` → |
-| **Zindan Keşif** | ← okur | Kat numarası, düşman listesi | `GetFloorEnemies(floorNumber)` → düşman tanımları |
+| **Keşif Alanı** | ← okur | Aşama numarası, düşman listesi | `GetFloorEnemies(floorNumber)` → düşman tanımları |
 | **Savaş UI** | → sağlar | AI aksiyon bilgisi (animasyon tetiklemesi için) | `OnEnemyAction` event → {actionType, targetId, damage} |
 
 *Specialist agents not consulted — Lean mode. Review manually before production.*
@@ -305,7 +305,7 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 | **Oyuncu Sınıf Sistemi** | Yumuşak | Büyücü arketip düşmanlar için `damageType=magic`; diğer arketipler için `damageType=physical` — hasar türü kararı | Olmadan Büyücü düşmanlar yanlış DEF faktörü kullanır |
 | **Sağlık / Can Sistemi** | Sert | `GetHPRatio(monsterId)` → float (0.0–1.0) — hedef seçiminde HP oranı; `IsAlive(monsterId)` → bool — hayatta olma kontrolü | Olmadan AI hedef seçimi yapamaz |
 | **Canavar Veritabanı** | Sert | `GetBaseStats(monsterId, level)` → {hp, atk, def, spd}; `GetMonsterIdentity(monsterId)` → {archetype, rarity} — düşman stat ve kimlik bilgisi | Olmadan düşman canavarlar oluşturulamaz |
-| **Zindan Keşif** | Sert | `GetFloorEnemies(floorNumber)` → düşman listesi tanımları; kat numarası ve bölge bilgisi | Olmadan AI hangi düşmanların savaşacağını bilemez |
+| **Keşif Alanı** | Sert | `GetFloorEnemies(floorNumber)` → düşman listesi tanımları; aşama numarası ve bölge bilgisi | Olmadan AI hangi düşmanların savaşacağını bilemez |
 
 ### Downstream (Bu sisteme bağlı)
 
@@ -316,7 +316,7 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 
 **Bağımlılık doğası**: 4 upstream'den veri alır (stat, HP, düşman listesi, hasar tahmin). Savaş Sistemi'a aksiyon kararı, UI'a görüntüleme bilgisi gönderir. Düşman AI'ın kendisi state tutmaz (boss öfke modu hariç) — her karar bağımsız hesaplanır.
 
-**Bidirectional check**: Hasar Hesaplama GDD'sinde Düşman AI "yumuşak downstream" ✓. Sağlık/Can GDD'sinde Düşman AI "yumuşak downstream" ✓. Zindan Keşif GDD: ✅ Yazıldı — `GetFloorEnemies` arayüzü doğrulandı.
+**Bidirectional check**: Hasar Hesaplama GDD'sinde Düşman AI "yumuşak downstream" ✓. Sağlık/Can GDD'sinde Düşman AI "yumuşak downstream" ✓. Keşif Alanı GDD: ✅ Yazıldı — `GetFloorEnemies` arayüzü doğrulandı (2026-07-02, kesif-alani.md gerçek implementasyona göre yeniden yazıldı).
 
 ## Tuning Knobs
 
@@ -444,4 +444,4 @@ Boss HP < %50 altına düşünce "Öfke Modu" aktifleşir:
 
 5. **Arena'da rakip AI (Tier 2+)**: Arena'da oyuncu takımları rakip olarak kullanıldığında, rakip AI hangi katmanı kullanacak? → Arena GDD'sinde tanımlanacak.
 
-6. **Düşman arketip dağılımı**: Normal katlarda düşman canavarların arketip dağılımı (Saldırgan/Tank/Destekçi/Büyücü oranları) ne olmalı? → Zindan Keşif GDD'sinde tanımlanacak.
+6. **Düşman arketip dağılımı**: Normal aşamalarda düşman canavarların arketip dağılımı (Saldırgan/Tank/Destekçi/Büyücü oranları) ne olmalı? → Keşif Alanı GDD'sinde tanımlanacak.

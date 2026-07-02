@@ -70,7 +70,7 @@ Summoners War gibi pet toplama ve evrim sistemi, **AMA AYRICA** sıfır sprite a
 1. **Tur Bazlı Savaş Sistemi** — Cooldown tabanlı yetenekler; oto-savaş buton toggle; savaş sonu ödül ekranı (EXP + düşen eşyalar: elbise, silah, takı, pet kartı); savaş görünümü: düşman tam ekran kameraya bakıyor — oyuncu ve pet görünmüyor
 2. **Pet Evrim Sistemi** — Zindanlardan pet kazanma; F→D→C→B→A→S→SS evrimi (EXP + item gerekli, görünüş değişiyor, her pet SS'e ulaşamaz)
 3. **Oyuncu Sınıf Sistemi** — 4 ana sınıf × 3 dal; sınıf yükseltme kartı (seviye sıfırlanmaz)
-4. **Zindan Keşif Sistemi** — Katlı zindanlar, düşman dalgaları, boss savaşları, kat bazlı EXP/milestone ödülleri
+4. **Keşif Alanı Sistemi** — Aşamalı Keşif Alanı, düşman dalgaları, boss savaşları, aşama bazlı EXP/milestone ödülleri; ayrıca günlük **Zindan Saldırısı** (EXP/Altın Zindanı) yan içeriği
 5. **Kostüm / Elbise Sistemi** — Oyuncu + pet kostüm/silah/zırh; F-D-C-B-A-S-SS dereceli ekipman
 6. **IAP + Reklam Mağazası** — IAP: gerçek para ile kostüm/özel pet; Rewarded Ad: reklam izle → enerji/bonus; Interstitial: kat geçişlerinde
 7. **Otofarm / Idle Sistemi** — Aktif savaşmadan arka planda EXP + ilerleme; geri döndüğünde ShowFullscreenReveal

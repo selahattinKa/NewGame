@@ -9,10 +9,11 @@
 
 ## Overview
 
-Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 bağımsız sistem gerektirir. Core loop — pet topla, evrimleştir, sınıfını geliştir, zindana gir, loot kazan — 5 sütun etrafında döner: Cömert Zindan, Evrimleştir Hepsini, Senin Tempon, Güç Hisset, Hep Bir Şey Var. MVP 20 sistemi kapsar (tek oyunculu core loop: 2 ırk, 4 sınıf, tur bazlı oto/manuel savaş, 15-20 pet B-A-S, kostüm, mağaza, 1 zindan bölgesi, 10 kat). Tier 2'de Arena PvP, ırk etkinlikleri, günlük görevler, tutorial ve bildirimler eklenir.
+Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 bağımsız sistem gerektirir. Core loop — pet topla, evrimleştir, sınıfını geliştir, zindana gir, loot kazan — 5 sütun etrafında döner: Cömert Zindan, Evrimleştir Hepsini, Senin Tempon, Güç Hisset, Hep Bir Şey Var. MVP 20 sistemi kapsar (tek oyunculu core loop: 2 ırk, 4 sınıf, tur bazlı oto/manuel savaş, 15-20 pet B-A-S, kostüm, mağaza, 1 Keşif Alanı, 20 aşama + günlük Zindan Saldırısı). Tier 2'de Arena PvP, ırk etkinlikleri, günlük görevler, tutorial ve bildirimler eklenir.
 
 > **Pivottaki değişiklikler (2026-06-26):** Takım Kurma ve Hibrit Savaş Sistemi kaldırıldı (Savaş Sistemi + Oyuncu Sınıf Sistemi ile değiştirildi). Canavar Güçlendirme, Pet Evrim Sistemi ile birleştirildi. Kostüm/Elbise Sistemi ve Mağaza Sistemi eklendi. Irk Etkinlik Sistemi eklendi. Canavar Veritabanı → Pet/Canavar Veritabanı olarak güncellendi.
 > **Pivottaki değişiklikler (2026-06-30):** Savaş Sistemi 1-aktif-pet modeline göre yeniden yazıldı. **Keşif Alanı Sistemi** (#13) oyunun ANA içeriği olarak eklendi — 20 aşama, SG renk kodu, Kauçuk Bant. Zindan Keşif Sistemi özel etkinliğe düşürüldü (Tier 2). **Ekipman Sistemi** (#32) ve **Dükkan Sistemi** (#33) prototipe eklendi — RPG olmazsa olmazı ekipman giydirme, pot kullanımı ve altın bazlı NPC dükkanı. **Kostüm / Elbise Sistemi** (#15) MVP → Tier 2'ye ertelendi (yalnızca görünüş, combat öncelikli).
+> **Pivottaki değişiklikler (2026-07-02):** `kesif-alani.md`, `Assets/Scripts/Core/DungeonManager.cs`'in gerçek implementasyonuna göre yeniden yazıldı — **SG renk kodu ve Kauçuk Bant kaldırıldı** (kodda hiç var olmamış tasarım fikirleriydi), yerine gerçek dalga sistemi (2-3 dalga/aşama) belgelendi. `zindan-kesif.md` silindi — dalga/kat mekaniği `kesif-alani.md`'ye birleşti; "Zindan Keşif" adı tamamen yeni bir kavramla (**Zindan Saldırısı**, #13b — günlük EXP Zindanı + Altın Zindanı, MVP kapsamına alındı) değiştirildi.
 
 ---
 
@@ -31,8 +32,8 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 | 10 | Oyuncu Sınıf Sistemi | Gameplay | MVP | Designed | design/gdd/oyuncu-sinif-sistemi.md | Ekonomi, Kaydetme, Hasar Hesaplama, Sağlık/Can, Yetenek Sistemi, Level/Deneyim Sistemi |
 | 11 | Düşman AI | Gameplay | MVP | Revised | design/gdd/dusuman-ai.md | Hasar Hesaplama, Sağlık |
 | 12 | Savaş Sistemi | Gameplay | MVP | Designed | design/gdd/savas-sistemi.md | Hasar Hesaplama, Sağlık, Düşman AI, Oyuncu Sınıf Sistemi, Yetenek Sistemi |
-| 13 | Keşif Alanı Sistemi | Gameplay | MVP | Designed | design/gdd/kesif-alani.md | Savaş Sistemi, Loot, Pet Evrim Sistemi, Ekonomi, Kaydetme |
-| 13b | Zindan Keşif Sistemi *(özel etkinlik)* | Gameplay | Tier 2 | Revised | design/gdd/zindan-kesif.md | Savaş Sistemi, Loot, Pet Evrim Sistemi |
+| 13 | Keşif Alanı Sistemi | Gameplay | MVP | Revised *(2026-07-02, gerçek implementasyona göre yeniden yazıldı — bkz. dosya başı revizyon notu)* | design/gdd/kesif-alani.md | Savaş Sistemi, Loot, Pet Evrim Sistemi, Ekonomi, Kaydetme |
+| 13b | Zindan Saldırısı Sistemi *(günlük yan içerik — EXP/Altın Zindanı)* | Gameplay | MVP | Designed *(2026-07-02, yeni tasarım)* | design/gdd/zindan-saldirisi.md | Keşif Alanı Sistemi, Savaş Sistemi, Ekonomi, Level/Deneyim Sistemi, Kaydetme |
 | 14 | Otofarm / Idle Sistemi | Gameplay | MVP | Revised | design/gdd/otofarm-idle.md | Savaş Sistemi, Loot, Ekonomi, Kaydetme |
 | 15 | Kostüm / Elbise Sistemi | Gameplay | Tier 2 | Not Started | — | Pet/Canavar Veritabanı, Ekonomi |
 | 16 | IAP + Reklam Sistemi | Economy | MVP | Not Started | — | Ekonomi, Kostüm/Elbise Sistemi, Pet/Canavar Veritabanı |
@@ -41,14 +42,14 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 | 19 | Keşif Alanı Harita UI | UI | MVP | Designed | design/gdd/kesif-alani-harita-ui.md | Keşif Alanı Sistemi, UI Framework, Pet Sistemi, Ekonomi |
 | 20 | Mağaza UI | UI | MVP | Designed | design/gdd/magaza-ui.md | IAP + Reklam Sistemi, UI Framework, Ekonomi, Pet Sistemi |
 | 21 | Arena (Asenkron PvP) | Gameplay | Tier 2 | Not Started | — | Savaş Sistemi, Oyuncu Sınıf Sistemi, Ekonomi |
-| 22 | Irk Etkinlik + Canlı Sıralama | Meta | Tier 2 | Not Started | — | Zindan Keşif, Ekonomi, Oyuncu Sınıf Sistemi |
+| 22 | Irk Etkinlik + Canlı Sıralama | Meta | Tier 2 | Not Started | — | Keşif Alanı Sistemi, Ekonomi, Oyuncu Sınıf Sistemi |
 | 23 | Tutorial / Onboarding | Meta | Tier 2 | Not Started | — | Tüm MVP sistemleri |
 | 24 | Bildirim Sistemi | Meta | Tier 2 | Not Started | — | Otofarm, UI Framework |
 | 25 | Yaşayan Kart Portreleri | UI | MVP | Not Started | — | Pet/Canavar Veritabanı, UI Framework |
 | 26 | İntikam Sistemi | Gameplay | MVP | Not Started | — | Savaş Sistemi, Kaydetme/Yükleme |
-| 27 | Aranıyor Tahtası | Meta | MVP | Not Started | — | Pet/Canavar Veritabanı, Zindan Keşif, UI Framework |
+| 27 | Aranıyor Tahtası | Meta | MVP | Not Started | — | Pet/Canavar Veritabanı, Keşif Alanı Sistemi, UI Framework |
 | 28 | Pet Sadakat Sistemi | Progression | Tier 2 | Not Started | — | Pet/Canavar Veritabanı, Savaş Sistemi, Kaydetme/Yükleme |
-| 29 | Canavar Kütüphanesi (Codex) | Meta | Tier 2 | Not Started | — | Pet/Canavar Veritabanı, Zindan Keşif |
+| 29 | Canavar Kütüphanesi (Codex) | Meta | Tier 2 | Not Started | — | Pet/Canavar Veritabanı, Keşif Alanı Sistemi |
 | 30 | Lokalizasyon Sistemi | Meta | MVP | Not Started | — | UI Framework, Tüm UI sistemleri |
 | 31 | Yetenek Sistemi | Gameplay | MVP | Designed | design/gdd/yetenek-sistemi.md | Hasar Hesaplama, Sağlık/Can, Oyuncu Sınıf Sistemi, Pet/Canavar Veritabanı |
 | 32 | Ekipman Sistemi | Gameplay | MVP | Designed | design/gdd/ekipman-sistemi.md | Savaş Sistemi, Hasar Hesaplama, Ekonomi, Loot Sistemi, Kaydetme |
@@ -107,7 +108,8 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 
 1. **Düşman AI** — bağlı: Hasar Hesaplama, Sağlık
 2. **Savaş Sistemi** — bağlı: Hasar Hesaplama, Sağlık, Düşman AI, Oyuncu Sınıf Sistemi; tur bazlı cooldown + oto-savaş toggle
-3. **Zindan Keşif Sistemi** — bağlı: Savaş Sistemi, Loot, Pet Evrim Sistemi
+3. **Keşif Alanı Sistemi** — bağlı: Savaş Sistemi, Loot, Pet Evrim Sistemi, Ekonomi, Kaydetme
+3b. **Zindan Saldırısı Sistemi** — bağlı: Keşif Alanı Sistemi, Savaş Sistemi, Ekonomi, Level/Deneyim Sistemi
 4. **Otofarm / Idle Sistemi** — bağlı: Savaş Sistemi, Loot, Ekonomi, Kaydetme
 5. **Ekipman Sistemi** — bağlı: Savaş Sistemi, Hasar Hesaplama, Ekonomi; oyuncu (11 slot: Kask/Zırh/Pantalon/Eldiven/Bot/Silah/2×Yüzük/2×Küpe/Kolye) + pet (2 slot: Silah/Aksesuar); F/D/C/B tier
 6. **Dükkan Sistemi** — bağlı: Ekipman Sistemi, Ekonomi; altın bazlı NPC dükkanı; günlük dönen ekipman rafı (4 item) + sabit iksir tezgâhı
@@ -117,13 +119,13 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 
 1. **Savaş UI** — bağlı: Savaş Sistemi, UI Framework
 2. **Koleksiyon / Envanter UI** — bağlı: Pet Evrim Sistemi, Kostüm/Elbise Sistemi, UI Framework
-3. **Zindan Harita UI** — bağlı: Zindan Keşif, UI Framework
+3. **Keşif Alanı Harita UI** — bağlı: Keşif Alanı Sistemi, UI Framework
 4. **Mağaza UI** — bağlı: Mağaza Sistemi, UI Framework
 
 ### Polish Layer (meta sistemler)
 
 1. **Arena (Asenkron PvP)** — bağlı: Savaş Sistemi, Oyuncu Sınıf Sistemi, Ekonomi
-2. **Irk Etkinlik Sistemi** — bağlı: Zindan Keşif, Ekonomi, Oyuncu Sınıf Sistemi
+2. **Irk Etkinlik Sistemi** — bağlı: Keşif Alanı Sistemi, Ekonomi, Oyuncu Sınıf Sistemi
 3. **Tutorial / Onboarding** — bağlı: Tüm MVP sistemleri
 4. **Bildirim Sistemi** — bağlı: Otofarm, UI Framework
 
@@ -142,7 +144,8 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 | 8 | Oyuncu Sınıf Sistemi *(Designed — yan sınıf TBD)* | MVP | Core | game-designer | M |
 | 9 | Düşman AI | MVP | Feature | ai-programmer, game-designer | M |
 | 10 | Savaş Sistemi *(revision)* | MVP | Feature | game-designer, gameplay-programmer | L |
-| 11 | Zindan Keşif Sistemi | MVP | Feature | game-designer, level-designer | L |
+| 11 | Keşif Alanı Sistemi | MVP | Feature | game-designer, level-designer | L |
+| 11b | Zindan Saldırısı Sistemi *(yeni)* | MVP | Feature | game-designer | S |
 | 12 | Otofarm / Idle Sistemi | MVP | Feature | game-designer, gameplay-programmer | M |
 | 13 | Ekipman Sistemi *(yeni)* | MVP | Feature | systems-designer, economy-designer | M |
 | 14 | Dükkan Sistemi *(yeni)* | MVP | Feature | economy-designer, ux-designer | S |

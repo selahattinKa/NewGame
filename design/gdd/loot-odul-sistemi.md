@@ -7,7 +7,7 @@
 
 ## Overview
 
-**Loot / Ödül Sistemi**, zindan katlarından, boss savaşlarından ve özel etkinliklerden düşen tüm ödüllerin — altın, canavar, evrim malzemesi, elmas — ne olduğunu, ne sıklıkta düştüğünü ve nasıl dağıtıldığını yöneten merkezi ödül sistemidir. Her zindan katının bir loot tablosu vardır; bu tablo kat numarası, zorluk ve bölge tipine göre hangi ödüllerin hangi olasılıkla düşeceğini tanımlar. Sistem, Canavar Veritabanı'ndan nadirlik düşme çarpanlarını ve Ekonomi'den altın/elmas ödül formüllerini tüketerek, downstream sistemlere (Zindan Keşif, Otofarm, Canavar Toplama) hazır ödül paketleri sunar.
+**Loot / Ödül Sistemi**, zindan katlarından, boss savaşlarından ve özel etkinliklerden düşen tüm ödüllerin — altın, canavar, evrim malzemesi, elmas — ne olduğunu, ne sıklıkta düştüğünü ve nasıl dağıtıldığını yöneten merkezi ödül sistemidir. Her zindan katının bir loot tablosu vardır; bu tablo kat numarası, zorluk ve bölge tipine göre hangi ödüllerin hangi olasılıkla düşeceğini tanımlar. Sistem, Canavar Veritabanı'ndan nadirlik düşme çarpanlarını ve Ekonomi'den altın/elmas ödül formüllerini tüketerek, downstream sistemlere (Keşif Alanı, Otofarm, Canavar Toplama) hazır ödül paketleri sunar.
 
 Oyuncu loot'u doğrudan toplamaz — düşen ödüller savaş sırasında görsel olarak ekranda belirir ve sistem tarafından otomatik toplanır. Asıl ödül deneyimi zindan sonu raporunda yaşanır: toplanan altın, kazanılan canavarlar, düşen malzemeler tek bir özet ekranında sunulur. "Cömert Zindan" sütununu mekanik olarak korumak için her zindan girişi, harcanan enerjinin altın karşılığının en az 1.5x'ini garanti eden bir minimum ödül tabanı uygular — oyuncu asla eli boş dönmez.
 
@@ -140,7 +140,7 @@ Evrim Taşı element'siz, generic bir malzemedir — `canavar-toplama-evrim.md` 
 | Zindan Tipi | Düşme Oranı | Not |
 |-------------|-------------|-----|
 | Normal Zindan | %8 per kat | Miktar 1 |
-| Evrim Zindanı | %90 per kat | Tier 2 özel etkinlik, bkz. `zindan-kesif.md` |
+| Evrim Zindanı | %90 per kat | **Güncelleme (2026-07-02)**: `zindan-kesif.md` silindi, bu içerik türünün hâlâ bir karşılığı yok — `zindan-saldirisi.md` şu an yalnızca EXP/Altın Zindanı içeriyor (canavar/malzeme düşürmüyor). "Evrim Zindanı" konsepti, `zindan-saldirisi.md` Open Questions #4'te gelecekteki bir 3. zindan türü adayı olarak not edildi — MVP dışı, kesinleşmedi. |
 | Boss Katı | %100 garanti 1 + %30 ek | Boss cömertliği |
 
 **⚠️ Dengelenmedi (2026-07-02)**: Yukarıdaki oranlar eski element bazlı modelden aynen taşındı — Evrim Taşı artık yalnızca üst tier (B→A/A→S/S→SS) geçişlerinde gerekli olduğundan, düşme oranının tier'e göre kademelenmesi (üst tier taş daha nadir) gerekiyor mu netleşmedi. Bir sonraki balance oturumunda `canavar-toplama-evrim.md` Kural 10 ile birlikte kalibre edilmeli (bkz. pending memory: evrim malzemesi sistemi).
@@ -236,7 +236,7 @@ Sıralama prensibi: Artan heyecan deseni (ascending excitement). Garanti ödüll
 | **Ekonomi** | ← okur + → çağırır | Altın formülleri; ödül verme | `GetFloorReward(floorNumber, difficulty)` → {gold}, `GrantReward(rewards)` |
 | **Canavar Güçlendirme** | → sağlar | Evrim Taşı loot tanımı | Loot tablosunda Evrim Taşı kayıtlı |
 | **Canavar Toplama** | → çağırır | Yeni canavar instance oluşturma | `OnMonsterDropped(monsterId)` |
-| **Zindan Keşif** | ← okur | Kat numarası, kat tipi, bölge, boss bilgisi | `GetCurrentFloorInfo()` → {floor, type, region, boss_id} |
+| **Keşif Alanı** | ← okur | Aşama numarası, aşama tipi, bölge, boss bilgisi | `GetCurrentFloorInfo()` → {floor, type, region, boss_id} |
 | **Otofarm / Idle** | → sağlar | Idle loot hesaplama oranları | `GetIdleLootRate(teamPower, region)` → loot/minute |
 | **Kaydetme/Yükleme** | ↔ | Pity counter'lar, first_clear flagları persist | `SaveLootState()` / `LoadLootState()` |
 | **Zindan Sonu UI** | → sağlar | Rapor verisi | `GetSessionLootReport()` → {gold, monsters[], materials[], potions[], gems} |
@@ -462,7 +462,7 @@ Senaryo: Kat 1-10, difficulty_multiplier=1.0, sıfır pity, **tekrar oturumu** (
 
 - **If rare_pity_counter cap'e ulaşırsa (20 F/D ardışık)**: Counter 20'de clamp'lenir. adjusted_C = 0.15 + 20×0.02 = 0.55. Total = 2.106. P(C) = %26.1, P(B) = %1.9, P(A) = %0.47, P(S) = %0.24, P(SS) = %0.05. Dilüsyon sınırlı, sistem stable.
 
-- **If oyuncu zindan ortasında çıkarsa (çekilme/kaybetme)**: Loot verilmez — loot yalnızca kat tamamen temizlendiğinde dağıtılır (Zindan Keşif GDD Kural 10). Enerji harcanmaz. Pity counter'lar korunur. *(Cömert Zindan: kayıp cezasızdır — tekrar deneme ücretsiz.)*
+- **If oyuncu zindan ortasında çıkarsa (çekilme/kaybetme)**: Loot verilmez — loot yalnızca aşama tamamen temizlendiğinde dağıtılır (Keşif Alanı GDD Kural 3/5). Enerji harcanmaz. Pity counter'lar korunur. *(Cömert Zindan: kayıp cezasızdır — tekrar deneme ücretsiz.)*
 
 - **If oyuncunun canavar envanteri doluysa ve canavar düşerse**: Canavar beklemeye alınır. Geri dönüşte "Envanter dolu — canavar beklemede! Yer aç veya satarak boşalt." uyarısı. Canavar 7 gün beklemeye alınır, süre sonunda en düşük nadirlikte canavar otomatik satılır ve altına çevrilir.
 
@@ -497,7 +497,7 @@ Senaryo: Kat 1-10, difficulty_multiplier=1.0, sıfır pity, **tekrar oturumu** (
 | Sistem | Tip | Arayüz | Kritiklik |
 |--------|-----|--------|-----------|
 | **Canavar Toplama ve Evrim** | Sert | `OnMonsterDropped(monsterId)` — loot'tan canavar instance oluşturma | Loot, canavar kazanımının ana kaynağı |
-| **Zindan Keşif** | Sert | `GetFloorLootTable(floorNumber, floorType, regionId)` — kat loot tablosu sorgulama | Zindan katlara loot atar bu sistem üzerinden |
+| **Keşif Alanı** | Sert | `GetFloorLootTable(floorNumber, floorType, regionId)` — aşama loot tablosu sorgulama | Keşif Alanı aşamalarına loot atar bu sistem üzerinden |
 | **Otofarm / Idle** | Sert | `GetIdleLootRate(teamPower, region)` — idle loot hesaplama | Idle birikim bu sistemin oranlarını kullanır |
 | **Canavar Güçlendirme** | Yumuşak | Evrim Taşı loot tanımı | Loot tablosunda Evrim Taşı kayıtlı |
 | **Level / Deneyim Sistemi** | Yumuşak | XP İksiri (Mini/Small/Medium/Large/Giant) item drop'ları — sadece aktif pete manuel uygulanır | ⚠️ `xp_potion_values` (25/100/500/2000/10000) yeni XP eğrisiyle orantısız, revize edilmeli (bkz. level-deneyim-sistemi.md Open Q#2) |
@@ -512,7 +512,7 @@ Senaryo: Kat 1-10, difficulty_multiplier=1.0, sıfır pity, **tekrar oturumu** (
 - Ekonomi bu sistemi downstream olarak listeliyor ✅
 - Savaş Sistemi bu sistemi downstream olarak listeliyor ✅
 - Canavar Güçlendirme: "Loot / Ödül — Yumuşak — Evrim taşı loot tanımı" ✅. **Güncelleme gerekli**: Güçlendirme GDD'de evrim malzemesi oranı "%5-10" yazıyor → bu GDD'deki kesin değer **%8** ile güncellenmeli.
-- Zindan Keşif GDD: ✅ Yazıldı — bu sistem loot tablosunu sağlar, Zindan Keşif kat bilgisini sağlar. İlk temizleme elması tutarlılığı doğrulandı: normal kat=5, boss=50, son boss=100 (toplam 190 elmas/bölge).
+- Keşif Alanı GDD: ✅ Yazıldı (2026-07-02, gerçek implementasyona göre yeniden yazıldı) — bu sistem loot tablosunu sağlar, Keşif Alanı aşama bilgisini sağlar. **Güncelleme**: İlk temizleme elması artık 4 kademeli (eski 3 kademeli 10-katlı modelden 20-katlı modele geçişle): Normal=5 (×16 aşama=80), Şampiyon=50 (×2=100), Mini Boss=100 (×1=100), Alan Patronu=200 (×1=200) → **toplam 480 elmas/Keşif Alanı** (eski 190 elmas değeri artık geçersiz).
 - Otofarm GDD: ✅ Yazıldı (Approved) — idle loot oranları bu sistemde tanımlı. **Güncelleme gerekli**: Otofarm GDD'deki aktif kademe referans tablosu 5-tier sistemi kullanıyor — 7-tier (F/D/C/B/A/S/SS) ve güncel oranlarla (SS=%0.06, F=%58.6) güncellenmeli. Bu GDD'deki Kural 5 değerleri referans alınacak.
 
 ## Tuning Knobs
@@ -661,7 +661,7 @@ Senaryo: Kat 1-10, difficulty_multiplier=1.0, sıfır pity, **tekrar oturumu** (
 
 26. **GIVEN** oyuncu bir katı ilk kez temizler, **WHEN** ilk temizleme elmas ödülü verilir, **THEN** gem_amount = 5 (MVP sabit). VE aynı katı ikinci kez temizlerse first_clear ödülü verilmez.
 
-27. **GIVEN** oyuncu boss'u ilk kez yener, **WHEN** ilk yenilgi ödülü verilir, **THEN** gem_amount = boss_first_clear_gems (normal boss: 50, son boss: 100 — Zindan Keşif GDD Kural 8). VE aynı boss'u tekrar yenerse first_clear ödülü verilmez.
+27. **GIVEN** oyuncu Şampiyon/Mini Boss/Alan Patronu'nu ilk kez yener, **WHEN** ilk yenilgi ödülü verilir, **THEN** gem_amount aşama tipine göre belirlenir (Şampiyon: 50, Mini Boss: 100, Alan Patronu: 200 — Keşif Alanı GDD Formül 2). VE aynı boss'u tekrar yenerse first_clear ödülü verilmez.
 
 28. **GIVEN** pity_counter=7, rare_pity_counter=4, idle_pity_bonus=0.18, first_clear[5]=true, **WHEN** oyun kaydedilir ve yüklenir, **THEN** tüm değerler korunur: pity_counter=7, rare_pity_counter=4, idle_pity_bonus=0.18, first_clear[5]=true.
 
@@ -683,9 +683,9 @@ Senaryo: Kat 1-10, difficulty_multiplier=1.0, sıfır pity, **tekrar oturumu** (
 
 1. **Canavar envanter limiti**: MVP'de kaç canavar taşınabilir? Bu limit Loot düşme deneyimini doğrudan etkiler. → Canavar Toplama GDD'sinde tanımlanacak.
 
-2. **Bölge bazlı canavar havuzu**: MVP 1 bölge, 15-20 canavar. Tüm canavarlar her katta mı düşebilir, yoksa kat aralıklarına göre filtre mi uygulanır? → Zindan Keşif GDD'sinde netleşecek.
+2. **Bölge bazlı canavar havuzu**: MVP 1 bölge, 15-20 canavar. Tüm canavarlar her aşamada mı düşebilir, yoksa aşama aralıklarına göre filtre mi uygulanır? → Keşif Alanı GDD'sinde netleşecek.
 
-3. **Evrim zindanı loot tablosu**: Evrim zindanında sadece Evrim Taşı mı düşer, yoksa normal loot da var mı? → Zindan Keşif GDD'sinde tanımlanacak.
+3. ~~**Evrim zindanı loot tablosu**~~: **Güncelleme (2026-07-02)**: `zindan-kesif.md` silindi, "Evrim Zindanı" kavramının şu an bir karşılığı yok. `zindan-saldirisi.md` (EXP/Altın Zindanı) canavar/malzeme düşürmüyor — bir "Evrim Taşı Zindanı" ileride 3. tür olarak eklenebilir (bkz. `zindan-saldirisi.md` Open Questions #4), henüz tasarlanmadı.
 
 4. **XP İksiri envanter limiti**: İksirler sınırsız mı depolanır yoksa envanter slotu mu gerektirir? → Canavar Toplama / Envanter GDD'sinde netleşecek.
 

@@ -178,7 +178,7 @@ Savaş Dışı ──(kat sonu)──→ Tam Can
 | **Dükkan (İksir)** | dolaylı | İksir envanteri → savaşta kullanım | `UsePotion(potionType)` → `Heal(playerId, amount)` |
 | **Düşman AI** | → sağlar | HP oranı (hedef seçimi için) | `GetHPRatio(unitId)` → float (0.0–1.0) |
 | **Savaş UI** | → sağlar | current_hp, max_hp, durum | `OnHPChanged` event → {unitId, current_hp, max_hp, state} |
-| **Zindan Keşif** | ← tetikler | Kat sonu HP restore | `RestoreHP(teamId, mode)` — mode: "partial"(+50%) veya "full" |
+| **Keşif Alanı** | ← tetikler | Aşama sonu HP restore | `RestoreHP(teamId, mode)` — mode: "partial"(+50%) veya "full" |
 
 **Veri akışı özeti**: Oyuncu statlarını Sınıf Sistemi + Ekipman Sistemi'nden, pet statlarını Canavar Veritabanı'ndan alır. Hasar Hesaplama → hasarı gönderir. Bu sistem HP'yi izler ve durumu savaş/UI sistemlerine bildirir.
 
@@ -285,7 +285,7 @@ Canavar Güçlendirme GDD'sinde tanımlanacak. Bu GDD, güncel max_hp değerini 
 | **Savaş Sistemi** | Sert | `IsAlive(monsterId)`, `GetCurrentHP(monsterId)`, `Heal(targetId, amount)` | Olmadan savaş döngüsü çalışamaz |
 | **Düşman AI** | Yumuşak | `GetHPRatio(monsterId)` → float | AI hedef seçimini geliştirir; olmadan rastgele seçer |
 | **Savaş UI** | Yumuşak | `OnHPChanged` event → {monsterId, current_hp, max_hp, state} | Olmadan HP barı gösterilemez |
-| **Zindan Keşif** | Yumuşak | `FullHeal(teamId)` — kat sonu tam iyileşme tetikleyicisi | Olmadan kat arası iyileşme yok |
+| **Keşif Alanı** | Yumuşak | `FullHeal(teamId)` — aşama sonu tam iyileşme tetikleyicisi | Olmadan aşama arası iyileşme yok |
 | **Canavar Güçlendirme** | dolaylı | max_hp güncelleme (seviye/evrim sonrası) | Güçlendirme olduğunda max_hp yenilenir |
 
 **Bağımlılık doğası**: Canavar Veritabanı'ndan max_hp alır (tek upstream). Hasar ve iyileşme komutlarını alır, HP durumunu aşağıya bildirir. Çift yönlü bağımlılık yok.

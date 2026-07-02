@@ -45,11 +45,12 @@ Kopya canavarlar bile değerlidir — ama iki yol eşit değildir. **Asıl değe
 |--------|-------------|-------|--------|
 | **Keşif Alanı Loot** | Aşama temizleme (normal) | `kesif-alani.md` loot tablosu — Loot Sistemi Kural 3'e göre canavar düşme şansı ×1.3 çarpanıyla uygulanır | MVP |
 | **Keşif Alanı İlk Temizleme** | Mini Boss / Alan Patronu aşamasının ilk temizlenmesi | Garantili canavar (C/B tier, alana özel) — bkz. `kesif-alani.md` | MVP |
-| **Zindan Keşif Loot/Boss** | Zindan Keşif özel etkinliği (kat temizleme / boss) | Loot GDD Kural 3-6: %15 base oran, pity ile %45'e kadar + boss %1-5 | Tier 2 |
 
 İleride eklenebilecek kaynaklar (Tier 2+): koleksiyon milestone ödülleri, arena ödülleri, etkinlik ödülleri.
 
-**Cross-file not**: `kesif-alani.md`'nin kendi Downstream tablosu şu an "Canavar Toplama"yı ayrı bir satır olarak listelemiyor (yalnızca Loot/Ödül Sistemi üzerinden dolaylı bağlanıyor) ve Pokédex "keşfedildi" (düşman olarak karşılaşma, bkz. Kural 5) sinyalini (`OnEnemyEncountered` eşdeğeri) tanımlamıyor — bu sinyal MVP'de şu an yalnızca Tier 2 `zindan-kesif.md`'de var. Bu, `kesif-alani.md`'nin kendi revizyon oturumunda kapatılması gereken bir arayüz boşluğudur (bkz. Dependencies).
+**Güncelleme (2026-07-02)**: `zindan-kesif.md` silindi — gerçek dalga/kat mekaniği `kesif-alani.md`'ye birleşti (bkz. o dosyanın revizyon notu). "Zindan Keşif Loot/Boss" satırı bu nedenle kaldırıldı; canavar kazanımının tamamı artık Keşif Alanı üzerinden akıyor. Ayrıca ortaya çıkan **yeni `zindan-saldirisi.md` sistemi (EXP/Altın Zindanı) canavar düşürmüyor** — kasıtlı olarak tek-kaynaklı tasarlandı, bu tabloya dahil değil.
+
+**Cross-file not**: `kesif-alani.md`'nin kendi Downstream tablosu şu an "Canavar Toplama"yı ayrı bir satır olarak listelemiyor (yalnızca Loot/Ödül Sistemi üzerinden dolaylı bağlanıyor) ve Pokédex "keşfedildi" (düşman olarak karşılaşma, bkz. Kural 5) sinyalini (`OnEnemyEncountered` eşdeğeri) tanımlamıyor. Bu, `kesif-alani.md`'nin kendi revizyon oturumunda kapatılması gereken bir arayüz boşluğudur (bkz. Dependencies) — `zindan-kesif.md` silindiği için bu sinyalin artık hiçbir dosyada tanımı yok.
 
 **Kural 2 — Canavar Instance Oluşturma**
 
@@ -316,7 +317,7 @@ Canavar instance yaşam döngüsü:
 | **Savaş Sistemi** | ← sorgular | Mevcut canavar listesi, aktif pet slot instance'ı, nihai stat (level+star birleşik) | `GetOwnedMonsters(filters?)`, `IsActivePet(instanceId)`, `GetFinalStats(instanceId)` |
 | **Koleksiyon UI** | → sağlar | Envanter listesi, Pokédex durumu, kapasite bilgisi, güçlendirme durumu (evrim/yıldız) | `GetInventory()`, `GetPokedexStatus()`, `GetCapacity()`, `GetEnhancementInfo(instanceId)` |
 | **Kaydetme/Yükleme** | ↔ persist | Tüm instance verileri, Pokédex durumu, otomatik satış kuralları | `SaveCollectionState()` / `LoadCollectionState()` |
-| **Zindan Keşif** | ← alır | Düşman canavar karşılaşma sinyali (Pokédex keşfi için) | `OnEnemyEncountered(monsterId)` → keşif kaydı |
+| **Keşif Alanı** | ← alır | Düşman canavar karşılaşma sinyali (Pokédex keşfi için) | `OnEnemyEncountered(monsterId)` → keşif kaydı — **arayüz henüz `kesif-alani.md`'de tanımlı değil, boşluk** |
 
 ## Formulas
 
@@ -497,7 +498,6 @@ Canavar instance yaşam döngüsü:
 | Sistem | Tip | Arayüz | Kritiklik |
 |--------|-----|--------|-----------|
 | **Keşif Alanı Sistemi** | Sert | `OnEnemyEncountered(monsterId, tier)` — Pokédex keşfi (düşman olarak karşılaşma). **YENİ (design-review 2026-07-02)**: `kesif-alani.md` artık MVP'nin ana canavar kazanım kaynağı (bkz. Kural 1) ama bu sinyali kendi Downstream tablosunda tanımlamıyor — bu, `kesif-alani.md`'nin kendi revizyon oturumunda kapatılması gereken bir arayüz boşluğudur. | ⚠️ MVP'de bu sinyalin somut bir kaynağı yok — bloklayıcı değil (loot yoluyla "Sahip Olundu" akışı çalışır) ama "Keşfedildi" (savaşarak karşılaşma, henüz sahip olunmadan) akışı MVP'de tetiklenemez |
-| **Zindan Keşif** | Yumuşak *(Tier 2)* | `OnEnemyEncountered(monsterId, tier)` — aynı sinyal, Tier 2 özel etkinlik içeriğinden | `zindan-kesif.md` artık Tier 2 (systems-index 2026-06-30 pivotu) — MVP'de zorunlu değil |
 | **Koleksiyon / Envanter UI** | Sert | `GetInventory()`, `GetPokedexStatus()`, `GetCapacity()` — envanter ve Pokédex verisi | UI verileri bu sistemden gelir |
 | **İlerleme Döngüleri** | Yumuşak | Koleksiyon tamamlama yüzdesi, milestone tetikleyicileri | İlerleme metrikleri |
 | **Savaş Sistemi** | Yumuşak | `GetOwnedMonsters(filters?)` — aktif pet seçim havuzu | Pet seçim arayüzü |
@@ -509,7 +509,7 @@ Canavar instance yaşam döngüsü:
 - **Canavar Güçlendirme (`canavar-guclendirme.md`) — DEPRECATED (design-review 2026-07-02)**: Bu sistem bu dosyaya birleştirildi (Kural 10/11). `canavar-guclendirme.md` dosyasının kendisi Deprecated olarak işaretlendi (bkz. o dosyanın güncellenmiş Status satırı) — systems-index.md'nin "birleşti" notuyla artık tutarlı.
 - Loot / Ödül bu sistemi downstream olarak listeliyor ✅
 - **Keşif Alanı Sistemi (`kesif-alani.md`) GDD**: Mevcut (Status: Designed) ama bu dosyayı/Pokédex-keşif sinyalini downstream olarak listelemiyor — **stale/eksik, `kesif-alani.md`'nin revizyonunda kapatılmalı** (design-review 2026-07-02 bulgusu)
-- Zindan Keşif GDD: Mevcut, ama artık Tier 2 (systems-index 2026-06-30 pivotu) — **düzeltme**: önceki sürümde "henüz yazılmadı" deniyordu, bu artık doğru değil
+- ~~Zindan Keşif GDD~~ — **Güncelleme (2026-07-02)**: `zindan-kesif.md` tamamen silindi (gerçek mekaniği `kesif-alani.md`'ye birleşti; "Zindan Keşif" adı artık farklı bir kavrama, `zindan-saldirisi.md`'ye ait — o sistem canavar/Pokédex sinyaliyle ilgisiz, tek-kaynaklı EXP/Altın zindanı).
 - **Koleksiyon UI GDD (`koleksiyon-envanter-ui.md`)**: **Düzeltme (design-review 2026-07-02) — stale referans giderildi**: Önceki sürüm "henüz yazılmadı" diyordu; dosya artık mevcut (systems-index #18, Status: Designed)
 - **Ekonomi GDD (`ekonomi.md`) — YENİ (design-review 2026-07-02, 3. tur, economy-designer bulgusu)**: `ekonomi.md` hâlâ eski "altınla seviye/evrim" modelini taşıyor (`GetLevelUpCost(level, rarity)` arayüzü, "C tier 1. evrimi → 2.500 altın döner" örneği — satır ~127/163/390, kendi AC#11) — bu doğrudan bu dosyanın Kural 10'undaki "Altın maliyeti YOKTUR" kararıyla çelişiyor. Bu dosya evrim-altın-maliyetini kapsam dışı bırakmakta haklı (Kural 10.3 net), ama `ekonomi.md`'nin kendisi bu nedenle stale/iç-çelişkili kalıyor — **`ekonomi.md`'nin kendi revizyon oturumunda kapatılmalı**. Ayrıca `ekonomi.md`'nin idle-altın formülü (orta-oyun `idle_gold_per_minute=25`) bu dosyanın Formül 4 yıldız sink'ini (SS ★5 = 27.000 altın = 1 günlük idle geliri) önemsizleştiriyor — bkz. Formül 4 sonrası "Ölçek uyumsuzluğu" notu ve Tuning Knobs → S/SS satış riski. `ekonomi.md`'nin idle-altın dengesi gözden geçirilmeden bu dosyanın altın sink'leri (Formül 4, Kural 7) anlamlı şekilde test edilemez.
 

@@ -127,7 +127,7 @@ Oyuncu ekonomi sisteminde **cömert zenginleşme** fantezisi yaşar. Her zindan 
 | **Canavar Güçlendirme** | → sağlar | Güçlendirme maliyet tablosu (altın+elmas) | `GetLevelUpCost(level, rarity)` → {gold, gems} |
 | **Loot / Ödül** | ← ve → | Ödül miktarlarını tanımlar, ödülleri işler | `GetFloorReward(floorNumber, difficulty)` → {gold, gems, items}, `GrantReward(rewards)` |
 | **Otofarm / Idle** | → sağlar | Idle kazanım oranı | `GetIdleGoldRate(teamPower)` → gold/minute |
-| **Zindan Keşif** | → sağlar | Enerji maliyeti | `GetFloorEnergyCost(floorNumber)` → int |
+| **Keşif Alanı** | → sağlar | Enerji maliyeti | `GetFloorEnergyCost(floorNumber)` → int |
 | **Canavar Toplama** | → sağlar | Canavar satış değeri | `GetMonsterSellValue(rarity)` → gold |
 | **Kaydetme/Yükleme** | ↔ | Kaynak durumu persist | `SaveResources()` / `LoadResources()` |
 | **Savaş UI** | → sağlar | Anlık kaynak gösterimi | Altın/enerji/elmas miktarları |
@@ -281,7 +281,7 @@ idle_gold_per_minute = active_gold_per_minute × idle_efficiency
 
 - **If oyuncu son canavarını satmaya çalışırsa**: Engellenir — takımda en az 1 canavar olmalı. "Son canavarını satamazsın!" uyarısı.
 
-- **If zindan ortasında oyuncu çıkarsa (çekilme/kaybetme)**: Enerji harcanmaz, loot verilmez. Oyuncu cezasız tekrar deneyebilir. *(Zindan Keşif GDD Kural 4 + Kural 10 — "Cömert Zindan": kayıp cezasızdır, enerji yalnızca başarılı temizlemede harcanır.)*
+- **If zindan ortasında oyuncu çıkarsa (çekilme/kaybetme)**: Enerji harcanmaz, loot verilmez. Oyuncu cezasız tekrar deneyebilir. *(Keşif Alanı GDD Kural 3/5 — "Cömert Zindan": kayıp cezasızdır, enerji yalnızca aşama temizlenince harcanır.)*
 
 - **If negatif kaynak durumu oluşursa (bug/exploit)**: Kaynak minimum 0'a clamp edilir. Hata loglanır. İşlem geri alınmaz — oyuncu cezalandırılmaz.
 
@@ -302,7 +302,7 @@ Yok — Foundation katmanı, sıfır bağımlılık. Kaynak tipleri, maliyet tab
 | **Canavar Güçlendirme** | Sert | `GetLevelUpCost(level, rarity)`, `GetEvolutionCost(rarity, stage)` | Olmadan güçlendirme maliyetsiz |
 | **Loot / Ödül** | Sert | `GetFloorReward(floorNumber, difficulty)`, `GrantReward(rewards)` | Olmadan loot miktarı tanımsız |
 | **Otofarm / Idle** | Sert | `GetIdleGoldRate(teamPower)` | Olmadan idle kazanım oranı yok |
-| **Zindan Keşif** | Sert | `GetFloorEnergyCost(floorNumber)` | Olmadan enerji maliyeti yok |
+| **Keşif Alanı** | Sert | `GetFloorEnergyCost(floorNumber)` | Olmadan enerji maliyeti yok |
 | **Canavar Toplama** | Yumuşak | `GetMonsterSellValue(rarity)` | Olmadan satış özelliği çalışmaz |
 | **Kaydetme/Yükleme** | Sert | `SaveResources()` / `LoadResources()` | Olmadan ilerleme kaybolur |
 | **Savaş UI** | Yumuşak | Kaynak miktarlarını gösterir | Olmadan oyuncu kaynağını göremez |

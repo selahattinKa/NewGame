@@ -542,7 +542,7 @@ no vocals, seamless loop 2-3 minutes, professional game soundtrack quality,
 similar to AFK Arena or Summoners War main theme, moderate tempo
 ```
 
-### Zindan Keşif Müziği
+### Keşif Alanı Müziği
 ```
 Dark dungeon exploration music, tense atmospheric orchestral,
 low strings and percussion, mysterious mood, subtle danger feeling,
