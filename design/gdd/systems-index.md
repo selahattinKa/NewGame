@@ -56,7 +56,7 @@ Canavar Zindanları, 2D Tur Bazlı RPG + Pet Toplama + Zindan Crawler olarak 29 
 | 34 | Level / Deneyim Sistemi | Core | MVP | Revised — Implementation Blocked *(kendi kapsamı revize edildi, 2 tur `/design-review` geçti; implementasyon `canavar-toplama-evrim.md`/`canavar-veritabani.md`/`canavar-guclendirme.md` revizyonuna bağlı)* | design/gdd/level-deneyim-sistemi.md | Savaş Sistemi, Loot/Ödül Sistemi, Kaydetme/Yükleme |
 
 > **Deprecated (kaldırılan sistemler):**
-> - ~~Takım Kurma~~ (design/gdd/takim-kurma.md) — Oyuncu Sınıf Sistemi + tek pet modeli ile değiştirildi
+> - ~~Takım Kurma~~ — **dosya silindi (2026-07-02)**: Oyuncu Sınıf Sistemi + tek pet modeli ile değiştirildi (kullanıcı kararı — oyun MMORPG-benzeri tek oyuncu + 1 pet modeline geçti, takım/parti kurma mekaniği yok)
 > - ~~Hibrit Savaş Sistemi~~ → Savaş Sistemi (#12) olarak yeniden yazıldı (design/gdd/savas-sistemi.md) — Designed
 > - ~~Canavar Güçlendirme~~ (design/gdd/canavar-guclendirme.md) — Pet Evrim Sistemi (#8) ile birleştirildi
 > - ~~Element Sistemi~~ (design/gdd/element-sistemi.md) — **kaldırıldı (2026-07-02)**: prototype kapsamı için tamamen çıkarıldı (kullanıcı kararı), dosya silindi; hasar hesaplama, evrim malzemesi ve düşman AI'daki tüm element bağımlılıkları kaldırıldı

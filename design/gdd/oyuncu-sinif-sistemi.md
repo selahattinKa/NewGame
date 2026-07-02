@@ -2,7 +2,7 @@
 
 > **Status**: Designed
 > **Author**: user + game-designer, systems-designer
-> **Last Updated**: 2026-06-29
+> **Last Updated**: 2026-07-02 (Kural 6 — Pet Pasif Buff Sistemi tasarlandı, önceki placeholder dolduruldu)
 > **Implements Pillar**: Güç Hisset, Senin Tempon
 
 ## Overview
@@ -11,7 +11,7 @@ Oyuncu Sınıf Sistemi, oyuncunun savaştaki kimliğini ve oyun stilini belirley
 
 Yetenek Sistemi GDD'sindeki Slot 0–3'ün tam içeriği bu GDD'de tanımlanır. Savaşçı ve Hırsız fiziksel hasar türü kullanır; Büyücü ve Şifacı büyü hasarı türü kullanır (magic DEF penetrasyonu). Yeni durum etkileri bu GDD ile sisteme eklenir: DoT (yanma/zehir), sersemletme, DEF kırma, ATK zayıflatma, kalkan ve hasar azaltma.
 
-Her sınıf için 2 yan sınıf dalı tanımlanmıştır (isimler sabit, içerikler TBD). Pet pasif buff sistemi (pet → oyuncu stat bonusu) de bu sistemle entegre olacak, detaylar TBD.
+Her sınıf için 2 yan sınıf dalı tanımlanmıştır (isimler sabit, içerikler TBD). Pet pasif buff sistemi (pet → oyuncu stat bonusu + bazı türlere özgü nadir kaynak bonusu) Kural 6'da tanımlıdır.
 
 ## Player Fantasy
 
@@ -128,9 +128,61 @@ Her ana sınıfın 2 yan sınıf dalı vardır. Yan sınıf seçimi şartı (bel
 
 ---
 
-### Kural 6 — Pet Pasif Buff Sistemi (Placeholder — TBD)
+### Kural 6 — Pet Pasif Buff Sistemi (YENİ — 2026-07-02, kullanıcıyla tasarlandı)
 
-Aktif pet oyuncuya pasif stat bonusu verir (DEF, fiziksel ATK, büyü ATK, max HP vb.). Bonus miktarları pet tier ve arketipine göre değişir. Detaylar Pet/Canavar Veritabanı revizyonuyla tanımlanacaktır.
+Aktif pet oyuncuya iki **bağımsız** bonus ekseninden pasif bonus verir. İkisi de her zaman aktiftir (Komutan ve Otofarm modlarının ikisinde de geçerli — pet takımdan/aktiften çıkarılmadığı sürece).
+
+**a) Arketip Stat Bonusu (her pet verir)**
+
+Aktif pet, kendi arketipine göre oyuncunun 4 temel statından birine sabit bir bonus verir — her arketip tam olarak bir player statına eşlenir (çakışma yok):
+
+| Pet Arketipi | Oyuncuya Verilen Bonus |
+|--------------|------------------------|
+| Saldırgan | ATK |
+| Tank | DEF |
+| Destekçi | Max HP |
+| Büyücü | SPD |
+
+`player_stat_bonus = floor(pet_effective_STAT × buff_ratio)`
+
+`buff_ratio = 0.20` (tuning knob) — STAT, yukarıdaki tablodaki eşleşen player statı; `pet_effective_STAT`, Canavar Toplama ve Evrim'in `GetFinalStats(instanceId)` çıktısından (seviye + evrim + yıldız dahil, bkz. `canavar-toplama-evrim.md`) okunur.
+
+**Önemli netlik notu**: `buff_ratio` (%20) her tier'de **sabit oran** olsa da, sonuç her pet için **farklı, mutlak bir puan** üretir — çünkü pet_effective_STAT tier'e, seviyeye, evrime ve yıldıza göre değişir. Yani "her pet aynı bonusu veriyor" değil, "her pet kendi gücünün %20'si kadar bonus veriyor" — pet güçlendikçe bu puan otomatik büyür, ayrı bir tier tablosu bakımı gerekmez.
+
+**Örnek** (Tank arketip pet, Lv1, farklı tier'ler — `canavar-veritabani.md` Kural 3/4 stat havuzlarından):
+
+| Tier | Tank DEF (Lv1) | Oyuncuya Bonus (`×0.20`) |
+|------|-----------------|---------------------------|
+| F | 35 | **+7 DEF** |
+| D | 42 | **+8 DEF** |
+| C | 52 | **+10 DEF** |
+| B | 64 | **+12 DEF** |
+
+Pet seviye atladıkça (tier'e göre Lv10/15/20/25'e kadar) DEF değeri büyür, bonus da orantılı büyür — evrim ve yıldızla birlikte bu fark daha da açılır.
+
+**b) Nadir Kaynak Bonusu (sadece belirli pet türleri verir)**
+
+MVP roster'ındaki 15-20 türden **3-4 tanesi**, arketip stat bonusuna **ek olarak** (stack eder, yerine geçmez) bir kaynak bonusu taşır. Her tür yalnızca **tek bir** kaynak türünde bonus verir — altın YA DA EXP, ikisi birden **değil**:
+
+| Kaynak Türü | Uygulama |
+|-------------|----------|
+| Altın | Zindan/sefer boyunca kazanılan tüm altına çarpan olarak uygulanır |
+| EXP | Zindan/sefer boyunca kazanılan tüm EXP'e çarpan olarak uygulanır |
+
+Bonus oranı pet'in mevcut tier'ine göre kademeli artar:
+
+| Tier | Bonus |
+|------|-------|
+| F | %10 |
+| D | %13 |
+| C | %16 |
+| B | %20 |
+
+`resource_bonus_pct` tablosundaki oran, ilgili kaynak (altın/EXP) kazanımına doğrudan çarpan olarak uygulanır: `final_amount = floor(base_amount × (1 + resource_bonus_pct))`.
+
+**Prototype kapsam notu**: Prototype'ta yalnızca F-D-C-B tier pet bulunduğundan (S/SS henüz kapsam dışı), bir türün hem altın HEM EXP bonusu birden taşıdığı "çift bonuslu" petler prototype'ta yoktur. **Kullanıcı kararı**: S/SS tier MVP+'da eklendiğinde, bu nadir türlerin S/SS formu her iki kaynak bonusunu (altın + EXP) birden taşıyabilir — terminal tier'a özel bir ödül olarak.
+
+**Hangi türler bu bonusu taşıyacak**: `canavar-veritabani.md`'nin nihai MVP roster'ı kilitlenince belirlenecek (bkz. o dosyanın Open Questions #1) — bu Kural'ın kapsamı dışında, sadece mekanik burada tanımlanır.
 
 ## Formulas
 
@@ -214,6 +266,10 @@ Her vuruş bağımsız crit roll (%40 şans, crit_multiplier=2.0):
 
 - **If Level 1 hedef HP=18 için Yanma tick hesabı floor(18×0.05)=0 çıkarsa**: `max(1, ...)` garantisi — min 1 hasar/tur uygulanır.
 
+- **If aktif pet bekleme alanındaysa veya envanterde değilse (Kural 6)**: Pet pasif buff'ları (arketip stat bonusu + nadir kaynak bonusu) uygulanmaz — bonus yalnızca "aktif/takımda" durumundaki pet için geçerlidir (bkz. `canavar-toplama-evrim.md` Kural 4.7).
+
+- **If oyuncu savaş ortasında aktif peti değiştirirse (Tier 2+, MVP'de savaş içi değiştirme yok)**: Yeni pet'in bonusu bir sonraki stat çözümlemesinde devreye girer — bu senaryo MVP kapsamı dışıdır (Savaş Sistemi Kural 7: savaş sırasında takım kilitli).
+
 ## Dependencies
 
 ### Upstream (Bu sistem neye bağlı)
@@ -225,6 +281,8 @@ Her vuruş bağımsız crit roll (%40 şans, crit_multiplier=2.0):
 | **Yetenek Sistemi** | Sert | Cooldown yönetimi, slot çerçevesi | Slot 0–3 CD yapısı Yetenek Sistemi'nden gelir |
 | **Ekonomi / Kaydetme** | Orta | Sınıf seçimi + seviye persist | Olmadan sınıf seçimi kaybolur |
 | **Level / Deneyim Sistemi** | Sert | `GetPlayerLevel()` — Kural 1'deki `stat(level)` formülüne girdi sağlar; `player_level_cap=30` bu sistemden gelir | Olmadan level sabit kalır (şu an sabit 1) |
+| **Canavar Toplama ve Evrim** | Sert | `GetFinalStats(instanceId)` — aktif pet'in effective stat'ları (Kural 6 arketip bonusu girdisi), `GetMonsterIdentity(instanceId)` — arketip bilgisi | Olmadan Kural 6 pet buff'ları hesaplanamaz |
+| **Loot / Ödül, Otofarm / Idle** | Yumuşak | Kazanılan altın/EXP miktarı (Kural 6 nadir kaynak bonusunun uygulandığı taban değer) | Olmadan nadir kaynak bonusu neyin üstüne uygulanacağını bilemez |
 
 ### Downstream (Bu sisteme bağlı)
 
@@ -253,6 +311,8 @@ Her vuruş bağımsız crit roll (%40 şans, crit_multiplier=2.0):
 | `healer_aura_reduction` | 0.25 | 0.15–0.35 | 2 tur yenilmezlik | Aura hissedilmez |
 | `shield_rate` | 0.25 | 0.15–0.40 | Büyücü asla ölmez | Kalkan anlamsız |
 | `stat_growth` | 0.08 | 0.05–0.12 | Endgame güç uçurumu | Büyüme hissedilmez |
+| `buff_ratio` (Kural 6, arketip stat bonusu) | 0.20 | 0.10–0.30 | Pet oyuncudan daha belirleyici hale gelir → sınıf seçimi önemsizleşir | Pet seçimi hissedilmez |
+| `resource_bonus_pct` (Kural 6, F/D/C/B) | %10/%13/%16/%20 | %5–%30 aralığında ölçeklenir | Nadir kaynak pet'i "zorunlu meta" olur | Nadirlik ödülü hissedilmez |
 
 ## Acceptance Criteria
 
@@ -276,13 +336,21 @@ Her vuruş bağımsız crit roll (%40 şans, crit_multiplier=2.0):
 
 10. **GIVEN** Level 1 hedef HP=18 için Yanma tick = `floor(18×0.05)=0`, **WHEN** DoT tetiklenirse, **THEN** `max(1, 0) = 1` hasar uygulanır (min floor garantisi).
 
+11. **GIVEN** aktif pet Tank arketip, `effective_DEF=185`, **WHEN** oyuncu stat çözümlemesi yapılırsa, **THEN** oyuncu DEF'ine `floor(185×0.20) = +37` bonus eklenir.
+
+12. **GIVEN** aktif pet Saldırgan arketip (nadir kaynak bonusu YOK), **WHEN** oyuncu stat çözümlemesi yapılırsa, **THEN** oyuncuya sadece ATK bonusu uygulanır — altın/EXP kazanımına hiçbir çarpan uygulanmaz.
+
+13. **GIVEN** aktif pet nadir altın-bonuslu bir tür, C tier, **WHEN** zindan katı temizlenip altın kazanılırsa, **THEN** kazanılan altın `floor(base_amount × 1.16)` olarak hesaplanır (%16 bonus, C tier). Aynı pet'in EXP kazanımına hiçbir etkisi olmaz.
+
+14. **GIVEN** aktif pet bekleme alanında (envanterde/aktif değil), **WHEN** oyuncu stat çözümlemesi yapılırsa, **THEN** Kural 6'nın hiçbir bonusu (arketip stat veya nadir kaynak) uygulanmaz.
+
 *`qa-lead` not consulted — Lean mode. Review manually before production.*
 
 ## Open Questions
 
 1. **Yan sınıf içerikleri (TBD)** — Berserker/Koruyucu/Elementalist/Kaoscu/Gölge/Düellocu/Işık Rahibi/Savaş Rahibi stat bonusları ve yetenek değişimleri. Sonraki tasarım oturumunda.
 
-2. **Pet Pasif Buff Sistemi (TBD)** — Aktif pet oyuncuya DEF, fiziksel ATK, büyü ATK, max HP pasif bonusu verir. Pet/Canavar Veritabanı revizyonuyla birlikte tasarlanacak.
+2. ~~**Pet Pasif Buff Sistemi (TBD)**~~ **ÇÖZÜLDÜ (2026-07-02)** — Kural 6'da tanımlandı: arketip→stat eşleşmesi (Saldırgan→ATK, Tank→DEF, Destekçi→HP, Büyücü→SPD) + 3-4 türe özgü nadir altın/EXP bonusu. **Kalan açık nokta**: Hangi spesifik pet türlerinin nadir kaynak bonusunu taşıyacağı `canavar-veritabani.md`'nin nihai MVP roster kararına bağlı (bkz. o dosyanın Open Questions #1).
 
 3. **Hasar Hesaplama GDD güncellemesi** — `magic_defense_factor=4` parametresi eklenmeli. Mevcut GDD yalnızca `defense_reduction_factor=2` tanımlıyor.
 
